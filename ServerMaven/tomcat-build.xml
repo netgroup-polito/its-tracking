@@ -12,7 +12,9 @@
 	<property name="tomcatPort" value="8080" />
 	<property name="tomcatUrl" value="http://localhost:${tomcatPort}/manager/text" />
 
-	<property name="service.name" value="RnsService" />
+
+	<!--PROPERTIES AND TASKS TO BE OVERRIDDEN BY MAIN BUILD-->
+	<property name="service.name" value="service" />
 	<property name="root.location" value="." />
 	
     <target name="package-service">         
@@ -57,6 +59,29 @@
 	
 	<!-- WEBSERVICE LIFECICLE MANAGEMENT-->
 	<target name="deployWS" depends="package-service" description="Deploy service to tomcat">
+		<!-- Set property in Tomcat Server -->
+		<echo file="properties">it.polito.dp2.NFV.lab3.Neo4JSimpleXMLURL ${Neo4JSimpleXMLURL}${line.separator}it.polito.dp2.NFV.NfvReaderFactory ${NfvInfo.NfvReaderFactory}${line.separator}PORT ${PORT}</echo>
+		<java classname="it.polito.dp2.NFV.lab3.internal.PropertySetter" failonerror="true" fork="yes">
+			<classpath>
+				<fileset dir="${ext.lib.dir}">
+				    <include name="*.jar" />
+					<exclude name="ant-*.jar"/>
+				</fileset>
+				<pathelement location="${lib.dir}/lab3.jar"/>
+			</classpath>
+		</java>
+		<!-- Set seed in Tomcat Server -->
+		<java classname="it.polito.dp2.NFV.lab3.SeedSetter" failonerror="true" fork="yes">
+			<sysproperty key="it.polito.dp2.NFV.Random.seed" value="${seed}"/>
+			<sysproperty key="it.polito.dp2.NFV.lab3.Neo4JSimpleXMLURL" value="${Neo4JSimpleXMLURL}" />
+			<classpath>
+				<fileset dir="${ext.lib.dir}">
+				    <include name="*.jar" />
+					<exclude name="ant-*.jar"/>
+				</fileset>
+				<pathelement location="${lib.dir}/lab3.jar"/>
+			</classpath>
+		</java>
 		<echo>Deploying to tomcat...</echo>
 		<deploy url="${tomcatUrl}" username="${tomcatUsername}"
 				password="${tomcatPassword}" path="/${service.name}"

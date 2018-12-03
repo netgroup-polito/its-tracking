@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." default="build" name="NFV-1">
+	<description>
+			Script for DP2-NFV Assignment 1
+	</description>
+
+	<!-- The "NfvReaderFactory" used for NfvInfo and as data generator for tests -->
+	<property name="NfvInfo.NfvReaderFactory" value="it.polito.dp2.NFV.Random.NfvReaderFactoryImpl" />
+
+	<!-- The default output file for NfvInfoSerializer -->
+	<property name="output" location="${java.io.tmpdir}/out1.xml"/>
+
+	<!-- The default test case -->
+	<property name="testcase" value="0" />
+	<!-- The default test class -->
+	<property name="test.class" value="it.polito.dp2.NFV.lab1.tests.NfvTests" />
+
+	<property name="lab1.location" location="." />
+	<property name="src.dir" location="${lab1.location}/src" />
+	<property name="build.dir" location="${lab1.location}/build" />
+	<property name="lib.dir" location="${lab1.location}/lib" />
+	<property name="gen.dir" location="${lab1.location}/gen" />
+	<property name="schema.dir" location="${lab1.location}/xsd" />
+	<property name="lib.jar" value="lab1.jar" />
+	
+	<property name="debug" value="true" />
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.8" />
+	<property name="source" value="1.8" />
+
+	<!-- The classpath to be used for compilation of the solution -->
+	<path id="NFV.classpath">
+		<pathelement location="${lib.dir}/NFV.jar" />
+	</path>
+	
+	<!-- Target setseed: sets seed to time stamp if not yet set -->
+	<target name="setseed" unless="seed">
+		<tstamp>
+			<format property="seed" pattern="1HHmmss" />
+		</tstamp>
+	</target>
+	
+	<!-- Target init -->
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+	</target>
+
+	<!-- Target chk-bindings -->
+	<target name="-chk-bindings">
+		<uptodate property="generate-bindings.notRequired" targetfile="${gen.dir}/.flagfile">
+			<srcfiles dir="${schema.dir}" includes="**/*.xsd" />
+		</uptodate>
+	</target>
+
+	<!-- Target generate-bindings -->
+	<target name="generate-bindings" unless="generate-bindings.notRequired" depends="init,-chk-bindings" description="Generate bindings from schema">
+		<exec executable="xjc" failonerror="true" >
+			<arg value="-d" />
+			<arg value="${gen.dir}" />
+			<arg value="-p" />
+			<arg value="it.polito.dp2.NFV.sol1.jaxb" />
+			<arg value="${schema.dir}/nfvInfo.xsd" />
+		</exec>
+		<touch file="${gen.dir}/.flagfile" />
+	</target>
+
+	<!-- Target clean -->
+	<target name="clean" description="Clean all">
+		<delete dir="${build.dir}" />
+		<delete includeemptydirs="true">
+		  <fileset dir="${gen.dir}" includes="**/*" defaultexcludes="false"/>
+		</delete>
+		<delete includeemptydirs="true">
+		    <fileset dir="${lab1.location}" includes="temp*/**" defaultexcludes="false"/>
+		</delete>
+		<delete file="${lab1.location}/lab1.zip"/>
+	</target>
+
+	<!-- Target build -->
+	<target name="build" depends="init, generate-bindings" description="Build the solution of Assignment 1">
+		<echo>Building the submitted solution (if needed)...</echo>
+		<javac 
+			destdir="${build.dir}"
+			debug="${debug}"
+			debuglevel="${debuglevel}"
+			source="${source}"
+			target="${target}"
+			includeantruntime="false">
+				<src path="${src.dir}"/>
+				<src path="${gen.dir}"/>
+				<include name="it/polito/dp2/NFV/sol1/**" />
+				<classpath>
+					<path refid="NFV.classpath" />
+				</classpath>
+		</javac>
+		<echo>Done.</echo>
+	</target>
+
+	<target name="buildNfvInfo" description="Build the sample application">
+		<echo>Building NfvInfo (if needed)...</echo>
+		<mkdir dir="${build.dir}" />
+		<javac 
+			destdir="${build.dir}"
+			debug="${debug}"
+			debuglevel="${debuglevel}"
+			source="${source}"
+			target="${target}"
+			includeantruntime="false">
+				<src path="${src.dir}" />
+				<include name="it/polito/dp2/NFV/lab1/NfvInfo.java" />
+				<classpath>
+					<path refid="NFV.classpath" />
+				</classpath>
+		</javac>
+		<echo>Done.</echo>
+	</target>
+
+	<target name="NfvInfo" depends="buildNfvInfo, setseed" description="Run the sample application">
+		<java classname="it.polito.dp2.NFV.lab1.NfvInfo" failonerror="true" fork="yes">
+			<sysproperty key="it.polito.dp2.NFV.Random.seed" value="${seed}"/>
+			<sysproperty key="it.polito.dp2.NFV.Random.testcase" value="${testcase}"/>
+			<sysproperty key="it.polito.dp2.NFV.NfvReaderFactory" value="${NfvInfo.NfvReaderFactory}"/>
+			<classpath>
+				<path refid="NFV.classpath" />
+				<pathelement location="${lib.dir}/NFVRandom.jar"/>
+				<pathelement path="${build.dir}"/>
+			</classpath>
+		</java>
+	</target>
+
+	<!-- Target NfvInfoSerializer -->
+	<target name="NfvInfoSerializer" depends="setseed, build" description="Run the NfvInfoSerializer application">
+		<echo>Output file: ${output}</echo>
+		<echo>Testcase: ${testcase}</echo>
+		<echo>Seed: ${seed}</echo>
+		<echo />
+		<antcall target="NfvInfoSerializer.test">
+			<param name="outfile" value="${output}"/>
+		</antcall>
+		<echo>Done.</echo>
+	</target>
+	
+	<!-- Target runFuncTest -->
+	<target name="runFuncTest" depends="setseed" description="run functional tests">
+		<antcall target="runFuncTest.real">
+			<param name="test.class" value="${test.class}" />
+			<param name="exit.code" value="126" />
+		</antcall>
+	</target>
+
+	<!-- Target NfvInfoSerializer.test -->
+	<target name="NfvInfoSerializer.test" depends="build">
+		<java classname="it.polito.dp2.NFV.sol1.NfvInfoSerializer" failonerror="true" fork="yes">
+			<sysproperty key="it.polito.dp2.NFV.NfvReaderFactory" value="${NfvInfo.NfvReaderFactory}" />
+			<sysproperty key="it.polito.dp2.NFV.Random.seed" value="${seed}"/>
+			<sysproperty key="it.polito.dp2.NFV.Random.testcase" value="${testcase}"/>
+			<arg value="${outfile}" />
+			<classpath>
+				<path refid="NFV.classpath" />
+				<pathelement location="${lib.dir}/NFVRandom.jar"/>
+				<pathelement path="${build.dir}" />
+			</classpath>
+		</java>
+		<echo>Done.</echo>
+	</target>
+	
+	<target name="runFuncTest.real" depends="build">
+		<tempfile property="temp.dir" destdir="${lab1.location}" prefix="temp"/>
+		<tempfile property="temp.xmlfile" destdir="${temp.dir}" prefix="out" suffix=".xml"/>
+
+		<echo>The tests will run using '${temp.dir}' as working directory.</echo>
+		<echo>Testcase: ${testcase}</echo>
+		<echo>Seed: ${seed}</echo>
+		<echo />
+		<echo>Copying the xsd/nfvInfo.xsd file to the working directory...</echo>
+		<copy file="${schema.dir}/nfvInfo.xsd" todir="${temp.dir}/xsd"/>
+		<echo>File copied.</echo>
+
+		<antcall target="NfvInfoSerializer.test">
+			<param name="outfile" value="${temp.xmlfile}"/>
+		</antcall>
+		
+		<echo>Validating the generated XML file: ${temp.xmlfile} with ${lib.jar}</echo>
+		<java fork="yes" classname="it.polito.dp2.xml.XMLSchemaValidator" failonerror="false" dir="${temp.dir}" resultproperty="validation_result">
+			<arg path="${temp.dir}/xsd/nfvInfo.xsd"/>
+			<arg path="${temp.xmlfile}"/>
+			<classpath>
+				<pathelement location="${lib.dir}/${lib.jar}"/>
+			</classpath>
+		</java>
+		<fail status="125" message="*** XML validation FAILED ***">
+			<condition>
+				<not>
+					<equals arg1="0" arg2="${validation_result}"/>
+				</not>
+			</condition>
+		</fail>
+		<echo>*** XML file validated ***</echo>
+
+		<junit printsummary="yes" dir="${temp.dir}" fork="yes" haltonfailure="no" showoutput="no" filtertrace="true">
+			<sysproperty key="it.polito.dp2.NFV.Random.testcase" value="${testcase}"/>
+			<sysproperty key="it.polito.dp2.NFV.Random.seed" value="${seed}"/>
+			<sysproperty key="it.polito.dp2.NFV.sol1.NfvInfo.file " value="${temp.xmlfile}"/>
+			<formatter type="brief" usefile="false"/>
+			<test haltonfailure="no" failureproperty="test_failed" name="${test.class}"/>
+			<classpath>
+				<path refid="NFV.classpath" />
+				<pathelement location="${lib.dir}/NFVRandom.jar"/>
+				<pathelement path="${build.dir}" />
+				<pathelement location="${lib.dir}/${lib.jar}"/>
+				<pathelement location="${lib.dir}/junit-4.5.jar"/>
+			</classpath>
+		</junit>
+		<fail if="test_failed" status="${exit.code}" message="*** Some Tests FAILED ***"/>
+		<echo>*** All Tests PASSED  ***</echo>
+		<delete dir="${temp.dir}"/>
+	</target>
+	
+	<!-- Target make-final-zip for building the final zip containing the solution -->
+	<target name="make-zip" description="make zip to be submitted">
+		<zip destfile="lab1.zip"
+			basedir="${lab1.location}"
+		    includes="src/it/polito/dp2/NFV/sol1/**/*.java xsd/* dtd/*"
+		/>
+	</target>
+
+</project>

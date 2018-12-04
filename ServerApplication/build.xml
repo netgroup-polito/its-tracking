@@ -9,11 +9,12 @@
 	<property name="src.dir" location="${rns.location}/src" />
 	<property name="build.dir" location="${rns.location}/build" />
 	<property name="lib.dir" location="${rns.location}/lib" />
-	<property name="libsrc.dir" location="${rns.location}/lib-src"/>
+	<property name="lib.src.dir" location="${rns.location}/lib-src"/>
 
 	<property name="gen.dir" location="${rns.location}/gen" />
 	<property name="schema.dir" location="${rns.location}/xsd" />
 	<property name="rns.jar" value="RNS.jar" />
+	<property name="service.name" value="RnsService" />
 	
 	<property name="debug" value="true" />
 	<property name="debuglevel" value="source,lines,vars" />
@@ -30,7 +31,7 @@
 		<fileset dir="${lib.dir}">
 			<include name="**/*.jar"/>
       	</fileset>
-		<fileset dir="${libsrc.dir}">
+		<fileset dir="${lib.src.dir}">
 			<include name="**/*.jar"/>
       	</fileset>
 	</path>

@@ -17,12 +17,16 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiResponse;
 
-@Path("")
+@Path("/")
 @Api(value = "/")
 public class RNSResource {
 	
+	public RNSResource() {
+		
+	}
+	
 	@GET
-	@Path("/hello")
+	@Path("/")
 	@ApiOperation(
 			value = "helloWorld",
 			notes = "allow to check if the Web Service has been correctly deployed"

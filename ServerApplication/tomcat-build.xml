@@ -6,8 +6,8 @@
 	</description>
 	
 	<property environment="env"/>
-	<property name="tomcatUsername" value="root" />
-	<property name="tomcatPassword" value="root" />
+	<property name="tomcatUsername" value="test" />
+	<property name="tomcatPassword" value="test" />
 	<property name="server.location" location="${env.CATALINA_HOME}" />
 	<property name="tomcatPort" value="8080" />
 	<property name="tomcatUrl" value="http://localhost:${tomcatPort}/manager/text" />
@@ -56,7 +56,7 @@
 	</target>
 	
 	<!-- WEBSERVICE LIFECICLE MANAGEMENT-->
-	<target name="deployWS" depends="package-service" description="Deploy service to tomcat">
+	<target name="deployWS" depends="package-service, start-tomcat" description="Deploy service to tomcat">
 		<echo>Deploying to tomcat...</echo>
 		<deploy url="${tomcatUrl}" username="${tomcatUsername}"
 				password="${tomcatPassword}" path="/${service.name}"

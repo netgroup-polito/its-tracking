@@ -1,3 +1,0 @@
-it.polito.dp2.NFV.lab3.Neo4JSimpleXMLURL ${Neo4JSimpleXMLURL}
-it.polito.dp2.NFV.NfvReaderFactory ${NfvInfo.NfvReaderFactory}
-PORT ${PORT}

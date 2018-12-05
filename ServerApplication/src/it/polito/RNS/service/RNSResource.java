@@ -1,5 +1,6 @@
 package it.polito.RNS.service;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -8,6 +9,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -17,12 +19,19 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiResponse;
 
-@Path("/")
+@Path("")
 @Api(value = "/")
 public class RNSResource {
+	@Context
+	private RNSCore instance;
 	
+	/**
+	 * In the constructor we want to retrieve the instance of RNSCore in order to have
+	 * access to all methods of the intelligence of the system, in order to store, 
+	 * update or retrieve data.
+	 */
 	public RNSResource() {
-		
+		this.instance = RNSCore.getInstance();
 	}
 	
 	@GET
@@ -67,7 +76,7 @@ public class RNSResource {
 			MediaType.TEXT_XML
 	})
 	public Response getSystemState() {
-		return null;
+		return Response.status(Status.OK).entity("rns").build();
 	}
 	
     @GET
@@ -231,6 +240,10 @@ public class RNSResource {
 			MediaType.APPLICATION_XML,
 			MediaType.TEXT_XML
 	})
+    @Consumes({
+    	MediaType.APPLICATION_XML,
+    	MediaType.APPLICATION_JSON
+    })
     public Response updatePosition(@PathParam("id") int placeId, @QueryParam("vId") int vehicleId) {
     	return null;
     }
@@ -251,6 +264,10 @@ public class RNSResource {
 			MediaType.APPLICATION_XML,
 			MediaType.TEXT_XML
 	})
+    @Consumes({
+    	MediaType.APPLICATION_XML,
+    	MediaType.APPLICATION_JSON
+    })
     public Response updateVehicle(@PathParam("id") int vehicleId) {
     	return null;
     }
@@ -274,6 +291,10 @@ public class RNSResource {
 					@ApiResponse(code = 500, message = "Internal Server Error")
 			}
 	)
+    @Consumes({
+    	MediaType.APPLICATION_XML,
+    	MediaType.APPLICATION_JSON
+    })
 	@Produces({
 			MediaType.APPLICATION_XML,
 			MediaType.TEXT_XML

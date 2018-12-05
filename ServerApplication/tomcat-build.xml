@@ -8,7 +8,7 @@
 	<property environment="env"/>
 	<property name="tomcatUsername" value="test" />
 	<property name="tomcatPassword" value="test" />
-	<property name="server.location" location="${env.CATALINA_HOME}" />
+	<property name="tomcat.location" location="${env.CATALINA_HOME}" />
 	<property name="tomcatPort" value="8080" />
 	<property name="tomcatUrl" value="http://localhost:${tomcatPort}/manager/text" />
 
@@ -20,23 +20,23 @@
 
 
 	<path id="tomcat.class.path">
-		<fileset dir="${server.location}/lib">
+		<fileset dir="${tomcat.location}/lib">
 			<include name="**/*.jar" />
 			<include name="**/*.zip" />
 		</fileset>
-		<pathelement location="${server.location}/bin/bootstrap.jar" />
-		<pathelement location="${server.location}/bin/tomcat-juli.jar" />
+		<pathelement location="${tomcat.location}/bin/bootstrap.jar" />
+		<pathelement location="${tomcat.location}/bin/tomcat-juli.jar" />
 	</path>
 	
 	<!-- Configure the custom Ant tasks for the Manager application -->
-	<import file="${server.location}/bin/catalina-tasks.xml" />
+	<import file="${tomcat.location}/bin/catalina-tasks.xml" />
 	
 	<!-- TOMCAT LIFECICLE MANAGEMENT-->
 	<target name="start-tomcat" depends="check-tomcat-status" unless="tomcat.started" description="Start tomcat server">
 		<echo>Start Tomcat</echo>
 		<java classname="org.apache.catalina.startup.Bootstrap" fork="true"
 			classpathref="tomcat.class.path">
-			<jvmarg value="-Dcatalina.home=${server.location}" />
+			<jvmarg value="-Dcatalina.home=${tomcat.location}" />
 		</java>
 	</target>
 
@@ -44,7 +44,7 @@
 		<echo>Stop Tomcat</echo>
 		<java classname="org.apache.catalina.startup.Bootstrap" fork="true"
 			classpathref="tomcat.class.path">
-			<jvmarg value="-Dcatalina.home=${server.location}" />
+			<jvmarg value="-Dcatalina.home=${tomcat.location}" />
 			<arg line="stop" />
 		</java>
 	</target>

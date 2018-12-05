@@ -10,7 +10,7 @@ xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/
       <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
       <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>io.swagger.jaxrs.listing, it.polito.rns.service</param-value>
+            <param-value>io.swagger.jaxrs.listing, it.polito.RNS.service</param-value>
       </init-param>
       <load-on-startup>1</load-on-startup>
   </servlet>
@@ -28,7 +28,7 @@ xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/
       <load-on-startup>2</load-on-startup>
   </servlet>
   <servlet-mapping>
-   <servlet-name>Jersey RESTful Application</servlet-name>
-      <url-pattern>/rest/*</url-pattern>
+  	<servlet-name>Jersey RESTful Application</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
    </servlet-mapping>
 </web-app>

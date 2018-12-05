@@ -141,5 +141,6 @@
       	</copy> 
 		<!-- make war archive -->
 		<jar destfile="${gen.war.dir}/${service.name}.war" basedir="${gen.tomcat.service.dir}"/>
+		<echo>package service done</echo>
 	</target>
 </project>

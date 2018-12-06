@@ -16,6 +16,7 @@
 	<!-- Global element definition -->
 	<element 	name="rns" 
 				type="tns:RnsReaderType">
+				
 		<!-- Uniqueness constraints -->
 		<key name="connectionKey">
 			<selector xpath="connection"/>
@@ -37,18 +38,47 @@
 			<selector xpath="roadSegment"/>
 			<field xpath="@id"/>
 		</key>
+		<key name="roadKeyId">
+			<selector xpath="road"/>
+			<field xpath="@id"/>
+		</key>
 		<key name="vehicleKey">
 			<selector xpath="vehicle"/>
 			<field xpath="@id"/>
 		</key>
+		<key name="dangerousMaterialKeyId">
+			<selector xpath="dangerousMaterial"/>
+			<field xpath="@id"/>
+		</key>
+		
+		
+		<!-- Key references -->
+		<keyref name="connectedPlaceId" refer="tns:placeKey">
+			<selector xpath=".//place"/>
+			<field xpath=".//containerPlaceId"/>
+		</keyref>
+		<keyref name="nestedPlaceId" refer="tns:placeKey">
+			<selector xpath=".//place"/>
+			<field xpath=".//nestedPlaceId"/>
+		</keyref>
+		<keyref name="roadId" refer="tns:roadKeyId">
+			<selector xpath="roadSegment/road"/>
+			<field xpath="roadSegment/road"/>
+		</keyref>
+		<keyref name="materialId" refer="tns:dangerousMaterialKeyId">
+			<selector xpath="dangerousMaterial"/>
+			<field xpath="dangerousMaterial/incompatibleMaterial"/>
+		</keyref>
 	</element>
 	<element name="connection" type="tns:ConnectionReaderType"/>
-	<element name="place" type="tns:PlaceReaderType"/>
+	<element name="complexPlace" type="tns:ComplexPlaceReaderType"/>
+	<element name="place" type="tns:SimplePlaceReaderType"/>
 	<element name="parkingArea" type="tns:ParkingAreaReaderType"/>
 	<element name="gate" type="tns:GateReaderType"/>
 	<element name="road" type="tns:RoadReaderType"/>
 	<element name="roadSegment" type="tns:RoadSegmentReaderType"/>
 	<element name="vehicle" type="tns:VehicleReaderType"/>
+	<element name="dangerousMaterial" type="tns:DangerousMaterialType"/>
 	
 	<!-- Complex types -->
 	<complexType name="IdentifiedEntityReaderType">
@@ -69,13 +99,8 @@
 						type="tns:ParkingAreaReaderType"
 						minOccurs="0" maxOccurs="unbounded"/>
 			<element		name="place"
-						type="tns:PlaceReaderType"
-						minOccurs="0" maxOccurs="unbounded">
-				<key name="roadSegmentKeyName">
-					<selector xpath="roadSegment"/>
-					<field xpath="@name"/>
-				</key>		
-			</element>
+						type="tns:SimplePlaceReaderType"
+						minOccurs="0" maxOccurs="unbounded"/>
 			<element		name="roadSegment"
 						type="tns:RoadSegmentReaderType"
 						minOccurs="0" maxOccurs="unbounded"/>
@@ -90,17 +115,38 @@
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
 					<element 	name="from" 
-								type="tns:PlaceReaderType" 
+								type="tns:SimplePlaceReaderType" 
 								minOccurs="1" maxOccurs="1"/>
 					<element 	name="to" 
-								type="tns:PlaceReaderType" 
+								type="tns:SimplePlaceReaderType" 
 								minOccurs="1" maxOccurs="1"/>
 				</sequence>
 			</extension>
 		</complexContent>
 	</complexType>
 	
-	<complexType name="PlaceReaderType">
+	<complexType name="ComplexPlaceReaderType">
+		<complexContent>
+			<extension base="tns:IdentifiedEntityReaderType">
+				<sequence>
+					<element	name="name"
+								type="string"
+								minOccurs="1" maxOccurs="1"/>
+					<element	name="totalCapacity"
+								type="integer"
+								minOccurs="1" maxOccurs="1"/>
+					<element	name="simplePlaceId"
+								type="tns:SimplePlaceReaderType"
+								minOccurs="1" maxOccurs="unbounded"/>
+					<element	name="complexPlaceId"
+								type="tns:ComplexPlaceReaderType"
+								minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="SimplePlaceReaderType">
 		<complexContent>
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
@@ -108,31 +154,12 @@
 								type="integer" 
 								minOccurs="1" maxOccurs="1"/>
 					<element		name="connectedPlaceId"
-								type="IDREF" 
+								type="string" 
 								minOccurs="1" maxOccurs="unbounded">
-						<annotation>
-							<appinfo>
-								<jaxb:class ref="String"/>
-							</appinfo>
-						</annotation>	
 					</element>
 					<element		name="containerPlaceId"
-								type="IDREF"
+								type="string"
 								minOccurs="0" maxOccurs="1">
-						<annotation>
-							<appinfo>
-								<jaxb:class ref="String"/>
-							</appinfo>
-						</annotation>
-					</element>
-					<element		name="nestedPlaceId"
-								type="IDREF"
-								minOccurs="0" maxOccurs="unbounded">
-						<annotation>
-							<appinfo>
-								<jaxb:class ref="String"/>
-							</appinfo>
-						</annotation>
 					</element>
 					<element		name="avgTimeSpent"
 								type="integer"
@@ -144,7 +171,7 @@
 
 	<complexType name="GateReaderType">
 		<complexContent>
-			<extension base="tns:PlaceReaderType">
+			<extension base="tns:SimplePlaceReaderType">
 				<sequence>
 					<element		name="type"
 								type="tns:GateType"
@@ -156,7 +183,7 @@
 	
 	<complexType name="ParkingAreaReaderType">
 		<complexContent>
-			<extension base="tns:PlaceReaderType">
+			<extension base="tns:SimplePlaceReaderType">
 				<sequence>
 					<element 	name="service"
 								type="tns:ServiceType"
@@ -177,19 +204,14 @@
 	
 	<complexType name="RoadSegmentReaderType">
 		<complexContent>
-			<extension base="tns:PlaceReaderType">
+			<extension base="tns:SimplePlaceReaderType">
 				<sequence>
 					<element 	name="name"
-								type="IDREF"
+								type="string"
 								minOccurs="1" maxOccurs="1">
-						<annotation>
-							<appinfo>
-								<jaxb:class ref="String"/>
-							</appinfo>
-						</annotation>
 					</element>
 					<element 	name="road"
-								type="IDREF"
+								type="string"
 								minOccurs="1" maxOccurs="1">
 						<annotation>
 							<appinfo>
@@ -208,13 +230,13 @@
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
 					<element		name="destination"
-								type="tns:PlaceReaderType"
+								type="tns:SimplePlaceReaderType"
 								minOccurs="1" maxOccurs="1"/>
 					<element		name="origin"
-								type="tns:PlaceReaderType"
+								type="tns:SimplePlaceReaderType"
 								minOccurs="1" maxOccurs="1"/>		
 					<element		name="position"
-								type="tns:PlaceReaderType"
+								type="tns:SimplePlaceReaderType"
 								minOccurs="1" maxOccurs="1"/>
 					<element		name="entryTime"
 								type="dateTime"
@@ -238,13 +260,8 @@
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
 					<element		name="incompatibleMaterial"
-								type="IDREF"
+								type="string"
 								minOccurs="0" maxOccurs="unbounded">
-						<annotation>
-							<appinfo>
-								<jaxb:class ref="String"/>
-							</appinfo>
-						</annotation>	
 					</element>
 				</sequence>
 			</extension>

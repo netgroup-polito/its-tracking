@@ -10,7 +10,6 @@
 	<property name="build.dir" location="${rns.location}/build" />
 	<property name="lib.dir" location="${rns.location}/lib" />
 	<property name="lib.src.dir" location="${rns.location}/lib-src"/>
-	<property name="dp2.dir" location="/opt/dp2/shared/lib/"/>
 
 	<property name="gen.dir" location="${rns.location}/gen" />
 	<property name="schema.dir" location="${rns.location}/xsd" />
@@ -35,9 +34,6 @@
 		<fileset dir="${lib.src.dir}">
 			<include name="**/*.jar"/>
       	</fileset>
-		<fileset dir="${dp2.dir}">
-			<include name="**/*.jar"/>
-		</fileset>
 	</path>
 	
 	<!-- Target setseed: sets seed to time stamp if not yet set -->

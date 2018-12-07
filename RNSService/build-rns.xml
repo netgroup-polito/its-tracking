@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="rns-service">
+	<description>
+		Script for RNS Web Service
+	</description>
+	
+	<property name="serviceName" value="rns" />
+	
+	<import file="service-build.xml"/>
+		
+</project>

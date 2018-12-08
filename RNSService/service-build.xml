@@ -56,7 +56,8 @@
 		   source="${source}"
 		   target="${target}"
 	 	>
-			<include name="${path.prefix}/${serviceName}/**/*.java"/>
+			<include name="/src/${path.prefix}/${serviceName}/**/*.java"/>
+			<include name="/generated/s${path.prefix}/${serviceName}/**/*.java"/>
 			<classpath>
 				<path refid="classpath" />
 			</classpath>

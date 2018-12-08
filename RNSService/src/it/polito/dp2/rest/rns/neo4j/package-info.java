@@ -5,4 +5,4 @@
  * @author dp2
  *
  */
-package it.polito.dp2.rest.rns.Neo4j;
+package it.polito.dp2.rest.rns.neo4j;

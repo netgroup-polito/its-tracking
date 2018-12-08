@@ -1,5 +1,8 @@
 package it.polito.dp2.rest.rns.resources;
 
+import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
+import it.polito.dp2.rest.rns.utility.Constants;
+
 /**
  * This class is the core of the application. All the end-points should refer to some
  * function in here to perform tasks. Here resides all the intelligence of the service.
@@ -14,12 +17,18 @@ package it.polito.dp2.rest.rns.resources;
  */
 public class RNSCore {
 	private static RNSCore instance = null; // Instance of the class
+	public static Neo4jInteractions neo4j; // For neo4j interactions
 	
 	/**
 	 * Private constructor, so that the instance of the object can only be accessed
 	 * via static method getInstance()
 	 */
-	private RNSCore(){ }
+	private RNSCore(){
+		neo4j = new Neo4jInteractions(
+				Constants.Neo4jURL, 
+				Constants.Neo4jUsername, 
+				Constants.Neo4jPassword);
+	}
 	
 	/**
 	 * This method allow external objects to obtain the instance of the class in order

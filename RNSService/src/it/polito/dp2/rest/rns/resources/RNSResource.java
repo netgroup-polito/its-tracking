@@ -11,8 +11,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
-import it.polito.dp2.rest.rns.utility.Constants;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -20,18 +18,14 @@ import javax.ws.rs.core.Response.Status;
 @Path("rns")
 @Api(value = "/rns")
 public class RNSResource {
-
-	@Context
-	private RNSCore instance;
+	private final RNSCore instance = RNSCore.getInstance();
 	
 	/**
 	 * In the constructor we want to retrieve the instance of RNSCore in order to have
 	 * access to all methods of the intelligence of the system, in order to store, 
 	 * update or retrieve data.
 	 */
-	public RNSResource() {
-		this.instance = RNSCore.getInstance();
-	}
+	public RNSResource() { }
 	
 	@GET
 	@ApiOperation(
@@ -49,6 +43,6 @@ public class RNSResource {
 			MediaType.TEXT_PLAIN
 	})
 	public Response getSystemState() {
-		return Response.status(Status.OK).entity(instance.neo4j.helloWorld()).build();
+		return Response.status(Status.OK).entity(this.instance.helloWorld()).build();
 	}
 }

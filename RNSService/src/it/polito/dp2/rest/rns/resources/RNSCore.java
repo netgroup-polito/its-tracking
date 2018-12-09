@@ -17,14 +17,14 @@ import it.polito.dp2.rest.rns.utility.Constants;
  */
 public class RNSCore {
 	private static RNSCore instance = null; // Instance of the class
-	public static Neo4jInteractions neo4j; // For neo4j interactions
+	private Neo4jInteractions neo4j;
 	
 	/**
 	 * Private constructor, so that the instance of the object can only be accessed
 	 * via static method getInstance()
 	 */
 	private RNSCore(){
-		neo4j = new Neo4jInteractions(
+		this.neo4j = new Neo4jInteractions(
 				Constants.Neo4jURL, 
 				Constants.Neo4jUsername, 
 				Constants.Neo4jPassword);
@@ -42,5 +42,9 @@ public class RNSCore {
 		}
 		
 		return instance;
+	}
+
+	public String helloWorld() {
+		return this.neo4j.helloWorld();
 	}
 }

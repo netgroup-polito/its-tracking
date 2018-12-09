@@ -12,6 +12,7 @@
 	<property name="tomcatPort" value="8080" />
 	<property name="tomcatUrl" value="http://localhost:${tomcatPort}/manager/text" />
 
+
 	<!--PROPERTIES AND TASKS TO BE OVERRIDDEN BY MAIN BUILD-->
 	<property name="serviceName" value="service" />
 	
@@ -92,14 +93,4 @@
 		<antcall target="deployWS" />
 	</target>
 
-	<target name="generate-artifacts">
-		<mkdir dir="${gen.dir}" />
-		<echo message="Compiling the descriptions..." />
-		<wjc description="${negotiate.wadl}" package="it.polito.RNS.service" autoSchemaPackage="false" target="${gen.dir}">
-			 <customizations dir="${root.location}" includes="binding.xjc"/>
-			 <produces dir="${gen.dir}/it/polito/RNS/neo4j" includes="*.java"/>
-			 <depends dir="${root.location}" includes="build.xml"/>
-		</wjc>
-	</target>
-	
 </project>

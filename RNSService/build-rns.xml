@@ -8,5 +8,32 @@
 	<property name="serviceName" value="rns" />
 	
 	<import file="service-build.xml"/>
+	<import file="neo4j-build.xml"/>
+
+	<target name="build" description="build service">
+		<ant antfile="service-build.xml" target="build.service"/>
+	</target>
 		
+	<target name="package-service" description="package service for Tomcat">
+		<ant antfile="service-build.xml" target="package.service"/>
+	</target>
+	
+	<!-- Target chk-bindings -->
+	<target name="-chk-bindings">
+		<uptodate property="generate-bindings.notRequired" targetfile="${gen.dir}/.flagfile">
+			<srcfiles dir="/xsd" includes="**/*.xsd" />
+		</uptodate>
+	</target>
+
+	<!-- Target generate-bindings -->
+	<target name="generate-bindings" unless="generate-bindings.notRequired" depends="init,-chk-bindings" description="Generate bindings from schema">
+		<exec executable="xjc" failonerror="true" >
+			<arg value="-d" />
+			<arg value="${gen.dir}" />
+			<arg value="-p" />
+			<arg value="it.polito.dp2.rest.rns.jaxb" />
+			<arg value="./xsd/RnsInfo.xsd" />
+		</exec>
+		<touch file="${gen.dir}/.flagfile" />
+	</target>
 </project>

@@ -6,17 +6,14 @@
 	</description>
 
     <target name="clean" description="clean all except war">
-    	<ant antfile="service-build.xml" target="clean" />
+    	<ant antfile="build-rns.xml" target="clean" />
     </target>
 
     <target name="distclean" depends="clean" description="clean all">
-    	<ant antfile="service-build.xml" target="distclean" />
+    	<ant antfile="build-rns.xml" target="distclean" />
     </target>
 	
     <target name="redeploy" depends="distclean" description="redoes everything">
-    	<ant antfile="build-rns.xml" target="generate-bindings"/>
-    	<ant antfile="build-rns.xml" target="build"/>
-    	<ant antfile="build-rns.xml" target="package-service"/>
     	<ant antfile="build-rns.xml" target="redeployWS" />      
     </target>
 

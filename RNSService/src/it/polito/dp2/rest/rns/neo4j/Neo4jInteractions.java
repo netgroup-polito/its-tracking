@@ -7,11 +7,11 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.TransactionWork;
-/*
+
 import it.polito.dp2.rest.rns.jaxb.ComplexPlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
-*/
+
 import static org.neo4j.driver.v1.Values.parameters;
 
 /**
@@ -55,25 +55,32 @@ public class Neo4jInteractions implements AutoCloseable {
         }
 	}
 	
-	/*private String createStatement(Object element) {
+	private String createStatement(Object element) {
 		String query = "";
 		
 		if (element instanceof ComplexPlaceReaderType) {
 			ComplexPlaceReaderType cp = (ComplexPlaceReaderType) element;
 			query += "CREATE (node:ComplexPlace {"
-					+ "name: \'" + cp.getName() + "\',"
+					+ "name: \'" + cp.getComplexPlaceName() + "\',"
 					+ "totalCapacity: \'" + cp.getTotalCapacity() + "\'"
 					+ "}) " +
                     "RETURN id(node)";
 		} else if (element instanceof SimplePlaceReaderType) {
 			SimplePlaceReaderType sp = (SimplePlaceReaderType) element;
-			query += "CREATE (node:ComplexPlace {"
-					+ "name: \'" + sp.get + "\',"
+			query += "CREATE (node:SimplePlace {"
+					+ "name: \'" + sp.getSimplePlaceName() + "\',"
 					+ "capacity: \'" + sp.getCapacity() + "\'"
 					+ "}) " +
                     "RETURN id(node)";
 		} else if (element instanceof VehicleReaderType) {
-			
+			VehicleReaderType vehicle = (VehicleReaderType) element;
+			query += "CREATE (node:SimplePlace {"
+					+ "name: \'" + vehicle.getVehicleName() + "\',"
+					+ "type: \'" + vehicle.getType() + "\'"
+					+ "state: \'" + vehicle.getState() + "\'"
+					+ "entryTime: \'" + vehicle.getEntryTime() + "\'"
+					+ "}) " +
+                    "RETURN id(node)";
 		}
 		
 		return query;
@@ -95,5 +102,5 @@ public class Neo4jInteractions implements AutoCloseable {
             
             return nodeId;
         }
-	}*/
+	}
 }

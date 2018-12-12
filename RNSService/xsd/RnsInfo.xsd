@@ -232,6 +232,9 @@
 		<complexContent>
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
+				<element	name="VehicleName"
+								type="string"
+								minOccurs="1" maxOccurs="1"/>
 					<element		name="destination"
 								type="tns:SimplePlaceReaderType"
 								minOccurs="1" maxOccurs="1"/>

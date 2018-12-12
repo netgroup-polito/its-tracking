@@ -7,7 +7,11 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.TransactionWork;
-
+/*
+import it.polito.dp2.rest.rns.jaxb.ComplexPlaceReaderType;
+import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
+import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
+*/
 import static org.neo4j.driver.v1.Values.parameters;
 
 /**
@@ -17,7 +21,7 @@ import static org.neo4j.driver.v1.Values.parameters;
  * @author dp2
  *
  */
-public class Neo4jInteractions implements AutoCloseable{
+public class Neo4jInteractions implements AutoCloseable {
 	private Driver driver;
 	
 	public Neo4jInteractions(String uri, String username, String password){
@@ -50,4 +54,46 @@ public class Neo4jInteractions implements AutoCloseable{
             return greeting;
         }
 	}
+	
+	/*private String createStatement(Object element) {
+		String query = "";
+		
+		if (element instanceof ComplexPlaceReaderType) {
+			ComplexPlaceReaderType cp = (ComplexPlaceReaderType) element;
+			query += "CREATE (node:ComplexPlace {"
+					+ "name: \'" + cp.getName() + "\',"
+					+ "totalCapacity: \'" + cp.getTotalCapacity() + "\'"
+					+ "}) " +
+                    "RETURN id(node)";
+		} else if (element instanceof SimplePlaceReaderType) {
+			SimplePlaceReaderType sp = (SimplePlaceReaderType) element;
+			query += "CREATE (node:ComplexPlace {"
+					+ "name: \'" + sp.get + "\',"
+					+ "capacity: \'" + sp.getCapacity() + "\'"
+					+ "}) " +
+                    "RETURN id(node)";
+		} else if (element instanceof VehicleReaderType) {
+			
+		}
+		
+		return query;
+	}
+	
+	public String createNode(Object element) {
+		try ( Session session = driver.session() )
+        {
+			final String query = this.createStatement(element);
+            String nodeId = session.writeTransaction( new TransactionWork<String>()
+            {
+                @Override
+                public String execute( Transaction tx )
+                {
+                    StatementResult result = tx.run(query);
+                    return result.single().get( 0 ).asString();
+                }
+            } );
+            
+            return nodeId;
+        }
+	}*/
 }

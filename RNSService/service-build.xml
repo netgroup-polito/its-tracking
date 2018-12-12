@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." name="rest-service-example">
+<project basedir="." name="service-build">
 	<description>
 		Script for REST Web Service Examples
 	</description>

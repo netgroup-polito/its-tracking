@@ -150,6 +150,9 @@
 		<complexContent>
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
+					<element	name="name"
+								type="string"
+								minOccurs="1" maxOccurs="1"/>
 					<element		name="capacity"
 								type="integer" 
 								minOccurs="1" maxOccurs="1"/>

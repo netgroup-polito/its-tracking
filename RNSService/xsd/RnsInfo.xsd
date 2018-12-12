@@ -129,7 +129,7 @@
 		<complexContent>
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
-					<element	name="name"
+					<element	name="complexPlaceName"
 								type="string"
 								minOccurs="1" maxOccurs="1"/>
 					<element	name="totalCapacity"
@@ -150,13 +150,13 @@
 		<complexContent>
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
-					<element	name="name"
+					<element	name="simplePlaceName"
 								type="string"
 								minOccurs="1" maxOccurs="1"/>
-					<element		name="capacity"
+					<element	name="capacity"
 								type="integer" 
 								minOccurs="1" maxOccurs="1"/>
-					<element		name="connectedPlaceId"
+					<element	name="connectedPlaceId"
 								type="string" 
 								minOccurs="1" maxOccurs="unbounded">
 					</element>

@@ -75,5 +75,6 @@
 	<classpathentry kind="lib" path="lib/swagger-models-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib-src/javax.ws.rs-api-2.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/neo4j-java-driver-1.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.12.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

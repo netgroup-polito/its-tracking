@@ -96,7 +96,7 @@ public class Neo4jInteractions implements AutoCloseable {
                 public String execute( Transaction tx )
                 {
                     StatementResult result = tx.run(query);
-                    return result.single().get( 0 ).asString();
+                    return String.valueOf(result.single().get( 0 ));
                 }
             } );
             

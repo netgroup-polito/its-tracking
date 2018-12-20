@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+<schema version="1.0"
+		xmlns="http://www.w3.org/2001/XMLSchema" 
 		targetNamespace="http://www.example.org/RnsInfo" 
 		xmlns:tns="http://www.example.org/RnsInfo" 
 		xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
@@ -136,7 +137,7 @@
 								type="integer"
 								minOccurs="1" maxOccurs="1"/>
 					<element	name="simplePlaceId"
-								type="tns:SimplePlaceReaderType"
+								type="integer"
 								minOccurs="1" maxOccurs="unbounded"/>
 					<element	name="complexPlaceId"
 								type="tns:ComplexPlaceReaderType"
@@ -158,7 +159,7 @@
 								minOccurs="1" maxOccurs="1"/>
 					<element	name="connectedPlaceId"
 								type="string" 
-								minOccurs="1" maxOccurs="unbounded">
+								minOccurs="0" maxOccurs="unbounded">
 					</element>
 					<element		name="containerPlaceId"
 								type="string"

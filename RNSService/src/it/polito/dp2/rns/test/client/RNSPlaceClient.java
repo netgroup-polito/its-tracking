@@ -8,7 +8,7 @@ import javax.ws.rs.core.Response;
 import it.polito.dp2.rest.rns.jaxb.*;
 
 public class RNSPlaceClient {
-	private static final String serverUrl = "http://localhost:8080";
+	private static final String serverUrl = "http://localhost:8080/rns/webapi";
 	private static final String TAG = "[RNSClient] ";
 	
 	public RNSPlaceClient() { }
@@ -115,7 +115,7 @@ public class RNSPlaceClient {
 		Client client = ClientBuilder.newClient();
 		
 		Response response = 
-				client.target(serverUrl + "/" + id)
+				client.target(serverUrl + "/places/complexPlaces/" + id)
 				.request()
 				.get();
 		
@@ -132,9 +132,48 @@ public class RNSPlaceClient {
 				System.err.println(TAG + "Bad request!");
 				break;
 			
-			case 201:
+			case 200:
 				System.out.println(TAG + "Place retrieved!");
 				place = response.readEntity(ComplexPlaceReaderType.class);
+				break;
+				
+			default:
+				break;	
+		}
+
+		return place;
+	}
+
+	/**
+	 * Function to retrieve from server a specific simple place.
+	 * @param id = the id of the place to be retrieved
+	 * @return the requested simple place if it exists, otherwise null
+	 */
+	public SimplePlaceReaderType getSimplePlace(String id) {
+		SimplePlaceReaderType place = null;
+		Client client = ClientBuilder.newClient();
+		
+		Response response = 
+				client.target(serverUrl + "/places/simplePlaces/" + id)
+				.request()
+				.get();
+		
+		switch(response.getStatusInfo().getStatusCode()){
+			case 500:
+				System.err.println(TAG + "Internal server error!");
+				break;
+			
+			case 404:
+				System.err.println(TAG + "Not found!");
+				break;
+			
+			case 400:
+				System.err.println(TAG + "Bad request!");
+				break;
+			
+			case 200:
+				System.out.println(TAG + "Place retrieved!");
+				place = response.readEntity(SimplePlaceReaderType.class);
 				break;
 				
 			default:

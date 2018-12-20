@@ -69,6 +69,8 @@ public class RNSCore {
 	public String addPlace(ComplexPlaceReaderType value) {
 		// TODO: establish relationships
 		String id = this.neo4j.createNode(value);
+		value.setId(id);
+		System.out.print("****** Added complex place: " + id + "******");
 		this.complexPlaces.put(id, value);
 		return id;
 	}
@@ -84,6 +86,24 @@ public class RNSCore {
 		String id = this.neo4j.createNode(value);
 		this.simplePlaces.put(id, value);
 		return id;
+	}
+	
+	/**
+	 * Function to get a complex place
+	 * @param id
+	 * @return the complex place
+	 */
+	public ComplexPlaceReaderType getComplexPlace(String id) {
+		return (this.complexPlaces.containsKey(id)) ? this.complexPlaces.get(id) : null;
+	}
+	
+	/**
+	 * Function to get a simple place
+	 * @param id
+	 * @return the simple place
+	 */
+	public SimplePlaceReaderType getSimplePlace(String id) {
+		return (this.simplePlaces.containsKey(id)) ? this.simplePlaces.get(id) : null;
 	}
 	
 	/**

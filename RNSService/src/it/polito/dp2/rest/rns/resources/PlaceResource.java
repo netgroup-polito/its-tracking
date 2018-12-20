@@ -17,6 +17,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
 import it.polito.dp2.rest.rns.jaxb.ComplexPlaceReaderType;
+import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import io.swagger.annotations.ApiResponse;
 
@@ -45,7 +46,7 @@ public class PlaceResource {
 	}
     
     @GET
-    @Path("/{id}")
+    @Path("/simplePlaces/{id}")
     @ApiOperation(
 			value = "getPlace",
 			notes = "allow to retrieve all information about a specific place stored in the system"
@@ -57,11 +58,32 @@ public class PlaceResource {
 			}
 	)
 	@Produces({
-			MediaType.APPLICATION_XML,
-			MediaType.TEXT_XML
+			MediaType.APPLICATION_XML
 	})
-    public Response getPlace(@PathParam("id") int placeId) {
-    	return null;
+    public Response getSimplePlace(@PathParam("id") String placeId) {
+    	SimplePlaceReaderType place = this.instance.getSimplePlace(placeId);
+    	return Response.status(Status.OK).entity(place).build();
+    }
+    
+    @GET
+    @Path("/complexPlaces/{id}")
+    @ApiOperation(
+			value = "getPlace",
+			notes = "allow to retrieve all information about a specific place stored in the system"
+	)
+	@ApiResponses(
+			value = {
+					@ApiResponse(code = 200, message = "OK"),
+					@ApiResponse(code = 500, message = "Internal Server Error")
+			}
+	)
+	@Produces({
+			MediaType.APPLICATION_XML
+	})
+    public Response getComplexPlace(@PathParam("id") String placeId) {
+    	ComplexPlaceReaderType place = this.instance.getComplexPlace(placeId);
+    	JAXBElement<ComplexPlaceReaderType> jaxbPlace = (new ObjectFactory()).createComplexPlace(place);
+    	return Response.status(Status.OK).entity(jaxbPlace).build();
     }
     
     @PUT
@@ -77,8 +99,7 @@ public class PlaceResource {
 			}
 	)
 	@Produces({
-			MediaType.APPLICATION_XML,
-			MediaType.TEXT_XML
+			MediaType.APPLICATION_XML
 	})
     @Consumes({
     	MediaType.APPLICATION_XML,
@@ -101,8 +122,7 @@ public class PlaceResource {
 			}
 	)
 	@Produces({
-			MediaType.APPLICATION_XML,
-			MediaType.TEXT_XML
+			MediaType.APPLICATION_XML
 	})
     @Consumes({
     	MediaType.APPLICATION_XML,
@@ -110,7 +130,7 @@ public class PlaceResource {
     })
     public Response createComplexPlace(JAXBElement<ComplexPlaceReaderType> place){
     	String placeId = this.instance.addPlace(place.getValue());
-    	return Response.status(Status.OK).entity(placeId).build();	
+    	return Response.status(Status.CREATED).entity(placeId).build();	
     }
     
     @POST
@@ -126,8 +146,7 @@ public class PlaceResource {
 			}
 	)
 	@Produces({
-			MediaType.APPLICATION_XML,
-			MediaType.TEXT_XML
+			MediaType.APPLICATION_XML
 	})
     @Consumes({
     	MediaType.APPLICATION_XML,
@@ -135,7 +154,7 @@ public class PlaceResource {
     })
     public Response createSimplePlace(JAXBElement<SimplePlaceReaderType> place){
     	String placeId = this.instance.addPlace(place.getValue());
-		return Response.status(Status.OK).entity(placeId).build();
+		return Response.status(Status.CREATED).entity(placeId).build();
     }
     
 }

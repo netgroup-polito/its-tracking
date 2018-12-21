@@ -74,10 +74,13 @@ public class Neo4jInteractions implements AutoCloseable {
                     "RETURN id(node)";
 		} else if (element instanceof VehicleReaderType) {
 			VehicleReaderType vehicle = (VehicleReaderType) element;
-			query += "CREATE (node:SimplePlace {"
-					+ "name: \'" + vehicle.getVehicleName() + "\',"
-					+ "type: \'" + vehicle.getType() + "\'"
-					+ "state: \'" + vehicle.getState() + "\'"
+			query += "CREATE (node:Vehicle {"
+					+ "name: '" + vehicle.getVehicleName() + "',"
+					+ "destination: \'" + vehicle.getDestination() + "\',"
+					+ "origin: \'" + vehicle.getOrigin() + "\',"
+					+ "position: \'" + vehicle.getPosition() + "\',"
+					+ "type: \'" + vehicle.getType() + "\',"
+					+ "state: \'" + vehicle.getState() + "\',"
 					+ "entryTime: \'" + vehicle.getEntryTime() + "\'"
 					+ "}) " +
                     "RETURN id(node)";

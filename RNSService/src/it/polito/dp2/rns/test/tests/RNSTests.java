@@ -3,13 +3,22 @@ package it.polito.dp2.rns.test.tests;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
+import java.util.GregorianCalendar;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.junit.Test;
 
 import it.polito.dp2.rest.rns.jaxb.ComplexPlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
+import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
+import it.polito.dp2.rest.rns.jaxb.VehicleStateType;
+import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
 import it.polito.dp2.rns.test.client.RNSPlaceClient;
+import it.polito.dp2.rns.test.client.RNSVehicleClient;
 
 public class RNSTests {
 	
@@ -20,7 +29,6 @@ public class RNSTests {
 		ComplexPlaceReaderType place1 = factory.createComplexPlaceReaderType();
 		
 		place1.setComplexPlaceName("Complex Place 0");
-		place1.setId("x1");
 		place1.setTotalCapacity(new BigInteger("100"));
 		place1.getSimplePlaceId().add(new BigInteger("100"));
 		
@@ -52,7 +60,6 @@ public class RNSTests {
 		SimplePlaceReaderType place1 = factory.createSimplePlaceReaderType();
 		
 		place1.setSimplePlaceName("Simple Place 0");
-		place1.setId("x1");
 		place1.setCapacity(new BigInteger("10"));
 		
 		String place1Id = client.createSimplePlace(place1);
@@ -70,5 +77,66 @@ public class RNSTests {
 		
 		assertEquals("Create complex place failed!", place1.getId(), place1bis.getId());
 		assertEquals("Create complex place failed!", place1.getCapacity(), place1bis.getCapacity());
+	}
+	
+	@Test
+	public void createVehicle() throws DatatypeConfigurationException {
+		RNSVehicleClient client = new RNSVehicleClient();
+		ObjectFactory factory = new ObjectFactory();
+		
+		VehicleReaderType vehicle = factory.createVehicleReaderType();
+		SimplePlaceReaderType origin = new SimplePlaceReaderType();
+		SimplePlaceReaderType destination = new SimplePlaceReaderType();
+		SimplePlaceReaderType position = new SimplePlaceReaderType();
+		VehicleStateType state = VehicleStateType.IN_TRANSIT;
+		VehicleTypeType type = VehicleTypeType.CAR;
+		
+		origin.setSimplePlaceName("Simple Place 0");
+		origin.setCapacity(new BigInteger("10"));
+		destination.setSimplePlaceName("Simple Place 1");
+		destination.setCapacity(new BigInteger("6"));
+		position.setSimplePlaceName("Simple Place 2");
+		position.setCapacity(new BigInteger("8"));
+		
+		GregorianCalendar calendarActual = new GregorianCalendar(2018, 6, 28);
+	    DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
+	    XMLGregorianCalendar XMLGregorianCalendar = datatypeFactory
+	      .newXMLGregorianCalendar(calendarActual);
+	    
+	    vehicle.setVehicleName("car1");
+		vehicle.setDestination(destination);
+		vehicle.setOrigin(origin);
+		vehicle.setPosition(position);
+		vehicle.setEntryTime(XMLGregorianCalendar);
+		vehicle.setState(state);
+		vehicle.setType(type);
+		
+		String vehicleId = client.createVehicle(vehicle);
+		
+		vehicle.setId(vehicleId);
+		
+		VehicleReaderType vehicleCopy = client.getVehicle(vehicleId);
+		
+		assertNotNull("Vehicle with id " + vehicleId + " can't be null", vehicleCopy);
+		
+		System.out.println("*********************************");
+		System.out.println("Id -> Before: " + vehicle.getId() + " --- After: " + vehicleCopy.getId());
+		System.out.println("Name -> Before: " + vehicle.getVehicleName() + " --- After: " + vehicleCopy.getVehicleName());
+		System.out.println("Dest -> Before: " + vehicle.getDestination() + " --- After: " + vehicleCopy.getDestination());
+		System.out.println("Origin -> Before: " + vehicle.getOrigin() + " --- After: " + vehicleCopy.getOrigin());
+		System.out.println("Position -> Before: " + vehicle.getPosition() + " --- After: " + vehicleCopy.getPosition());
+		System.out.println("Entry time -> Before: " + vehicle.getEntryTime() + " --- After: " + vehicleCopy.getEntryTime());
+		System.out.println("State -> Before: " + vehicle.getState() + " --- After: " + vehicleCopy.getState());
+		System.out.println("Type -> Before: " + vehicle.getType() + " --- After: " + vehicleCopy.getType());
+		System.out.println("*********************************");
+		
+		assertEquals("Create vehicle failed!", vehicle.getId(), vehicleCopy.getId());
+		assertEquals("Create vehicle failed!", vehicle.getVehicleName(), vehicleCopy.getVehicleName());
+		assertEquals("Create vehicle failed!", vehicle.getDestination(), vehicleCopy.getDestination());
+		assertEquals("Create vehicle failed!", vehicle.getOrigin(), vehicleCopy.getOrigin());
+		assertEquals("Create vehicle failed!", vehicle.getPosition(), vehicleCopy.getPosition());
+		assertEquals("Create vehicle failed!", vehicle.getEntryTime(), vehicleCopy.getEntryTime());
+		assertEquals("Create vehicle failed!", vehicle.getState(), vehicleCopy.getState());
+		assertEquals("Create vehicle failed!", vehicle.getType(), vehicleCopy.getType());
 	}
 }

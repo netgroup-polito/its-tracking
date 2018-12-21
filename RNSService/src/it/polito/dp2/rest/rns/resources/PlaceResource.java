@@ -39,7 +39,7 @@ public class PlaceResource {
 	)
 	@Produces({
 		MediaType.APPLICATION_XML,
-		MediaType.TEXT_PLAIN
+		MediaType.APPLICATION_JSON
 	})
 	public Response getPlaces() {
 		return Response.status(Status.OK).entity("places").build();
@@ -58,7 +58,8 @@ public class PlaceResource {
 			}
 	)
 	@Produces({
-			MediaType.APPLICATION_XML
+			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON
 	})
     public Response getSimplePlace(@PathParam("id") String placeId) {
     	SimplePlaceReaderType place = this.instance.getSimplePlace(placeId);
@@ -70,7 +71,7 @@ public class PlaceResource {
     @Path("/complexPlaces/{id}")
     @ApiOperation(
 			value = "getPlace",
-			notes = "allow to retrieve all information about a specific place stored in the system"
+			notes = "allow to retrieve all information about a specific complex place stored in the system"
 	)
 	@ApiResponses(
 			value = {
@@ -79,7 +80,8 @@ public class PlaceResource {
 			}
 	)
 	@Produces({
-			MediaType.APPLICATION_XML
+			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON
 	})
     public Response getComplexPlace(@PathParam("id") String placeId) {
     	ComplexPlaceReaderType place = this.instance.getComplexPlace(placeId);
@@ -88,10 +90,34 @@ public class PlaceResource {
     }
     
     @PUT
-    @Path("/{id}")
+    @Path("complexPlaces/{id}")
     @ApiOperation(
 			value = "updatePosition",
-			notes = "allow to update the position of a specific vehicle"
+			notes = "allow to update the position of a specific complex place"
+	)
+	@ApiResponses(
+			value = {
+					@ApiResponse(code = 201, message = "Created"),
+					@ApiResponse(code = 500, message = "Internal Server Error")
+			}
+	)
+	@Produces({
+			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON
+	})
+    @Consumes({
+    	MediaType.APPLICATION_XML,
+    	MediaType.APPLICATION_JSON
+    })
+    public Response updateComplexPlace(@PathParam("id") int id, @QueryParam("Id") int placeId) {
+    	return null;
+    }
+    
+    @PUT
+    @Path("simplePlaces/{id}")
+    @ApiOperation(
+			value = "updatePosition",
+			notes = "allow to update the position of a specific place"
 	)
 	@ApiResponses(
 			value = {
@@ -106,7 +132,7 @@ public class PlaceResource {
     	MediaType.APPLICATION_XML,
     	MediaType.APPLICATION_JSON
     })
-    public Response updatePosition(@PathParam("id") int placeId, @QueryParam("vId") int vehicleId) {
+    public Response updatePlace(@PathParam("id") int id, @QueryParam("Id") int placeId) {
     	return null;
     }
     
@@ -123,7 +149,8 @@ public class PlaceResource {
 			}
 	)
 	@Produces({
-			MediaType.APPLICATION_XML
+			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON
 	})
     @Consumes({
     	MediaType.APPLICATION_XML,
@@ -147,7 +174,8 @@ public class PlaceResource {
 			}
 	)
 	@Produces({
-			MediaType.APPLICATION_XML
+			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON
 	})
     @Consumes({
     	MediaType.APPLICATION_XML,

@@ -13,16 +13,21 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.bind.JAXBElement;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
+import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
+import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
+import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import io.swagger.annotations.ApiResponse;
 
 @Path("vehicles")
 @Api(value = "/vehicles")
 public class VehicleResource {
-
+	private final RNSCore instance = RNSCore.getInstance();
+	
 	@GET
     @ApiOperation(
 			value = "getVehicles",
@@ -36,7 +41,7 @@ public class VehicleResource {
 	)
 	@Produces({
 		MediaType.APPLICATION_XML,
-		MediaType.TEXT_PLAIN
+		MediaType.APPLICATION_JSON
 	})
 	public Response getVehicles() {
 		return Response.status(Status.OK).entity("vehicles").build();
@@ -56,10 +61,12 @@ public class VehicleResource {
 	)
 	@Produces({
 			MediaType.APPLICATION_XML,
-			MediaType.TEXT_XML
+			MediaType.APPLICATION_JSON
 	})
-    public Response getVehicle(@PathParam("id") int vehicleId) {
-    	return null;
+    public Response getVehicle(@PathParam("id") String vehicleId) {
+		VehicleReaderType vehicle = this.instance.getVehicle(vehicleId);
+    	JAXBElement<VehicleReaderType> jaxbVehicle = (new ObjectFactory()).createVehicle(vehicle);
+    	return Response.status(Status.OK).entity(jaxbVehicle).build();
     }
     
     @GET
@@ -76,10 +83,34 @@ public class VehicleResource {
 	)
 	@Produces({
 			MediaType.APPLICATION_XML,
-			MediaType.TEXT_XML
+			MediaType.APPLICATION_JSON
 	})
     public Response getVehiclePath(@PathParam("id") int vehicleId) {
     	return null;
+    }
+    
+    @POST
+    @ApiOperation(
+			value = "createVehicle",
+			notes = "allow to create a vehicle in the system"
+	)
+	@ApiResponses(
+			value = {
+					@ApiResponse(code = 201, message = "Created"),
+					@ApiResponse(code = 500, message = "Internal Server Error")
+			}
+	)
+	@Produces({
+			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON
+	})
+    @Consumes({
+    	MediaType.APPLICATION_XML,
+    	MediaType.APPLICATION_JSON
+    })
+    public Response createVehicle(JAXBElement<VehicleReaderType> vehicle){
+    	String vehicleId = this.instance.addVehicle(vehicle.getValue());
+		return Response.status(Status.CREATED).entity(vehicleId).build();
     }
     
     @PUT
@@ -96,7 +127,7 @@ public class VehicleResource {
 	)
 	@Produces({
 			MediaType.APPLICATION_XML,
-			MediaType.TEXT_XML
+			MediaType.APPLICATION_JSON
 	})
     @Consumes({
     	MediaType.APPLICATION_XML,
@@ -121,7 +152,7 @@ public class VehicleResource {
 	)
 	@Produces({
 			MediaType.APPLICATION_XML,
-			MediaType.TEXT_XML
+			MediaType.APPLICATION_JSON
 	})
     public Response deleteVehicle() {
     	return null;

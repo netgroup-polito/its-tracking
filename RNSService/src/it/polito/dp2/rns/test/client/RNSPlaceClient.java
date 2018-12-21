@@ -60,6 +60,45 @@ public class RNSPlaceClient {
 	}
 	
 	/**
+	 * Function to retrieve from server a specific complex place.
+	 * @param id = the id of the place to be retrieved
+	 * @return the requested complex place if it exists, otherwise null
+	 */
+	public ComplexPlaceReaderType getComplexPlace(String id) {
+		ComplexPlaceReaderType place = null;
+		Client client = ClientBuilder.newClient();
+		
+		Response response = 
+				client.target(serverUrl + "/places/complexPlaces/" + id)
+				.request()
+				.get();
+		
+		switch(response.getStatusInfo().getStatusCode()){
+			case 500:
+				System.err.println(TAG + "Internal server error!");
+				break;
+			
+			case 404:
+				System.err.println(TAG + "Not found!");
+				break;
+			
+			case 400:
+				System.err.println(TAG + "Bad request!");
+				break;
+			
+			case 200:
+				System.out.println(TAG + "Place retrieved!");
+				place = response.readEntity(ComplexPlaceReaderType.class);
+				break;
+				
+			default:
+				break;	
+		}
+
+		return place;
+	}
+	
+	/**
 	 * Function to create a new Simple Place on the server.
 	 * @param place = the place to be created
 	 * @return string that is the id of the place just created
@@ -103,45 +142,6 @@ public class RNSPlaceClient {
 		client.close();
 		
 		return placeId;
-	}
-	
-	/**
-	 * Function to retrieve from server a specific complex place.
-	 * @param id = the id of the place to be retrieved
-	 * @return the requested complex place if it exists, otherwise null
-	 */
-	public ComplexPlaceReaderType getComplexPlace(String id) {
-		ComplexPlaceReaderType place = null;
-		Client client = ClientBuilder.newClient();
-		
-		Response response = 
-				client.target(serverUrl + "/places/complexPlaces/" + id)
-				.request()
-				.get();
-		
-		switch(response.getStatusInfo().getStatusCode()){
-			case 500:
-				System.err.println(TAG + "Internal server error!");
-				break;
-			
-			case 404:
-				System.err.println(TAG + "Not found!");
-				break;
-			
-			case 400:
-				System.err.println(TAG + "Bad request!");
-				break;
-			
-			case 200:
-				System.out.println(TAG + "Place retrieved!");
-				place = response.readEntity(ComplexPlaceReaderType.class);
-				break;
-				
-			default:
-				break;	
-		}
-
-		return place;
 	}
 
 	/**

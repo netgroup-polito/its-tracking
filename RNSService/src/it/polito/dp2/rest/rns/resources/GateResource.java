@@ -13,15 +13,19 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.bind.JAXBElement;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
+import it.polito.dp2.rest.rns.jaxb.GateReaderType;
+import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import io.swagger.annotations.ApiResponse;
 
 @Path("gates")
 @Api(value = "/gates")
 public class GateResource {
+	private final RNSCore instance = RNSCore.getInstance();
 
 	@GET
     @ApiOperation(
@@ -58,8 +62,10 @@ public class GateResource {
 			MediaType.APPLICATION_XML,
 			MediaType.TEXT_XML
 	})
-    public Response getGate(@PathParam("id") int gateId){
-    	return null;
+    public Response getGate(@PathParam("id") String gateId){
+    	GateReaderType gate = this.instance.getGate(gateId);
+    	JAXBElement<GateReaderType> jaxbPlace = (new ObjectFactory()).createGate(gate);
+    	return Response.status(Status.OK).entity(jaxbPlace).build();
     }
     
     @POST

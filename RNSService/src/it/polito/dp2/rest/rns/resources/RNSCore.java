@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.polito.dp2.rest.rns.jaxb.ComplexPlaceReaderType;
+import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
@@ -124,11 +125,29 @@ public class RNSCore {
 	}
 	
 	/**
-	 * Function to get a complex place
+	 * Function to get a vehicle
 	 * @param id
-	 * @return the complex place
+	 * @return the vehicle
 	 */
 	public VehicleReaderType getVehicle(String id) {
 		return (this.vehicles.containsKey(id)) ? this.vehicles.get(id) : null;
+	}
+
+	/**
+	 * Function to add a gate as a node in Neo4j
+	 * @param value = the gate to be added
+	 * @return the id of the node, assigned automatically by Neo4j
+	 */
+	public String addGate(GateReaderType value) {
+		// TODO: establish relationships
+		String id = this.neo4j.createNode(value);
+		value.setId(id);
+		System.out.print("****** Added gate: " + id + "******");
+		return id;
+	}
+	
+	
+	public GateReaderType getGate(String gateId) {
+		return this.neo4j.getGate(gateId);
 	}
 }

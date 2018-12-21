@@ -9,6 +9,7 @@ import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.TransactionWork;
 
 import it.polito.dp2.rest.rns.jaxb.ComplexPlaceReaderType;
+import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 
@@ -60,33 +61,46 @@ public class Neo4jInteractions implements AutoCloseable {
 		
 		if (element instanceof ComplexPlaceReaderType) {
 			ComplexPlaceReaderType cp = (ComplexPlaceReaderType) element;
-			query += "CREATE (node:ComplexPlace {"
-					+ "name: \'" + cp.getComplexPlaceName() + "\',"
-					+ "totalCapacity: \'" + cp.getTotalCapacity() + "\'"
+			query += "CREATE (complexPlace:ComplexPlace {"
+					+ "name: '" + cp.getComplexPlaceName() + "',"
+					+ "totalCapacity: '" + cp.getTotalCapacity() + "'"
 					+ "}) " +
-                    "RETURN id(node)";
+                    "RETURN id(complexPlace)";
 		} else if (element instanceof SimplePlaceReaderType) {
 			SimplePlaceReaderType sp = (SimplePlaceReaderType) element;
-			query += "CREATE (node:SimplePlace {"
-					+ "name: \'" + sp.getSimplePlaceName() + "\',"
-					+ "capacity: \'" + sp.getCapacity() + "\'"
+			query += "CREATE (simplePlace:SimplePlace {"
+					+ "name: '" + sp.getSimplePlaceName() + "',"
+					+ "capacity: '" + sp.getCapacity() + "'"
 					+ "}) " +
-                    "RETURN id(node)";
+                    "RETURN id(simplePlace)";
 		} else if (element instanceof VehicleReaderType) {
 			VehicleReaderType vehicle = (VehicleReaderType) element;
-			query += "CREATE (node:Vehicle {"
+			query += "CREATE (vehicle:Vehicle {"
 					+ "name: '" + vehicle.getVehicleName() + "',"
-					+ "destination: \'" + vehicle.getDestination() + "\',"
-					+ "origin: \'" + vehicle.getOrigin() + "\',"
-					+ "position: \'" + vehicle.getPosition() + "\',"
-					+ "type: \'" + vehicle.getType() + "\',"
-					+ "state: \'" + vehicle.getState() + "\',"
-					+ "entryTime: \'" + vehicle.getEntryTime() + "\'"
+					+ "destination: '" + vehicle.getDestination() + "',"
+					+ "origin: '" + vehicle.getOrigin() + "',"
+					+ "position: '" + vehicle.getPosition() + "',"
+					+ "type: '" + vehicle.getType() + "',"
+					+ "state: '" + vehicle.getState() + "',"
+					+ "entryTime: '" + vehicle.getEntryTime() + "'"
 					+ "}) " +
-                    "RETURN id(node)";
+                    "RETURN id(vehicle)";
+		} else if (element instanceof GateReaderType) {
+			GateReaderType gate = (GateReaderType) element;
+			query += "CREATE (gate:Gate {"
+					+ "name: '" + gate.getSimplePlaceName() + "',"
+					+ "capacity: '" + gate.getCapacity() + "',"
+					+ "type: '" + gate.getType() + "'"
+					+ "}) " +
+                    "RETURN id(gate)";
 		}
 		
 		return query;
+	}
+	
+	private String getStatement(String id) {
+		String query = "";
+		
 	}
 	
 	public String createNode(Object element) {
@@ -104,6 +118,25 @@ public class Neo4jInteractions implements AutoCloseable {
             } );
             
             return nodeId;
+        }
+	}
+
+	public GateReaderType getGate(String gateId) {
+		
+		try ( Session session = driver.session() )
+        {
+			final String query = this.getStatement(gateId);
+            String node = session.writeTransaction( new TransactionWork<String>()
+            {
+                @Override
+                public String execute( Transaction tx )
+                {
+                    StatementResult result = tx.run(query);
+                    return String.valueOf(result.single().get( 0 ));
+                }
+            } );
+            
+            return node;
         }
 	}
 }

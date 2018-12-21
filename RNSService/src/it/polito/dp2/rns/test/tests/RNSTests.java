@@ -91,10 +91,13 @@ public class RNSTests {
 		VehicleStateType state = VehicleStateType.IN_TRANSIT;
 		VehicleTypeType type = VehicleTypeType.CAR;
 		
+		origin.setId("o1");		
 		origin.setSimplePlaceName("Simple Place 0");
 		origin.setCapacity(new BigInteger("10"));
+		destination.setId("d1");
 		destination.setSimplePlaceName("Simple Place 1");
 		destination.setCapacity(new BigInteger("6"));
+		position.setId("p1");
 		position.setSimplePlaceName("Simple Place 2");
 		position.setCapacity(new BigInteger("8"));
 		
@@ -122,9 +125,9 @@ public class RNSTests {
 		System.out.println("*********************************");
 		System.out.println("Id -> Before: " + vehicle.getId() + " --- After: " + vehicleCopy.getId());
 		System.out.println("Name -> Before: " + vehicle.getVehicleName() + " --- After: " + vehicleCopy.getVehicleName());
-		System.out.println("Dest -> Before: " + vehicle.getDestination() + " --- After: " + vehicleCopy.getDestination());
-		System.out.println("Origin -> Before: " + vehicle.getOrigin() + " --- After: " + vehicleCopy.getOrigin());
-		System.out.println("Position -> Before: " + vehicle.getPosition() + " --- After: " + vehicleCopy.getPosition());
+		System.out.println("Dest -> Before: " + vehicle.getDestination().getId() + " --- After: " + vehicleCopy.getDestination().getId());
+		System.out.println("Origin -> Before: " + vehicle.getOrigin().getId() + " --- After: " + vehicleCopy.getOrigin().getId());
+		System.out.println("Position -> Before: " + vehicle.getPosition().getId() + " --- After: " + vehicleCopy.getPosition().getId());
 		System.out.println("Entry time -> Before: " + vehicle.getEntryTime() + " --- After: " + vehicleCopy.getEntryTime());
 		System.out.println("State -> Before: " + vehicle.getState() + " --- After: " + vehicleCopy.getState());
 		System.out.println("Type -> Before: " + vehicle.getType() + " --- After: " + vehicleCopy.getType());
@@ -132,9 +135,9 @@ public class RNSTests {
 		
 		assertEquals("Create vehicle failed!", vehicle.getId(), vehicleCopy.getId());
 		assertEquals("Create vehicle failed!", vehicle.getVehicleName(), vehicleCopy.getVehicleName());
-		assertEquals("Create vehicle failed!", vehicle.getDestination(), vehicleCopy.getDestination());
-		assertEquals("Create vehicle failed!", vehicle.getOrigin(), vehicleCopy.getOrigin());
-		assertEquals("Create vehicle failed!", vehicle.getPosition(), vehicleCopy.getPosition());
+		assertEquals("Create vehicle failed!", vehicle.getDestination().getId(), vehicleCopy.getDestination().getId());
+		assertEquals("Create vehicle failed!", vehicle.getOrigin().getId(), vehicleCopy.getOrigin().getId());
+		assertEquals("Create vehicle failed!", vehicle.getPosition().getId(), vehicleCopy.getPosition().getId());
 		assertEquals("Create vehicle failed!", vehicle.getEntryTime(), vehicleCopy.getEntryTime());
 		assertEquals("Create vehicle failed!", vehicle.getState(), vehicleCopy.getState());
 		assertEquals("Create vehicle failed!", vehicle.getType(), vehicleCopy.getType());

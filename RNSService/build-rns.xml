@@ -111,7 +111,7 @@
 			<arg value="${gen.dir}" />
 			<arg value="-p" />
 			<arg value="it.polito.dp2.rest.rns.jaxb" />
-			<arg value="./xsd/RnsInfo.xsd" />
+			<arg value="${resources.dir}/WEB-INF/classes/xsd/RnsInfo.xsd" />
 		</exec>
 		<touch file="${gen.dir}/.flagfile" />
 	</target>

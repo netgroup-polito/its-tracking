@@ -62,7 +62,8 @@ public class PlaceResource {
 	})
     public Response getSimplePlace(@PathParam("id") String placeId) {
     	SimplePlaceReaderType place = this.instance.getSimplePlace(placeId);
-    	return Response.status(Status.OK).entity(place).build();
+    	JAXBElement<SimplePlaceReaderType> jaxbPlace = (new ObjectFactory()).createPlace(place);
+    	return Response.status(Status.OK).entity(jaxbPlace).build();
     }
     
     @GET

@@ -35,10 +35,7 @@ public class RNSCore {
 	 * via static method getInstance()
 	 */
 	private RNSCore(){
-		this.neo4j = new Neo4jInteractions(
-				Constants.Neo4jURL, 
-				Constants.Neo4jUsername, 
-				Constants.Neo4jPassword);
+		this.neo4j = Neo4jInteractions.getInstance();
 		this.complexPlaces = new HashMap<>();
 		this.simplePlaces = new HashMap<>();
 		this.vehicles = new HashMap<>();

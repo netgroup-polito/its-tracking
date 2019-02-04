@@ -8,10 +8,9 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.TransactionWork;
 
-import it.polito.dp2.rest.rns.jaxb.ComplexPlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
-import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
+import it.polito.dp2.rest.rns.utility.Constants;
 
 import static org.neo4j.driver.v1.Values.parameters;
 
@@ -24,8 +23,9 @@ import static org.neo4j.driver.v1.Values.parameters;
  */
 public class Neo4jInteractions implements AutoCloseable {
 	private Driver driver;
+	private static Neo4jInteractions instance = null;
 	
-	public Neo4jInteractions(String uri, String username, String password){
+	private Neo4jInteractions(String uri, String username, String password){
 		driver = GraphDatabase.driver(uri, AuthTokens.basic(username, password));
 	}
 
@@ -59,21 +59,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	private String createStatement(Object element) {
 		String query = "";
 		
-		if (element instanceof ComplexPlaceReaderType) {
-			ComplexPlaceReaderType cp = (ComplexPlaceReaderType) element;
-			query += "CREATE (complexPlace:ComplexPlace {"
-					+ "name: '" + cp.getComplexPlaceName() + "',"
-					+ "totalCapacity: '" + cp.getTotalCapacity() + "'"
-					+ "}) " +
-                    "RETURN id(complexPlace)";
-		} else if (element instanceof SimplePlaceReaderType) {
-			SimplePlaceReaderType sp = (SimplePlaceReaderType) element;
-			query += "CREATE (simplePlace:SimplePlace {"
-					+ "name: '" + sp.getSimplePlaceName() + "',"
-					+ "capacity: '" + sp.getCapacity() + "'"
-					+ "}) " +
-                    "RETURN id(simplePlace)";
-		} else if (element instanceof VehicleReaderType) {
+		if (element instanceof VehicleReaderType) {
 			VehicleReaderType vehicle = (VehicleReaderType) element;
 			query += "CREATE (vehicle:Vehicle {"
 					+ "name: '" + vehicle.getVehicleName() + "',"
@@ -138,5 +124,16 @@ public class Neo4jInteractions implements AutoCloseable {
             
             return null;
         }
+	}
+	
+	public static Neo4jInteractions getInstance() {
+		if(instance == null) {
+			instance = new Neo4jInteractions(
+					Constants.Neo4jURL, 
+					Constants.Neo4jUsername, 
+					Constants.Neo4jPassword);
+		}
+		
+		return instance;
 	}
 }

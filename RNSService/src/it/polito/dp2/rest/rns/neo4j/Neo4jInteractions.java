@@ -100,7 +100,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	
 	private String getStatement(String id) {
 		String query = "";
-		
+		return query;
 	}
 	
 	public String createNode(Object element) {
@@ -136,7 +136,7 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
             
-            return node;
+            return null;
         }
 	}
 }

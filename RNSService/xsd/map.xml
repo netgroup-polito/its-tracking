@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<rns 
+	xmlns="http://www.example.org/RnsInfo"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://www.w3schools.com/RnsInfo RnsInfo.xsd"
+	id="x0">
+	
+    <gate id="g01">
+    	<simplePlaceName>Gate01</simplePlaceName>
+    	<capacity>1</capacity>
+    	<connectedPlaceId></connectedPlaceId>
+    	<type>IN</type>
+    </gate>
+    <gate id="g02">
+    	<simplePlaceName>Gate02</simplePlaceName>
+    	<capacity>2</capacity>
+    	<connectedPlaceId></connectedPlaceId>
+    	<type>INOUT</type>
+    </gate>
+    <gate id="g03">
+    	<simplePlaceName>Gate03</simplePlaceName>
+    	<capacity>1</capacity>
+    	<connectedPlaceId></connectedPlaceId>
+    	<type>OUT</type>
+    </gate>
+    <gate id="g04">
+    	<simplePlaceName>Gate04</simplePlaceName>
+    	<capacity>2</capacity>
+    	<connectedPlaceId></connectedPlaceId>
+    	<type>INOUT</type>
+    </gate>
+    <gate id="g05">
+    	<simplePlaceName>Gate05</simplePlaceName>
+    	<capacity>1</capacity>
+    	<connectedPlaceId></connectedPlaceId>
+    	<type>IN</type>
+    </gate>
+    <road id="a01" name="A01">
+    	<roadSegment id="a01-01">
+    		<name>A01-01</name>
+    		<capacity>10</capacity>
+   			<connectedPlace>g03</connectedPlace>
+    		<connectedPlace>a01-02</connectedPlace>
+    		<containerPlaceId>a01</containerPlaceId>
+    	</roadSegment>
+    	<roadSegment id="a01-02">
+    		<name>A01-02</name>
+    		<capacity>17</capacity>
+    		<connectedPlace>a01-01</connectedPlace>
+    		<connectedPlace>a01-03</connectedPlace>
+    		<connectedPlace>a02-01</connectedPlace>
+    		<containerPlaceId>a01</containerPlaceId>
+    	</roadSegment>
+    	<roadSegment id="a01-03">
+    		<name>A01-03</name>
+    		<capacity>8</capacity>
+   			<connectedPlace>g04</connectedPlace>
+    		<connectedPlace>a01-02</connectedPlace>
+    		<containerPlaceId>a01</containerPlaceId>
+    	</roadSegment>
+    </road>
+    <road id="a02" name="A02">
+    	<roadSegment id="a02-01">
+    		<name>A02-01</name>
+    		<capacity>22</capacity>
+   			<connectedPlace>g01</connectedPlace>
+    		<connectedPlace>a01-02</connectedPlace>
+    		<containerPlaceId>a02</containerPlaceId>
+    	</roadSegment>
+    	<roadSegment id="a02-02">
+    		<name>A02-02</name>
+    		<capacity>19</capacity>
+   			<connectedPlace>g02</connectedPlace>
+    		<connectedPlace>a01-02</connectedPlace>
+    		<containerPlaceId>a02</containerPlaceId>
+    	</roadSegment>
+    </road>
+    <roadSegment id="ss01">
+   		<name>SS01</name>
+   		<capacity>13</capacity>
+   		<connectedPlace>g03</connectedPlace>
+   		<connectedPlace>a01-01</connectedPlace>
+   	</roadSegment>
+   	<roadSegment id="ss02">
+   		<name>SS02</name>
+   		<capacity>20</capacity>
+   		<connectedPlace>g04</connectedPlace>
+   		<connectedPlace>a01-02</connectedPlace>
+   	</roadSegment>
+   	<roadSegment id="ss03">
+   		<name>SS03</name>
+   		<capacity>31</capacity>
+   		<connectedPlace>g05</connectedPlace>
+   		<connectedPlace>a02-01</connectedPlace>
+   	</roadSegment>
+   	<parkingArea id="pa01">
+   		<name>PA01</name>
+   		<capacity>41</capacity>
+   		<connectedPlace>ss01</connectedPlace>
+   		<service>Bar</service>
+   		<service>Restaurant</service>
+   	</parkingArea>
+   	<parkingArea id="pa02">
+   		<name>PA02</name>
+   		<capacity>14</capacity>
+   		<connectedPlace>ss02</connectedPlace>
+   	</parkingArea>
+   	<parkingArea id="pa03">
+   		<name>PA03</name>
+   		<capacity>60</capacity>
+   		<connectedPlace>a01-02</connectedPlace>
+   		<service>Bar</service>
+   		<service>Restaurant</service>
+   		<service>Toilet</service>
+   	</parkingArea>
+   	<parkingArea id="pa04">
+   		<name>PA04</name>
+   		<capacity>10</capacity>
+   		<connectedPlace>ss03</connectedPlace>
+   	</parkingArea>
+</rns>

@@ -9,6 +9,7 @@ import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
 import it.polito.dp2.rest.rns.utility.Constants;
+import it.polito.dp2.rest.rns.utility.MapLoader;
 
 /**
  * This class is the core of the application. All the end-points should refer to some
@@ -41,6 +42,8 @@ public class RNSCore {
 		this.complexPlaces = new HashMap<>();
 		this.simplePlaces = new HashMap<>();
 		this.vehicles = new HashMap<>();
+		
+		MapLoader.loadMap();
 	}
 	
 	/**

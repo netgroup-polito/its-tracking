@@ -1,0 +1,43 @@
+<div class="container" [class.is-mobile]="mobileQuery.matches">
+
+  <mat-toolbar color="primary"> <!-- Inizio della toolbar -->
+    <div class="row">
+      <div class="flex-item">
+        <button class="menu-button" mat-icon-button (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
+      </div>
+
+      <div class="flex-item">
+        <h1 class="app-name">Vehicle Tracking Service</h1>
+      </div>
+
+      <div class="flex-item">
+        <button mat-icon-button
+                matTooltip='Logout'
+                (click)='logout()'
+                routerLink="/"
+                *ngIf="loggedIn">
+          <mat-icon>power_settings_new</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <mat-sidenav-container class="sidenav-container"
+                         [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
+    <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'"
+                 [fixedInViewport]="mobileQuery.matches" fixedTopGap="56">
+      <mat-nav-list>
+        <div>
+          <a mat-list-item routerLink="/options" >Options</a>
+          <a mat-list-item routerLink="/routes" >Routes</a>
+        </div>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+
+
+</div>

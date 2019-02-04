@@ -100,7 +100,7 @@
 						type="tns:ParkingAreaReaderType"
 						minOccurs="0" maxOccurs="unbounded"/>
 			<element		name="place"
-						type="tns:SimplePlaceReaderType"
+						type="tns:ComplexPlaceReaderType"
 						minOccurs="0" maxOccurs="unbounded"/>
 			<element		name="roadSegment"
 						type="tns:RoadSegmentReaderType"
@@ -214,17 +214,7 @@
 								type="string"
 								minOccurs="1" maxOccurs="1">
 					</element>
-					<element 	name="road"
-								type="string"
-								minOccurs="1" maxOccurs="1">
-						<annotation>
-							<appinfo>
-								<jaxb:class ref="String"/>
-							</appinfo>
-						</annotation>	
-					</element>
 				</sequence>
-				<attribute name="roadName" type="string"/>
 			</extension>
 		</complexContent>
 	</complexType>

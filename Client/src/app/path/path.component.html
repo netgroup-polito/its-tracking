@@ -1,0 +1,24 @@
+<mat-card>
+
+  <mat-card-title>
+    Select Path
+  </mat-card-title>
+
+  <div>
+    <mat-accordion>
+      <li *ngFor="let gate of gates">
+        <mat-expansion-panel
+          [expanded]="false"
+          (opened)="panelOpenState2 = true"
+          (closed)="panelOpenState2 = false"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <p>Id: {{gate.id}}</p>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+        </mat-expansion-panel>
+      </li>
+    </mat-accordion>
+  </div>
+</mat-card>

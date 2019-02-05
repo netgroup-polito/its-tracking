@@ -6,17 +6,17 @@ import { MaterialModule } from './material.module';
 import { AppComponent } from './app.component';
 import { OptionsComponent } from './options/options.component';
 import { RoutesComponent } from './routes/routes.component';
-import { RegisterComponent } from './register/register.component';
+import { PathComponent } from './path/path.component';
 
 import { RouterModule, Routes } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const appRoutes: Routes = [
-  { path: 'home', component: RoutesComponent },
+  { path: 'home', component: PathComponent },
+  { path: 'route', component: RoutesComponent },
   { path: 'options', component: OptionsComponent },
-  { path: 'register', component: RegisterComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
-  { path: '**', component: RoutesComponent }
+  { path: '**', component: PathComponent }
 ];
 
 @NgModule({
@@ -24,7 +24,7 @@ const appRoutes: Routes = [
     AppComponent,
     OptionsComponent,
     RoutesComponent,
-    RegisterComponent
+    PathComponent
   ],
   imports: [
     BrowserModule,

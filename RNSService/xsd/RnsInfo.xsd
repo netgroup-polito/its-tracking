@@ -81,6 +81,14 @@
 	<element name="vehicle" type="tns:VehicleReaderType"/>
 	<element name="dangerousMaterial" type="tns:DangerousMaterialType"/>
 	
+	<element name="gates">
+		<complexType>
+			<sequence>
+				<element name="gate" type="tns:GateReaderType"/>
+			</sequence>
+		</complexType>
+	</element>
+	
 	<!-- Complex types -->
 	<complexType name="IdentifiedEntityReaderType">
 		<sequence/>
@@ -100,7 +108,7 @@
 						type="tns:ParkingAreaReaderType"
 						minOccurs="0" maxOccurs="unbounded"/>
 			<element		name="place"
-						type="tns:SimplePlaceReaderType"
+						type="tns:ComplexPlaceReaderType"
 						minOccurs="0" maxOccurs="unbounded"/>
 			<element		name="roadSegment"
 						type="tns:RoadSegmentReaderType"
@@ -198,12 +206,16 @@
 	</complexType>
 	
 	<complexType name="RoadReaderType">
-		<sequence>
-			<element		name="roadSegment"
-						type="tns:RoadSegmentReaderType"
-						minOccurs="1" maxOccurs="unbounded"/>
-		</sequence>
-		<attribute 		name="name" type="string"/>
+		<complexContent>
+			<extension base="tns:IdentifiedEntityReaderType">
+				<sequence>
+					<element		name="roadSegment"
+								type="tns:RoadSegmentReaderType"
+								minOccurs="1" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute 		name="name" type="string"/>
+			</extension>
+		</complexContent>
 	</complexType>
 	
 	<complexType name="RoadSegmentReaderType">
@@ -214,17 +226,7 @@
 								type="string"
 								minOccurs="1" maxOccurs="1">
 					</element>
-					<element 	name="road"
-								type="string"
-								minOccurs="1" maxOccurs="1">
-						<annotation>
-							<appinfo>
-								<jaxb:class ref="String"/>
-							</appinfo>
-						</annotation>	
-					</element>
 				</sequence>
-				<attribute name="roadName" type="string"/>
 			</extension>
 		</complexContent>
 	</complexType>

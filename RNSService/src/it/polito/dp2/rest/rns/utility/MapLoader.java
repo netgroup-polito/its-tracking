@@ -8,6 +8,9 @@ import org.w3c.dom.NodeList;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
+import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
+import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
+import it.polito.dp2.rest.rns.jaxb.ServiceType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
 
 import org.w3c.dom.Node;
@@ -26,8 +29,6 @@ public class MapLoader {
 			Document doc = dBuilder.parse(fXmlFile);
 			
 			doc.getDocumentElement().normalize();
-
-			System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 					
 			NodeList nList = doc.getElementsByTagName("gate");
 			loadGates(nList);
@@ -48,43 +49,54 @@ public class MapLoader {
 	
 	private static void loadParkingAreas(NodeList nList) {
 		for (int temp = 0; temp < nList.getLength(); temp++) {
-			System.out.println("####################################");
 			Node nNode = nList.item(temp);
 					
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+				ParkingAreaReaderType park = (new ObjectFactory()).createParkingAreaReaderType();
 				NodeList list = nNode.getChildNodes();
 				Element eElement = (Element) nNode;
 				
-				System.out.println("Parking Area id:" + eElement.getAttribute("id"));
+				park.setId(eElement.getAttribute("id"));
 				
 				for(int i = 0; i < list.getLength(); i++) {
 					Node node = list.item(i);
 					
-					System.out.println("Name: " + node.getNodeName() + " -- Value: " + node.getTextContent());
+					if(node.getNodeName().equals("name")) park.setSimplePlaceName(node.getTextContent());
+					if(node.getNodeName().equals("capacity")) park.setCapacity(new BigInteger(node.getTextContent()));
+					if(node.getNodeName().equals("connectedPlace")) park.getConnectedPlaceId().add(node.getTextContent());
+					if(node.getNodeName().equals("service")) { 
+						ServiceType service = (new ObjectFactory()).createServiceType();
+						service.setName(node.getTextContent());
+						park.getService().add(service);
+					}
 				}
+				
+				neo4j.createNode(park);
 			}
-			System.out.println("####################################");
 		}
 	}
 
 	private static void loadRoadSegments(NodeList nList) {
 		for (int temp = 0; temp < nList.getLength(); temp++) {
-			System.out.println("####################################");
 			Node nNode = nList.item(temp);
 					
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+				RoadSegmentReaderType roadSegment = (new ObjectFactory()).createRoadSegmentReaderType();
 				NodeList list = nNode.getChildNodes();
 				Element eElement = (Element) nNode;
 				
-				System.out.println("Road Segment id:" + eElement.getAttribute("id"));
+				roadSegment.setId(eElement.getAttribute("id"));
 				
 				for(int i = 0; i < list.getLength(); i++) {
 					Node node = list.item(i);
 					
-					System.out.println("Name: " + node.getNodeName() + " -- Value: " + node.getTextContent());
+					if(node.getNodeName().equals("name")) roadSegment.setName((node.getTextContent()));
+					if(node.getNodeName().equals("capacity")) roadSegment.setCapacity(new BigInteger(node.getTextContent()));
+					if(node.getNodeName().equals("connectedPlace")) roadSegment.getConnectedPlaceId().add(node.getTextContent());
 				}
+				
+				neo4j.createNode(roadSegment);
 			}
-			System.out.println("####################################");
 		}
 		
 	}

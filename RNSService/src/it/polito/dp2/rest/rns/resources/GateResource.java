@@ -43,7 +43,7 @@ public class GateResource {
 			MediaType.TEXT_PLAIN
 	})
     public Response getGates() {
-		return Response.status(Status.OK).entity("gates").build();
+		return Response.status(Status.OK).entity(instance.getGates()).build();
     }
     
     @GET

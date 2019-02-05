@@ -2,7 +2,7 @@
 // Questo file xe8 stato generato dall'architettura JavaTM per XML Binding (JAXB) Reference Implementation, v2.3.0-b170531.0717 
 // Vedere <a href="https://jaxb.java.net/">https://jaxb.java.net/</a> 
 // Qualsiasi modifica a questo file andrxe0 persa durante la ricompilazione dello schema di origine. 
-// Generato il: 2019.02.04 alle 07:00:42 PM CET 
+// Generato il: 2019.02.05 alle 07:08:59 PM CET 
 //
 
 
@@ -25,12 +25,12 @@ import javax.xml.bind.annotation.XmlType;
  * <pre>
  * &lt;complexType name="RoadReaderType"&gt;
  *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *     &lt;extension base="{http://www.example.org/RnsInfo}IdentifiedEntityReaderType"&gt;
  *       &lt;sequence&gt;
  *         &lt;element name="roadSegment" type="{http://www.example.org/RnsInfo}RoadSegmentReaderType" maxOccurs="unbounded"/&gt;
  *       &lt;/sequence&gt;
  *       &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
- *     &lt;/restriction&gt;
+ *     &lt;/extension&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
@@ -41,7 +41,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "RoadReaderType", propOrder = {
     "roadSegment"
 })
-public class RoadReaderType {
+public class RoadReaderType
+    extends IdentifiedEntityReaderType
+{
 
     @XmlElement(required = true)
     protected List<RoadSegmentReaderType> roadSegment;

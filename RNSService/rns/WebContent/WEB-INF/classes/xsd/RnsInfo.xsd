@@ -81,6 +81,14 @@
 	<element name="vehicle" type="tns:VehicleReaderType"/>
 	<element name="dangerousMaterial" type="tns:DangerousMaterialType"/>
 	
+	<element name="gates">
+		<complexType>
+			<sequence>
+				<element name="gate" type="tns:GateReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
 	<!-- Complex types -->
 	<complexType name="IdentifiedEntityReaderType">
 		<sequence/>
@@ -198,12 +206,16 @@
 	</complexType>
 	
 	<complexType name="RoadReaderType">
-		<sequence>
-			<element		name="roadSegment"
-						type="tns:RoadSegmentReaderType"
-						minOccurs="1" maxOccurs="unbounded"/>
-		</sequence>
-		<attribute 		name="name" type="string"/>
+		<complexContent>
+			<extension base="tns:IdentifiedEntityReaderType">
+				<sequence>
+					<element		name="roadSegment"
+								type="tns:RoadSegmentReaderType"
+								minOccurs="1" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute 		name="name" type="string"/>
+			</extension>
+		</complexContent>
 	</complexType>
 	
 	<complexType name="RoadSegmentReaderType">

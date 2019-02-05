@@ -1,10 +1,13 @@
 package it.polito.dp2.rest.rns.resources;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import it.polito.dp2.rest.rns.jaxb.ComplexPlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
+import it.polito.dp2.rest.rns.jaxb.Gates;
+import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
@@ -142,12 +145,31 @@ public class RNSCore {
 		// TODO: establish relationships
 		String id = this.neo4j.createNode(value);
 		value.setId(id);
-		System.out.print("****** Added gate: " + id + "******");
 		return id;
 	}
 	
-	
+	/**
+	 * 
+	 * @param gateId
+	 * @return
+	 */
 	public GateReaderType getGate(String gateId) {
 		return this.neo4j.getGate(gateId);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Gates getGates() {
+		List<GateReaderType> gateList = this.neo4j.getGates();
+		Gates gates = (new ObjectFactory()).createGates();
+		
+		for(GateReaderType gate : gateList) {
+			System.out.println("######## Gate Id: " + gate.getId() + " ########");
+			gates.getGate().add(gate);
+		}
+		
+		return gates;
 	}
 }

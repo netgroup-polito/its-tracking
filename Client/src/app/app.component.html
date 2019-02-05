@@ -11,13 +11,6 @@
       </div>
 
       <div class="flex-item">
-        <button mat-icon-button
-                matTooltip='Logout'
-                (click)='logout()'
-                routerLink="/"
-                *ngIf="loggedIn">
-          <mat-icon>power_settings_new</mat-icon>
-        </button>
       </div>
     </div>
   </mat-toolbar>
@@ -28,8 +21,8 @@
                  [fixedInViewport]="mobileQuery.matches" fixedTopGap="56">
       <mat-nav-list>
         <div>
+          <a mat-list-item routerLink="/home" >Home</a>
           <a mat-list-item routerLink="/options" >Options</a>
-          <a mat-list-item routerLink="/routes" >Routes</a>
         </div>
       </mat-nav-list>
     </mat-sidenav>

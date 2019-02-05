@@ -11,7 +11,6 @@ import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
-import it.polito.dp2.rest.rns.utility.Constants;
 import it.polito.dp2.rest.rns.utility.MapLoader;
 
 /**
@@ -154,7 +153,7 @@ public class RNSCore {
 	 * @return
 	 */
 	public GateReaderType getGate(String gateId) {
-		return this.neo4j.getGate(gateId);
+		return null;
 	}
 
 	/**
@@ -166,7 +165,6 @@ public class RNSCore {
 		Gates gates = (new ObjectFactory()).createGates();
 		
 		for(GateReaderType gate : gateList) {
-			System.out.println("######## Gate Id: " + gate.getId() + " ########");
 			gates.getGate().add(gate);
 		}
 		

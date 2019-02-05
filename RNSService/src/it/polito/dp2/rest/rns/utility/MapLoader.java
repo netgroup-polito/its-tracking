@@ -9,6 +9,7 @@ import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
+import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
 import it.polito.dp2.rest.rns.jaxb.ServiceType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
@@ -17,9 +18,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapLoader {
 	private static final Neo4jInteractions neo4j = Neo4jInteractions.getInstance();
+	private static final IdTranslator id2neo4j = IdTranslator.getInstance();
+	private static List<GateReaderType> gates = new ArrayList<>();
+	private static List<RoadReaderType> roads = new ArrayList<>();
+	private static List<RoadSegmentReaderType> roadSegments = new ArrayList<>();
+	private static List<ParkingAreaReaderType> parkings = new ArrayList<>();
+	
 	public static void loadMap() {
 		try {
 
@@ -30,23 +39,79 @@ public class MapLoader {
 			
 			doc.getDocumentElement().normalize();
 					
-			NodeList nList = doc.getElementsByTagName("gate");
-			loadGates(nList);
+			// Load all the nodes
+			NodeList nListGates = doc.getElementsByTagName("gate");
+			loadGates(nListGates);
 			
-			nList = doc.getElementsByTagName("road");
-			loadRoads(nList);
+			NodeList nListRoads = doc.getElementsByTagName("road");
+			loadRoads(nListRoads);
 			
-			nList = doc.getElementsByTagName("roadSegment");
-			loadRoadSegments(nList);
+			NodeList nListRoadSegments = doc.getElementsByTagName("roadSegment");
+			loadRoadSegments(nListRoadSegments);
 			
-			nList = doc.getElementsByTagName("parkingArea");
-			loadParkingAreas(nList);
+			NodeList nListParkingAreas = doc.getElementsByTagName("parkingArea");
+			loadParkingAreas(nListParkingAreas);
+			
+			// Establish links
+			connectGates(gates);
+			connectRoadSegments(roadSegments);
+			connectParkingAreas(parkings);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 	    }
 	}
 	
+	private static void connectParkingAreas(List<ParkingAreaReaderType> parkingList) {
+		for(ParkingAreaReaderType park : parkingList) {
+			for(String id : park.getConnectedPlaceId())
+				if(id != null)
+					neo4j.connectNodes(park.getId(), id, "isConnectedTo");
+			
+			String containerId = park.getContainerPlaceId();
+			if(containerId != null)
+				neo4j.connectNodes(park.getId(), containerId, "isContainedInto");
+		}
+		
+	}
+
+	private static void connectRoadSegments(List<RoadSegmentReaderType> roadSegmentList) {
+		for(RoadSegmentReaderType roadSegment : roadSegmentList) {
+			for(String id : roadSegment.getConnectedPlaceId()) {
+				if(id != null)
+					neo4j.connectNodes(roadSegment.getId(), id, "isConnectedTo");
+			}
+			
+			String containerId = roadSegment.getContainerPlaceId();
+			if(containerId != null)
+				neo4j.connectNodes(roadSegment.getId(), containerId, "isContainedInto");
+		}
+		
+	}
+
+	/**
+	 * Function to connect in neo4j all the gates previously
+	 * loaded into the db
+	 * @param gateList = list of gates that has to be connected
+	 */
+	private static void connectGates(List<GateReaderType> gateList) {
+		for(GateReaderType gate : gateList) {
+			for(String id : gate.getConnectedPlaceId()) {
+				if(id != null)
+					neo4j.connectNodes(gate.getId(), id, "isConnectedTo");
+			}
+			
+			String containerId = gate.getContainerPlaceId();
+			if(containerId != null)
+				neo4j.connectNodes(gate.getId(), containerId, "isContainedInto");
+		}
+	}
+
+	/**
+	 * Function to load parking areas into neo4j db
+	 * @param nList = list of xml read nodes known to be parking
+	 * areas
+	 */
 	private static void loadParkingAreas(NodeList nList) {
 		for (int temp = 0; temp < nList.getLength(); temp++) {
 			Node nNode = nList.item(temp);
@@ -71,11 +136,17 @@ public class MapLoader {
 					}
 				}
 				
-				neo4j.createNode(park);
+				String parkId = neo4j.createNode(park);
+				id2neo4j.addIdTranslation(park.getId(), parkId);
+				parkings.add(park);
 			}
 		}
 	}
 
+	/**
+	 * Function to load road segments into the neo4j database
+	 * @param nList = list of xml read nodes known to be road segments
+	 */
 	private static void loadRoadSegments(NodeList nList) {
 		for (int temp = 0; temp < nList.getLength(); temp++) {
 			Node nNode = nList.item(temp);
@@ -93,25 +164,41 @@ public class MapLoader {
 					if(node.getNodeName().equals("name")) roadSegment.setName((node.getTextContent()));
 					if(node.getNodeName().equals("capacity")) roadSegment.setCapacity(new BigInteger(node.getTextContent()));
 					if(node.getNodeName().equals("connectedPlace")) roadSegment.getConnectedPlaceId().add(node.getTextContent());
+					// TODO: if(node.getNodeName().equals("containerPlaceId"))  roadSegment.setContainerPlaceId(node.getTextContent());
 				}
 				
-				neo4j.createNode(roadSegment);
+				String roadSegmentId = neo4j.createNode(roadSegment);
+				id2neo4j.addIdTranslation(roadSegment.getId(), roadSegmentId);
+				roadSegments.add(roadSegment);
 			}
 		}
 		
 	}
 
+	/**
+	 * Function to load roads into the database
+	 * @param nList = list of nodes know to be roads
+	 */
 	private static void loadRoads(NodeList nList) {
 		for (int temp = 0; temp < nList.getLength(); temp++) {
 			Node nNode = nList.item(temp);
 					
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+				RoadReaderType road = (new ObjectFactory()).createRoadReaderType();
+				road.setId(((Element)nNode).getAttribute("id"));
+				neo4j.createNode(road);
+				
 				NodeList list = nNode.getChildNodes();
 				loadRoadSegments(list);
 			}
 		}
 	}
 
+	/**
+	 * Function to load a list of nodes, know to be gates, into
+	 * neo4j database
+	 * @param nList = the list of gates extracted from xml
+	 */
 	private static void loadGates(NodeList nList) {
 		for (int temp = 0; temp < nList.getLength(); temp++) {
 			GateReaderType gate = (new ObjectFactory()).createGateReaderType();
@@ -132,7 +219,9 @@ public class MapLoader {
 					if(node.getNodeName().equals("type")) gate.setType(GateType.fromValue(node.getTextContent()));
 				}
 				
-				neo4j.createNode(gate);
+				String gateId = neo4j.createNode(gate);
+				id2neo4j.addIdTranslation(gate.getId(), gateId);
+				gates.add(gate);
 			}
 		}
 	}

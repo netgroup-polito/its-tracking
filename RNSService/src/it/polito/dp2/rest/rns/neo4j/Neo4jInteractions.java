@@ -203,7 +203,18 @@ public class Neo4jInteractions implements AutoCloseable {
 		return null;
 	}
 
+	/**
+	 * Function to create a statement to be used to instantiate a relation
+	 * between two nodes
+	 * @param node1 = identifier of source node
+	 * @param node2 = identifier of destination node
+	 * @param label = label of the relation
+	 * @return a string representing the query
+	 */
 	private String connectStatement(String node1, String node2, String label) {
+		System.out.println("############################");
+		System.out.println("Connection: (" + node1 + ")-[:" + label + "]->("+ node2 + ")");
+		System.out.println("############################");
 		String query = 
 				"MATCH (n) "
 				+ "WHERE id(n) = " + node1 + " "
@@ -215,6 +226,13 @@ public class Neo4jInteractions implements AutoCloseable {
 		return query;
 	}
 	
+	/**
+	 * Function to connect two nodes given their ids
+	 * @param node1 = identifier of source node
+	 * @param node2 = identifier of destination node
+	 * @param label = label of the relation
+	 * @return a string representing the id of the newly created relation
+	 */
 	public String connectNodes(String node1, String node2, String label) {
 		String query = this.connectStatement(
 				this.id2neo4j.getIdTranslation(node1), 

@@ -164,7 +164,10 @@ public class MapLoader {
 					if(node.getNodeName().equals("name")) roadSegment.setName((node.getTextContent()));
 					if(node.getNodeName().equals("capacity")) roadSegment.setCapacity(new BigInteger(node.getTextContent()));
 					if(node.getNodeName().equals("connectedPlace")) roadSegment.getConnectedPlaceId().add(node.getTextContent());
-					// TODO: if(node.getNodeName().equals("containerPlaceId"))  roadSegment.setContainerPlaceId(node.getTextContent());
+					if(node.getNodeName().equals("containerPlaceId")) {  
+						roadSegment.setContainerPlaceId(node.getTextContent());
+						System.out.println("roadSegment: " + roadSegment.getId() + " --- containerId: " + roadSegment.getContainerPlaceId());
+					}
 				}
 				
 				String roadSegmentId = neo4j.createNode(roadSegment);
@@ -186,7 +189,9 @@ public class MapLoader {
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 				RoadReaderType road = (new ObjectFactory()).createRoadReaderType();
 				road.setId(((Element)nNode).getAttribute("id"));
-				neo4j.createNode(road);
+				road.setName(((Element)nNode).getAttribute("name"));
+				String roadId = neo4j.createNode(road);
+				id2neo4j.addIdTranslation(road.getId(), roadId);
 				
 				NodeList list = nNode.getChildNodes();
 				loadRoadSegments(list);

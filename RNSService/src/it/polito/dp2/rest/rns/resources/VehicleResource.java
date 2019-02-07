@@ -98,15 +98,15 @@ public class VehicleResource {
 			}
 	)
 	@Produces({
-			MediaType.APPLICATION_XML,
-			MediaType.APPLICATION_JSON
+		MediaType.APPLICATION_XML,
+		MediaType.APPLICATION_JSON
 	})
     @Consumes({
-    	MediaType.APPLICATION_XML,
-    	MediaType.APPLICATION_JSON
+	    	MediaType.APPLICATION_XML,
+	    	MediaType.APPLICATION_JSON
     })
     public Response createVehicle(JAXBElement<VehicleReaderType> vehicle){
-    	String vehicleId = this.instance.addVehicle(vehicle.getValue());
+    		String vehicleId = this.instance.addVehicle(vehicle.getValue());
 		return Response.status(Status.CREATED).entity(vehicleId).build();
     }
     
@@ -127,11 +127,16 @@ public class VehicleResource {
 			MediaType.APPLICATION_JSON
 	})
     @Consumes({
-    	MediaType.APPLICATION_XML,
-    	MediaType.APPLICATION_JSON
+		    	MediaType.APPLICATION_XML,
+		    	MediaType.APPLICATION_JSON
     })
-    public Response updateVehicle(@PathParam("id") int vehicleId) {
-    	return null;
+    public Response updateVehicle(@PathParam("id") String vehicleId, JAXBElement<VehicleReaderType> vehicle) {
+	    	try {
+			this.instance.updateVehicle(vehicle.getValue());
+			return Response.status(Status.OK).entity(vehicleId).build();
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
     }
     
     @DELETE
@@ -151,7 +156,12 @@ public class VehicleResource {
 			MediaType.APPLICATION_XML,
 			MediaType.APPLICATION_JSON
 	})
-    public Response deleteVehicle() {
-    	return null;
+    public Response deleteVehicle(@PathParam("id") int vehicleId) {
+    		try {
+    			this.instance.deleteVehicle(String.valueOf(vehicleId));
+    			return Response.status(Status.OK).entity("deleted").build();
+    		} catch (Exception e) {
+    			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+    		}
     }
 }

@@ -2,7 +2,7 @@
 // Questo file xe8 stato generato dall'architettura JavaTM per XML Binding (JAXB) Reference Implementation, v2.3.0-b170531.0717 
 // Vedere <a href="https://jaxb.java.net/">https://jaxb.java.net/</a> 
 // Qualsiasi modifica a questo file andrxe0 persa durante la ricompilazione dello schema di origine. 
-// Generato il: 2019.02.06 alle 01:02:38 PM CET 
+// Generato il: 2019.02.07 alle 06:28:59 PM CET 
 //
 
 
@@ -29,9 +29,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *     &lt;extension base="{http://www.example.org/RnsInfo}IdentifiedEntityReaderType"&gt;
  *       &lt;sequence&gt;
  *         &lt;element name="VehicleName" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="destination" type="{http://www.example.org/RnsInfo}SimplePlaceReaderType"/&gt;
- *         &lt;element name="origin" type="{http://www.example.org/RnsInfo}SimplePlaceReaderType"/&gt;
- *         &lt;element name="position" type="{http://www.example.org/RnsInfo}SimplePlaceReaderType"/&gt;
+ *         &lt;element name="destination" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element name="origin" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element name="position" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
  *         &lt;element name="entryTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
  *         &lt;element name="state" type="{http://www.example.org/RnsInfo}VehicleStateType"/&gt;
  *         &lt;element name="type" type="{http://www.example.org/RnsInfo}VehicleTypeType"/&gt;
@@ -62,11 +62,11 @@ public class VehicleReaderType
     @XmlElement(name = "VehicleName", required = true)
     protected String vehicleName;
     @XmlElement(required = true)
-    protected SimplePlaceReaderType destination;
+    protected String destination;
     @XmlElement(required = true)
-    protected SimplePlaceReaderType origin;
+    protected String origin;
     @XmlElement(required = true)
-    protected SimplePlaceReaderType position;
+    protected String position;
     @XmlElement(required = true)
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar entryTime;
@@ -107,10 +107,10 @@ public class VehicleReaderType
      * 
      * @return
      *     possible object is
-     *     {@link SimplePlaceReaderType }
+     *     {@link String }
      *     
      */
-    public SimplePlaceReaderType getDestination() {
+    public String getDestination() {
         return destination;
     }
 
@@ -119,10 +119,10 @@ public class VehicleReaderType
      * 
      * @param value
      *     allowed object is
-     *     {@link SimplePlaceReaderType }
+     *     {@link String }
      *     
      */
-    public void setDestination(SimplePlaceReaderType value) {
+    public void setDestination(String value) {
         this.destination = value;
     }
 
@@ -131,10 +131,10 @@ public class VehicleReaderType
      * 
      * @return
      *     possible object is
-     *     {@link SimplePlaceReaderType }
+     *     {@link String }
      *     
      */
-    public SimplePlaceReaderType getOrigin() {
+    public String getOrigin() {
         return origin;
     }
 
@@ -143,10 +143,10 @@ public class VehicleReaderType
      * 
      * @param value
      *     allowed object is
-     *     {@link SimplePlaceReaderType }
+     *     {@link String }
      *     
      */
-    public void setOrigin(SimplePlaceReaderType value) {
+    public void setOrigin(String value) {
         this.origin = value;
     }
 
@@ -155,10 +155,10 @@ public class VehicleReaderType
      * 
      * @return
      *     possible object is
-     *     {@link SimplePlaceReaderType }
+     *     {@link String }
      *     
      */
-    public SimplePlaceReaderType getPosition() {
+    public String getPosition() {
         return position;
     }
 
@@ -167,10 +167,10 @@ public class VehicleReaderType
      * 
      * @param value
      *     allowed object is
-     *     {@link SimplePlaceReaderType }
+     *     {@link String }
      *     
      */
-    public void setPosition(SimplePlaceReaderType value) {
+    public void setPosition(String value) {
         this.position = value;
     }
 

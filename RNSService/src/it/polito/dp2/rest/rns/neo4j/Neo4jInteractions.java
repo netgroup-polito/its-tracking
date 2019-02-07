@@ -13,9 +13,6 @@ import org.neo4j.driver.v1.Value;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
-import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
-import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
-import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.utility.Constants;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
@@ -59,11 +56,17 @@ public class Neo4jInteractions implements AutoCloseable {
 		driver.close();
 	}
 	
+	@Override
+	protected void finalize() throws Throwable {
+		driver.close();
+		super.finalize();
+	}
+	
 	/**
 	 * Hello world function for test purposes only
 	 * @return a string representing the id of the newly created node
 	 */
-	public String helloWorld() {
+	public synchronized String helloWorld() {
 		try ( Session session = driver.session() )
         {
             String greeting = session.writeTransaction( new TransactionWork<String>()
@@ -86,61 +89,6 @@ public class Neo4jInteractions implements AutoCloseable {
 	}
 	
 	/**
-	 * Function to create the query according to the type of element it's wanted
-	 * to be loaded into the db
-	 * @param element = the new element to be loaded
-	 * @return a string representing the neo4j query
-	 */
-	private String createStatement(Object element) {
-		String query = "";
-		
-		if (element instanceof VehicleReaderType) {
-			VehicleReaderType vehicle = (VehicleReaderType) element;
-			query += "MERGE (vehicle:Vehicle {id: '"+ vehicle.getId() + "'}) "
-					+ "ON CREATE SET "
-					+ "vehicle.name = '" + vehicle.getVehicleName() + "',"
-					+ "vehicle.destination = '" + vehicle.getDestination() + "',"
-					+ "vehicle.origin = '" + vehicle.getOrigin() + "',"
-					+ "vehicle.position = '" + vehicle.getPosition() + "',"
-					+ "vehicle.type = '" + vehicle.getType() + "',"
-					+ "vehicle.state = '" + vehicle.getState() + "',"
-					+ "vehicle.entryTime = " + vehicle.getEntryTime()
-                    + " RETURN id(vehicle)";
-		} else if (element instanceof GateReaderType) {
-			GateReaderType gate = (GateReaderType) element;
-			query += "MERGE (gate:Gate {id: '" + gate.getId() + "'})"
-					+ "ON CREATE SET "
-					+ "gate.name = '" + gate.getSimplePlaceName() + "',"
-					+ "gate.capacity = " + gate.getCapacity() + ","
-					+ "gate.type = '" + gate.getType() + "'"
-                    + " RETURN id(gate)";
-		} else if (element instanceof RoadSegmentReaderType) {
-			RoadSegmentReaderType roadSegment = (RoadSegmentReaderType) element;
-			
-			query += "MERGE (roadSegment: RoadSegment {id: '" + roadSegment.getId() + "'}) "
-					+ "ON CREATE SET roadSegment.name = '" + roadSegment.getName() + "',"
-					+ "roadSegment.capacity = " + roadSegment.getCapacity().intValue() + ","
-					+ "roadSegment.avgTimeSpent = " + roadSegment.getAvgTimeSpent()
-					+ " RETURN id(roadSegment)";
-		} else if (element instanceof RoadReaderType) {
-			RoadReaderType road = (RoadReaderType) element;
-			
-			query += "MERGE (road: Road {id: '" + road.getId() + "'}) "
-					+ "ON CREATE SET road.name = '" + road.getName() + "'"
-					+ " RETURN id(road)";
-		} else if (element instanceof ParkingAreaReaderType) {
-			ParkingAreaReaderType park = (ParkingAreaReaderType) element;
-			
-			query += "MERGE (park: ParkingArea {id: '" + park.getId() + "'}) "
-					+ "ON CREATE SET park.capacity = " + park.getCapacity() + ","
-					+ "park.avgTimeSpent = " + park.getAvgTimeSpent()
-					+ " RETURN id(park)";
-		}
-		
-		return query;
-	}
-	
-	/**
 	 * Function to create the new node into the db
 	 * @param element = the new element to be loaded
 	 * @return the corresponding id
@@ -148,13 +96,14 @@ public class Neo4jInteractions implements AutoCloseable {
 	public String createNode(Object element) {
 		try ( Session session = driver.session() )
         {
-			final String query = this.createStatement(element);
+			final String query = StatementBuilder.getInstance().createStatement(element);
             String nodeId = session.writeTransaction( new TransactionWork<String>()
             {
                 @Override
                 public String execute( Transaction tx )
                 {
                     StatementResult result = tx.run(query);
+                    
                     return String.valueOf(result.single().get( 0 ));
                 }
             } );
@@ -164,13 +113,66 @@ public class Neo4jInteractions implements AutoCloseable {
 	}
 
 	/**
+	 * Function to connect two nodes given their ids
+	 * @param node1 = identifier of source node
+	 * @param node2 = identifier of destination node
+	 * @param label = label of the relation
+	 * @return a string representing the id of the newly created relation
+	 */
+	public String connectNodes(String node1, String node2, String label) {
+		String query = StatementBuilder.getInstance().connectStatement(
+				this.id2neo4j.getIdTranslation(node1), 
+				this.id2neo4j.getIdTranslation(node2), 
+				label);
+		
+		try ( Session session = driver.session() )
+        {
+            String relationshipId = session.writeTransaction( new TransactionWork<String>()
+            {
+                @Override
+                public String execute( Transaction tx )
+                {
+                    StatementResult result = tx.run(query);
+                    return String.valueOf(result.single().get( 0 ));
+                }
+            } );
+            
+            return relationshipId;
+        }
+	}
+	
+	/**
+	 * Function to delete a specific node from the neo4j database
+	 * @param nodeId = id of the node to be deleted
+	 * @param type = type of the node to be deleted
+	 */
+	public void deleteNode(String nodeId, String type) {
+		String query = StatementBuilder.getInstance().deleteByTypeAndIdStatement(
+				this.id2neo4j.getIdTranslation(nodeId),  
+				type);
+		
+		try ( Session session = driver.session() )
+        {
+            session.writeTransaction( new TransactionWork<String>()
+            {
+                @Override
+                public String execute( Transaction tx )
+                {
+                		tx.run(query);
+                		return "";
+                }
+            } );
+        }
+	}
+	
+	/**
 	 * Function to retrieve from Neo4j all the gates
 	 * @return list of the gates currently in the db
 	 */
-	public List<GateReaderType> getGates() {
+	public synchronized List<GateReaderType> getGates() {
 		try ( Session session = driver.session() )
         {
-			final String query = "MATCH (gate: Gate) RETURN properties(gate)";
+			final String query = StatementBuilder.getInstance().getStatementByType("Gate");
             List<GateReaderType> result = session.writeTransaction( new TransactionWork<List<GateReaderType>>()
             {
                 @Override
@@ -204,54 +206,31 @@ public class Neo4jInteractions implements AutoCloseable {
 	}
 
 	/**
-	 * Function to create a statement to be used to instantiate a relation
-	 * between two nodes
-	 * @param node1 = identifier of source node
-	 * @param node2 = identifier of destination node
-	 * @param label = label of the relation
-	 * @return a string representing the query
+	 * Function to retrieve a particular vehicle from the system
+	 * @param vehicleId = id of the vehicle to be retrieved
+	 * @return the desired vehicle
 	 */
-	private String connectStatement(String node1, String node2, String label) {
-		System.out.println("############################");
-		System.out.println("Connection: (" + node1 + ")-[:" + label + "]->("+ node2 + ")");
-		System.out.println("############################");
-		String query = 
-				"MATCH (n) "
-				+ "WHERE id(n) = " + node1 + " "
-				+ "MATCH (m) "
-				+ "WHERE id(m) = " + node2 + " "
-				+ "MERGE (n)-[:" + label + "]->(m) "
-				+ "RETURN n, m";
-		
-		return query;
-	}
-	
-	/**
-	 * Function to connect two nodes given their ids
-	 * @param node1 = identifier of source node
-	 * @param node2 = identifier of destination node
-	 * @param label = label of the relation
-	 * @return a string representing the id of the newly created relation
-	 */
-	public String connectNodes(String node1, String node2, String label) {
-		String query = this.connectStatement(
-				this.id2neo4j.getIdTranslation(node1), 
-				this.id2neo4j.getIdTranslation(node2), 
-				label);
-		
+	public synchronized VehicleReaderType getVehicle(String vehicleId) {
 		try ( Session session = driver.session() )
         {
-            String relationshipId = session.writeTransaction( new TransactionWork<String>()
+			final String query = StatementBuilder.getInstance().getStatementByType("Vehicle", this.id2neo4j.getIdTranslation(vehicleId));
+            VehicleReaderType result = session.writeTransaction( new TransactionWork<VehicleReaderType>()
             {
                 @Override
-                public String execute( Transaction tx )
+                public VehicleReaderType execute( Transaction tx )
                 {
-                    StatementResult result = tx.run(query);
-                    return String.valueOf(result.single().get( 0 ));
+                		VehicleReaderType vehicle = (new ObjectFactory()).createVehicleReaderType(); 
+					StatementResult result = tx.run(query);
+					
+					return vehicle;
                 }
             } );
             
-            return relationshipId;
+            return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
         }
+		
+		return null;
 	}
 }

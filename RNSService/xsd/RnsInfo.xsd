@@ -84,7 +84,7 @@
 	<element name="gates">
 		<complexType>
 			<sequence>
-				<element name="gate" type="tns:GateReaderType"/>
+				<element name="gate" type="tns:GateReaderType" minOccurs="1" maxOccurs="unbounded"/>
 			</sequence>
 		</complexType>
 	</element>
@@ -239,13 +239,13 @@
 								type="string"
 								minOccurs="1" maxOccurs="1"/>
 					<element		name="destination"
-								type="tns:SimplePlaceReaderType"
+								type="string"
 								minOccurs="1" maxOccurs="1"/>
 					<element		name="origin"
-								type="tns:SimplePlaceReaderType"
+								type="string"
 								minOccurs="1" maxOccurs="1"/>		
 					<element		name="position"
-								type="tns:SimplePlaceReaderType"
+								type="string"
 								minOccurs="1" maxOccurs="1"/>
 					<element		name="entryTime"
 								type="dateTime"

@@ -1,16 +1,12 @@
 package it.polito.dp2.rest.rns.resources;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import it.polito.dp2.rest.rns.jaxb.ComplexPlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.Gates;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
-import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
+import it.polito.dp2.rest.rns.utility.IdTranslator;
 import it.polito.dp2.rest.rns.utility.MapLoader;
 
 /**
@@ -28,9 +24,7 @@ import it.polito.dp2.rest.rns.utility.MapLoader;
 public class RNSCore {
 	private static RNSCore instance = null; // Instance of the class
 	private Neo4jInteractions neo4j;
-	private Map<String, ComplexPlaceReaderType> complexPlaces;
-	private Map<String, SimplePlaceReaderType> simplePlaces;
-	private Map<String, VehicleReaderType> vehicles;
+	private IdTranslator id2neo4j;
 	
 	/**
 	 * Private constructor, so that the instance of the object can only be accessed
@@ -38,10 +32,9 @@ public class RNSCore {
 	 */
 	private RNSCore(){
 		this.neo4j = Neo4jInteractions.getInstance();
-		this.complexPlaces = new HashMap<>();
-		this.simplePlaces = new HashMap<>();
-		this.vehicles = new HashMap<>();
+		this.id2neo4j = IdTranslator.getInstance();
 		
+		// Load the map of the system
 		MapLoader.loadMap();
 	}
 	
@@ -59,56 +52,12 @@ public class RNSCore {
 		return instance;
 	}
 
+	/**
+	 * Hello world function. Just for debug purposes.
+	 * @return string of a newly created hello world node in neo4j
+	 */
 	public String helloWorld() {
 		return this.neo4j.helloWorld();
-	}
-
-	/**
-	 * Function to add a complex place as a node, both in the local map
-	 * database and in Neo4j
-	 * @param value = the place to be added
-	 * @return the id of the node, assigned automatically by Neo4j
-	 */
-	public String addPlace(ComplexPlaceReaderType value) {
-		// TODO: establish relationships
-		String id = this.neo4j.createNode(value);
-		value.setId(id);
-		System.out.print("****** Added complex place: " + id + "******");
-		this.complexPlaces.put(id, value);
-		return id;
-	}
-	
-	/**
-	 * Function to add a simple place as a node, both in the local map
-	 * database and in Neo4j
-	 * @param value = the place to be added
-	 * @return the id of the node, assigned automatically by Neo4j
-	 */
-	public String addPlace(SimplePlaceReaderType value) {
-		// TODO: establish relationships
-		String id = this.neo4j.createNode(value);
-		value.setId(id);
-		System.out.print("****** Added simple place: " + id + "******");
-		this.simplePlaces.put(id, value);
-		return id;
-	}
-	
-	/**
-	 * Function to get a complex place
-	 * @param id
-	 * @return the complex place
-	 */
-	public ComplexPlaceReaderType getComplexPlace(String id) {
-		return (this.complexPlaces.containsKey(id)) ? this.complexPlaces.get(id) : null;
-	}
-	
-	/**
-	 * Function to get a simple place
-	 * @param id
-	 * @return the simple place
-	 */
-	public SimplePlaceReaderType getSimplePlace(String id) {
-		return (this.simplePlaces.containsKey(id)) ? this.simplePlaces.get(id) : null;
 	}
 	
 	/**
@@ -118,11 +67,40 @@ public class RNSCore {
 	 * @return the id of the node, assigned automatically by Neo4j
 	 */
 	public String addVehicle(VehicleReaderType value) {
-		// TODO: establish relationships
 		String id = this.neo4j.createNode(value);
-		value.setId(id);
-		System.out.print("****** Added vehicle: " + id + "******");
-		this.vehicles.put(id, value);
+		System.out.println("Added new VEHICLE: "+ id);
+		this.id2neo4j.addIdTranslation(value.getId(), id);
+		
+		// ORIGIN
+		if(value.getOrigin() != null) {
+			System.out.println("Connection to origin: " + this.id2neo4j.getIdTranslation(value.getOrigin()));
+			this.neo4j.connectNodes(
+					value.getId(), 
+					value.getOrigin(), 
+					"comesFrom"
+			);
+		}
+		
+		// DESTINATION
+		if(value.getDestination() != null) {
+			this.neo4j.connectNodes(
+					value.getId(), 
+					value.getDestination(), 
+					"isDirectedTo"
+			);
+		}
+		
+		// TODO: retrieve the path from z3
+		
+		// CURRENT POSITION
+		if(value.getPosition() != null) {
+			this.neo4j.connectNodes(
+					value.getId(), 
+					value.getPosition(), 
+					"isLocatedIn"
+			);
+		}
+		
 		return id;
 	}
 	
@@ -132,7 +110,7 @@ public class RNSCore {
 	 * @return the vehicle
 	 */
 	public VehicleReaderType getVehicle(String id) {
-		return (this.vehicles.containsKey(id)) ? this.vehicles.get(id) : null;
+		return this.neo4j.getVehicle(id);
 	}
 
 	/**
@@ -141,24 +119,46 @@ public class RNSCore {
 	 * @return the id of the node, assigned automatically by Neo4j
 	 */
 	public String addGate(GateReaderType value) {
-		// TODO: establish relationships
 		String id = this.neo4j.createNode(value);
-		value.setId(id);
+		System.out.println("Added new GATE: " + id);
+		
+		this.id2neo4j.addIdTranslation(value.getId(), id);
+		
+		// CONTAINER
+		if(value.getContainerPlaceId() != null)
+			this.neo4j.connectNodes(
+					id, 
+					this.id2neo4j.getIdTranslation(value.getContainerPlaceId()), 
+					"isContainedInto");
+		
+		// CONNECTED PLACES
+		for(String idConnected : value.getConnectedPlaceId()) {
+			this.neo4j.connectNodes(
+					id, 
+					this.id2neo4j.getIdTranslation(idConnected), 
+					"isConnectedTo");
+		}
+		
 		return id;
 	}
 	
 	/**
-	 * 
-	 * @param gateId
-	 * @return
+	 * Function to retrieve a specific gate in the system given 
+	 * its id
+	 * @param gateId = the id of the gate to be retrieved
+	 * @return the desired gate
 	 */
 	public GateReaderType getGate(String gateId) {
+		for(GateReaderType gate : this.getGates().getGate()) {
+			if(gate.getId().equals(gateId)) return gate;
+		}
+		
 		return null;
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Function to retrieve all the gates loaded into the system
+	 * @return a Gates object that contains the list of the gates in the system
 	 */
 	public Gates getGates() {
 		List<GateReaderType> gateList = this.neo4j.getGates();
@@ -169,5 +169,24 @@ public class RNSCore {
 		}
 		
 		return gates;
+	}
+	
+	/**
+	 * Function to delete a vehicle from the database
+	 * @param vehicleId = id of the vehicle to be deleted
+	 */
+	public void deleteVehicle(String vehicleId) {
+		this.neo4j.deleteNode(vehicleId, "Vehicle");
+		this.id2neo4j.removeTranslation(vehicleId);
+	}
+
+	/**
+	 * Function to update the informations of a specific vehicle in the
+	 * database
+	 * @param vehicle = vehicle information to be updated
+	 */
+	public void updateVehicle(VehicleReaderType vehicle) {
+		this.deleteVehicle(vehicle.getId());
+		this.addVehicle(vehicle);
 	}
 }

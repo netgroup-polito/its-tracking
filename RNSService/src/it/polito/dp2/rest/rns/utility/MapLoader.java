@@ -62,6 +62,10 @@ public class MapLoader {
 	    }
 	}
 	
+	/**
+	 * Function to connect parking areas to whatever they're connected to
+	 * @param parkingList = list of parking areas that have to be connected
+	 */
 	private static void connectParkingAreas(List<ParkingAreaReaderType> parkingList) {
 		for(ParkingAreaReaderType park : parkingList) {
 			for(String id : park.getConnectedPlaceId())
@@ -75,6 +79,10 @@ public class MapLoader {
 		
 	}
 
+	/**
+	 * Function to connect road segment to whatever they're connected to
+	 * @param roadSegmentList = list of road segments that have to be connected
+	 */
 	private static void connectRoadSegments(List<RoadSegmentReaderType> roadSegmentList) {
 		for(RoadSegmentReaderType roadSegment : roadSegmentList) {
 			for(String id : roadSegment.getConnectedPlaceId()) {
@@ -164,10 +172,7 @@ public class MapLoader {
 					if(node.getNodeName().equals("name")) roadSegment.setName((node.getTextContent()));
 					if(node.getNodeName().equals("capacity")) roadSegment.setCapacity(new BigInteger(node.getTextContent()));
 					if(node.getNodeName().equals("connectedPlace")) roadSegment.getConnectedPlaceId().add(node.getTextContent());
-					if(node.getNodeName().equals("containerPlaceId")) {  
-						roadSegment.setContainerPlaceId(node.getTextContent());
-						System.out.println("roadSegment: " + roadSegment.getId() + " --- containerId: " + roadSegment.getContainerPlaceId());
-					}
+					if(node.getNodeName().equals("containerPlaceId")) roadSegment.setContainerPlaceId(node.getTextContent());
 				}
 				
 				String roadSegmentId = neo4j.createNode(roadSegment);
@@ -192,6 +197,7 @@ public class MapLoader {
 				road.setName(((Element)nNode).getAttribute("name"));
 				String roadId = neo4j.createNode(road);
 				id2neo4j.addIdTranslation(road.getId(), roadId);
+				roads.add(road);
 				
 				NodeList list = nNode.getChildNodes();
 				loadRoadSegments(list);

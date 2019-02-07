@@ -28,7 +28,7 @@ public class IdTranslator {
 	 * @param id = the id client side
 	 * @param neo4jId = the id neo4j has given the object
 	 */
-	public synchronized void addIdTranslation(String id, String neo4jId) {
+	public void addIdTranslation(String id, String neo4jId) {
 		this.id2neo4j.put(id, neo4jId);
 	}
 	
@@ -38,7 +38,16 @@ public class IdTranslator {
 	 * @param id = the id client has for an objects
 	 * @return the corresponding neo4j id
 	 */
-	public synchronized String getIdTranslation(String id) {
+	public String getIdTranslation(String id) {
 		return this.id2neo4j.get(id);
+	}
+
+	/**
+	 * Function to remove a correspondence from the map
+	 * @param vehicleId = id of the vehicle of which the correspondence
+	 * has to be removed
+	 */
+	public void removeTranslation(String vehicleId) {
+		this.id2neo4j.remove(vehicleId);
 	}
 }

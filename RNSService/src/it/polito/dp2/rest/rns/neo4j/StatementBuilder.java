@@ -49,7 +49,7 @@ public class StatementBuilder {
 			VehicleReaderType vehicle = (VehicleReaderType) element;
 			query += "MERGE (vehicle:Vehicle {id: '"+ vehicle.getId() + "'}) "
 					+ "ON CREATE SET "
-					+ "vehicle.name = '" + vehicle.getVehicleName() + "',"
+					+ "vehicle.name = '" + vehicle.getName() + "',"
 					+ "vehicle.destination = '" + vehicle.getDestination() + "',"
 					+ "vehicle.origin = '" + vehicle.getOrigin() + "',"
 					+ "vehicle.position = '" + vehicle.getPosition() + "',"
@@ -61,7 +61,7 @@ public class StatementBuilder {
 			GateReaderType gate = (GateReaderType) element;
 			query += "MERGE (gate:Gate {id: '" + gate.getId() + "'})"
 					+ "ON CREATE SET "
-					+ "gate.name = '" + gate.getSimplePlaceName() + "',"
+					+ "gate.name = '" + gate.getName() + "',"
 					+ "gate.capacity = " + gate.getCapacity() + ","
 					+ "gate.type = '" + gate.getType() + "'"
                     + " RETURN id(gate)";

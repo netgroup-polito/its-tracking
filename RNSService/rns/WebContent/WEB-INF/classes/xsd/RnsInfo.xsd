@@ -138,7 +138,7 @@
 		<complexContent>
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
-					<element	name="complexPlaceName"
+					<element	name="name"
 								type="string"
 								minOccurs="1" maxOccurs="1"/>
 					<element	name="totalCapacity"
@@ -159,7 +159,7 @@
 		<complexContent>
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
-					<element	name="simplePlaceName"
+					<element	name="name"
 								type="string"
 								minOccurs="1" maxOccurs="1"/>
 					<element	name="capacity"
@@ -220,14 +220,7 @@
 	
 	<complexType name="RoadSegmentReaderType">
 		<complexContent>
-			<extension base="tns:SimplePlaceReaderType">
-				<sequence>
-					<element 	name="name"
-								type="string"
-								minOccurs="1" maxOccurs="1">
-					</element>
-				</sequence>
-			</extension>
+			<extension base="tns:SimplePlaceReaderType"/>
 		</complexContent>
 	</complexType>
 	
@@ -235,7 +228,7 @@
 		<complexContent>
 			<extension base="tns:IdentifiedEntityReaderType">
 				<sequence>
-				<element	name="VehicleName"
+				<element	name="name"
 								type="string"
 								minOccurs="1" maxOccurs="1"/>
 					<element		name="destination"

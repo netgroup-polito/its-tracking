@@ -185,7 +185,7 @@ public class Neo4jInteractions implements AutoCloseable {
 						GateReaderType gate = (new ObjectFactory()).createGateReaderType();
 						
 						for( Value entry : r.values()) {
-							gate.setSimplePlaceName((String) entry.asMap().get("name"));
+							gate.setName((String) entry.asMap().get("name"));
 							gate.setId((String) entry.asMap().get("id"));
 							gate.setType(GateType.fromValue((String) entry.asMap().get("type")));
 							gate.setCapacity(new BigInteger(Long.toString((Long) entry.asMap().get("capacity")))); 

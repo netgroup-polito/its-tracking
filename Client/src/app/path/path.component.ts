@@ -13,12 +13,18 @@ export class PathComponent implements OnInit {
   constructor(private client: ClientHttpService) { }
 
   ngOnInit() {
-    // this.getNodes();
+    this.getNodes();
   }
 
   getNodes() {
     this.client.getGates().subscribe(
-      data => this.gates = data
+      data => {
+        console.log(data);
+        // this.gates = data
+      },
+      err => {
+          console.log('ERROR:   ' + err.message);
+        }
     );
   }
 }

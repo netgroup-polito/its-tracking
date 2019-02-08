@@ -28,7 +28,7 @@ public class RNSTests {
 		ObjectFactory factory = new ObjectFactory();
 		ComplexPlaceReaderType place1 = factory.createComplexPlaceReaderType();
 		
-		place1.setComplexPlaceName("Complex Place 0");
+		place1.setName("Complex Place 0");
 		place1.setTotalCapacity(new BigInteger("100"));
 		place1.getSimplePlaceId().add(new BigInteger("100"));
 		
@@ -59,7 +59,7 @@ public class RNSTests {
 		ObjectFactory factory = new ObjectFactory();
 		SimplePlaceReaderType place1 = factory.createSimplePlaceReaderType();
 		
-		place1.setSimplePlaceName("Simple Place 0");
+		place1.setName("Simple Place 0");
 		place1.setCapacity(new BigInteger("10"));
 		
 		String place1Id = client.createSimplePlace(place1);
@@ -92,13 +92,13 @@ public class RNSTests {
 		VehicleTypeType type = VehicleTypeType.CAR;
 		
 		origin.setId("o1");		
-		origin.setSimplePlaceName("Simple Place 0");
+		origin.setName("Simple Place 0");
 		origin.setCapacity(new BigInteger("10"));
 		destination.setId("d1");
-		destination.setSimplePlaceName("Simple Place 1");
+		destination.setName("Simple Place 1");
 		destination.setCapacity(new BigInteger("6"));
 		position.setId("p1");
-		position.setSimplePlaceName("Simple Place 2");
+		position.setName("Simple Place 2");
 		position.setCapacity(new BigInteger("8"));
 		
 		GregorianCalendar calendarActual = new GregorianCalendar(2018, 6, 28);
@@ -106,7 +106,7 @@ public class RNSTests {
 	    XMLGregorianCalendar XMLGregorianCalendar = datatypeFactory
 	      .newXMLGregorianCalendar(calendarActual);
 	    
-	    vehicle.setVehicleName("car1");
+	    vehicle.setName("car1");
 		vehicle.setDestination(destination.getId());
 		vehicle.setOrigin(origin.getId());
 		vehicle.setPosition(position.getId());
@@ -124,7 +124,7 @@ public class RNSTests {
 		
 		System.out.println("*********************************");
 		System.out.println("Id -> Before: " + vehicle.getId() + " --- After: " + vehicleCopy.getId());
-		System.out.println("Name -> Before: " + vehicle.getVehicleName() + " --- After: " + vehicleCopy.getVehicleName());
+		System.out.println("Name -> Before: " + vehicle.getName() + " --- After: " + vehicleCopy.getName());
 		System.out.println("Dest -> Before: " + vehicle.getDestination() + " --- After: " + vehicleCopy.getDestination());
 		System.out.println("Origin -> Before: " + vehicle.getOrigin() + " --- After: " + vehicleCopy.getOrigin());
 		System.out.println("Position -> Before: " + vehicle.getPosition() + " --- After: " + vehicleCopy.getPosition());
@@ -134,7 +134,7 @@ public class RNSTests {
 		System.out.println("*********************************");
 		
 		assertEquals("Create vehicle failed!", vehicle.getId(), vehicleCopy.getId());
-		assertEquals("Create vehicle failed!", vehicle.getVehicleName(), vehicleCopy.getVehicleName());
+		assertEquals("Create vehicle failed!", vehicle.getName(), vehicleCopy.getName());
 		assertEquals("Create vehicle failed!", vehicle.getDestination(), vehicleCopy.getDestination());
 		assertEquals("Create vehicle failed!", vehicle.getOrigin(), vehicleCopy.getOrigin());
 		assertEquals("Create vehicle failed!", vehicle.getPosition(), vehicleCopy.getPosition());

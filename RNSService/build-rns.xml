@@ -106,7 +106,7 @@
 
 	<!-- Target generate-bindings -->
 	<target name="generate-bindings" unless="generate-bindings.notRequired" depends="init,-chk-bindings" description="Generate bindings from schema">
-		<exec executable="xjc" failonerror="true" >
+		<exec executable="${env.JAVA_HOME}/bin/xjc" failonerror="true" >
 			<arg value="-d" />
 			<arg value="${gen.dir}" />
 			<arg value="-p" />

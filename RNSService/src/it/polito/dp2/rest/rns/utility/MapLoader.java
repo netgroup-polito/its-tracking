@@ -134,7 +134,7 @@ public class MapLoader {
 				for(int i = 0; i < list.getLength(); i++) {
 					Node node = list.item(i);
 					
-					if(node.getNodeName().equals("name")) park.setSimplePlaceName(node.getTextContent());
+					if(node.getNodeName().equals("name")) park.setName(node.getTextContent());
 					if(node.getNodeName().equals("capacity")) park.setCapacity(new BigInteger(node.getTextContent()));
 					if(node.getNodeName().equals("connectedPlace")) park.getConnectedPlaceId().add(node.getTextContent());
 					if(node.getNodeName().equals("service")) { 
@@ -224,7 +224,7 @@ public class MapLoader {
 				for(int i = 0; i < list.getLength(); i++) {
 					Node node = list.item(i);
 					
-					if(node.getNodeName().equals("simplePlaceName")) gate.setSimplePlaceName(node.getTextContent());
+					if(node.getNodeName().equals("simplePlaceName")) gate.setName(node.getTextContent());
 					if(node.getNodeName().equals("capacity")) gate.setCapacity(new BigInteger(node.getTextContent()));
 					if(node.getNodeName().equals("connectedPlace")) gate.getConnectedPlaceId().add(node.getTextContent());
 					if(node.getNodeName().equals("type")) gate.setType(GateType.fromValue(node.getTextContent()));

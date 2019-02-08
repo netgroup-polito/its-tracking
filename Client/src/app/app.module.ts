@@ -10,6 +10,7 @@ import { PathComponent } from './path/path.component';
 
 import { RouterModule, Routes } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule } from '@angular/common/http';
 
 const appRoutes: Routes = [
   { path: 'home', component: PathComponent },
@@ -29,6 +30,7 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     MaterialModule,
+    HttpClientModule,
     RouterModule.forRoot(appRoutes),
     BrowserAnimationsModule
   ],

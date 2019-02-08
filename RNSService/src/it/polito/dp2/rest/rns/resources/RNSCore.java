@@ -4,7 +4,12 @@ import java.util.List;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.Gates;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
+import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
+import it.polito.dp2.rest.rns.jaxb.RnsReaderType;
+import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
+import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
+import it.polito.dp2.rest.rns.jaxb.Vehicles;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
 import it.polito.dp2.rest.rns.utility.MapLoader;
@@ -188,5 +193,31 @@ public class RNSCore {
 	public void updateVehicle(VehicleReaderType vehicle) {
 		this.deleteVehicle(vehicle.getId());
 		this.addVehicle(vehicle);
+	}
+
+	/**
+	 * Function to retrieve all the vehicles in the system
+	 * @return a Vehicles object containing all the vehicles
+	 */
+	public Vehicles getVehicles() {
+		List<VehicleReaderType> vehicleList = this.neo4j.getVehicles();
+		Vehicles vehicles = (new ObjectFactory()).createVehicles();
+		
+		for(VehicleReaderType vehicle : vehicleList) {
+			vehicles.getVehicle().add(vehicle);
+		}
+		
+		return vehicles;
+	}
+
+	public RnsReaderType getSystem() {
+		RnsReaderType rns = (new ObjectFactory()).createRnsReaderType();
+		
+		for(GateReaderType gate : this.neo4j.getGates()) rns.getGate().add(gate);
+		for(RoadSegmentReaderType roadSegment : this.neo4j.getRoadSegments()) rns.getRoadSegment().add(roadSegment);
+		for(ParkingAreaReaderType parkingArea : this.neo4j.getParkingAreas()) rns.getParkingArea().add(parkingArea);
+		for(VehicleReaderType vehicle : this.neo4j.getVehicles()) rns.getVehicle().add(vehicle);
+		
+		return rns;
 	}
 }

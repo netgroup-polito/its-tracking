@@ -2,6 +2,7 @@ package it.polito.dp2.rest.rns.utility;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * This class is used to translate from id of object given from the client
@@ -10,6 +11,7 @@ import java.util.Map;
  */
 public class IdTranslator {
 	private Map<String, String> id2neo4j = new HashMap<>();
+	private Map<String, String> neo4j2id = new HashMap<>();
 	private static IdTranslator instance = null;
 	
 	private IdTranslator() { }
@@ -30,6 +32,7 @@ public class IdTranslator {
 	 */
 	public void addIdTranslation(String id, String neo4jId) {
 		this.id2neo4j.put(id, neo4jId);
+		this.neo4j2id.put(neo4jId, id);
 	}
 	
 	/**
@@ -49,5 +52,23 @@ public class IdTranslator {
 	 */
 	public void removeTranslation(String vehicleId) {
 		this.id2neo4j.remove(vehicleId);
+		String toBeRemovedKey = "";
+		for(Entry<String, String> entry : this.neo4j2id.entrySet()) {
+			if(entry.getValue().equals(vehicleId)) {
+				toBeRemovedKey = entry.getKey();
+				break;
+			}
+		}
+		
+		if(!toBeRemovedKey.equals("")) this.neo4j2id.remove(toBeRemovedKey);
+	}
+
+	/**
+	 * Function to retrieve from neo4j id the client id
+	 * @param neo4jId = id in neo4j
+	 * @return the id client side
+	 */
+	public String fromNeo4jId(String neo4jId) {
+		return this.neo4j2id.get(neo4jId);
 	}
 }

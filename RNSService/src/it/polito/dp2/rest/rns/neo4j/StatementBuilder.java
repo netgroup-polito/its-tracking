@@ -93,10 +93,35 @@ public class StatementBuilder {
 	
 	/**
 	 * Function to retrieve all the nodes of a certain type
+	 * with all the connections
 	 * @param type = type of the nodes to be retrieved
 	 * @return a string corresponding to the desired query
 	 */
-	public String getStatementByType(String type) {
+	public String getStatementByTypeAndConnection(String type) {
+		String query = "MATCH (n: " + type + ")-[:isConnectedTo*1]->(connected) RETURN properties(n), id(connected)";
+		return query;
+	}
+	
+	/**
+	 * Function to retrieve all the nodes of a certain type
+	 * with all the connections and relations with containers
+	 * @param type = type of the nodes to be retrieved
+	 * @return a string corresponding to the desired query
+	 */
+	public String getStatementByTypeAndConnectionAndContainer(String type) {
+		String query = 
+				"MATCH (n: " + type + ")-[:isConnectedTo*1]->(connected) "
+				+ "MATCH (n: " + type + " )-[:isContainedInto*1]->(container) "
+				+ "RETURN properties(n), id(connected), id(container)";
+		return query;
+	}
+	
+	/**
+	 * Function to retrieve all the nodes of a certain type
+	 * @param type = type of the nodes to be retrieved
+	 * @return a string corresponding to the desired query
+	 */
+	public String getStatementByTypeNoConnection(String type) {
 		String query = "MATCH (n: " + type + ") RETURN properties(n)";
 		return query;
 	}
@@ -107,7 +132,7 @@ public class StatementBuilder {
 	 * @param id = id of the node to be retrieved
 	 * @return a string corresponding to the desired query
 	 */
-	public String getStatementByType(String type, String id) {
+	public String getStatementByTypeAndId(String type, String id) {
 		String query = "MATCH (n: " + type + ") WHERE id(n) = " + id + " RETURN properties(n)";
 		return query;
 	}

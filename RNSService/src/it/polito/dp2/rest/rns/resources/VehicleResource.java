@@ -41,7 +41,7 @@ public class VehicleResource {
 		MediaType.APPLICATION_JSON
 	})
 	public Response getVehicles() {
-		return Response.status(Status.OK).entity("vehicles").build();
+		return Response.status(Status.OK).entity(this.instance.getVehicles()).build();
 	}
 	
 	@GET
@@ -62,8 +62,8 @@ public class VehicleResource {
 	})
     public Response getVehicle(@PathParam("id") String vehicleId) {
 		VehicleReaderType vehicle = this.instance.getVehicle(vehicleId);
-    	JAXBElement<VehicleReaderType> jaxbVehicle = (new ObjectFactory()).createVehicle(vehicle);
-    	return Response.status(Status.OK).entity(jaxbVehicle).build();
+    		JAXBElement<VehicleReaderType> jaxbVehicle = (new ObjectFactory()).createVehicle(vehicle);
+    		return Response.status(Status.OK).entity(jaxbVehicle).build();
     }
     
     @GET
@@ -83,7 +83,7 @@ public class VehicleResource {
 			MediaType.APPLICATION_JSON
 	})
     public Response getVehiclePath(@PathParam("id") int vehicleId) {
-    	return null;
+    		return null;
     }
     
     @POST

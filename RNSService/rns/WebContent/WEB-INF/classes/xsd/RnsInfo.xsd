@@ -81,10 +81,51 @@
 	<element name="vehicle" type="tns:VehicleReaderType"/>
 	<element name="dangerousMaterial" type="tns:DangerousMaterialType"/>
 	
+	<!-- Collections -->
 	<element name="gates">
 		<complexType>
 			<sequence>
 				<element name="gate" type="tns:GateReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="vehicles">
+		<complexType>
+			<sequence>
+				<element name="vehicle" type="tns:VehicleReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="parkingAreas">
+		<complexType>
+			<sequence>
+				<element name="parkingArea" type="tns:ParkingAreaReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="roads">
+		<complexType>
+			<sequence>
+				<element name="road" type="tns:RoadReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="roadSegments">
+		<complexType>
+			<sequence>
+				<element name="roadSegment" type="tns:RoadSegmentReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="dangerousMaterials">
+		<complexType>
+			<sequence>
+				<element name="dangerousMaterial" type="tns:DangerousMaterialType" minOccurs="1" maxOccurs="unbounded"/>
 			</sequence>
 		</complexType>
 	</element>
@@ -112,6 +153,9 @@
 						minOccurs="0" maxOccurs="unbounded"/>
 			<element		name="roadSegment"
 						type="tns:RoadSegmentReaderType"
+						minOccurs="0" maxOccurs="unbounded"/>
+			<element		name="road"	
+						type="tns:RoadReaderType"
 						minOccurs="0" maxOccurs="unbounded"/>
 			<element		name="vehicle"
 						type="tns:VehicleReaderType"

@@ -7,33 +7,33 @@
 	id="x0">
 	
     <gate id="g01">
-    	<simplePlaceName>Gate01</simplePlaceName>
+    	<name>Gate01</name>
     	<capacity>1</capacity>
     	<connectedPlace>a02-01</connectedPlace>
     	<type>IN</type>
     </gate>
     <gate id="g02">
-    	<simplePlaceName>Gate02</simplePlaceName>
+    	<name>Gate02</name>
     	<capacity>2</capacity>
     	<connectedPlace>a02-02</connectedPlace>
     	<type>INOUT</type>
     </gate>
     <gate id="g03">
-    	<simplePlaceName>Gate03</simplePlaceName>
+    	<name>Gate03</name>
     	<capacity>1</capacity>
     	<connectedPlace>a01-01</connectedPlace>
     	<connectedPlace>ss01</connectedPlace>
     	<type>OUT</type>
     </gate>
     <gate id="g04">
-    	<simplePlaceName>Gate04</simplePlaceName>
+    	<name>Gate04</name>
     	<capacity>2</capacity>
     	<connectedPlace>a01-03</connectedPlace>
     	<connectedPlace>ss02</connectedPlace>
     	<type>INOUT</type>
     </gate>
     <gate id="g05">
-    	<simplePlaceName>Gate05</simplePlaceName>
+    	<name>Gate05</name>
     	<capacity>1</capacity>
     	<connectedPlace>ss03</connectedPlace>
     	<type>IN</type>

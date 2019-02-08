@@ -224,7 +224,7 @@ public class MapLoader {
 				for(int i = 0; i < list.getLength(); i++) {
 					Node node = list.item(i);
 					
-					if(node.getNodeName().equals("simplePlaceName")) gate.setName(node.getTextContent());
+					if(node.getNodeName().equals("name")) gate.setName(node.getTextContent());
 					if(node.getNodeName().equals("capacity")) gate.setCapacity(new BigInteger(node.getTextContent()));
 					if(node.getNodeName().equals("connectedPlace")) gate.getConnectedPlaceId().add(node.getTextContent());
 					if(node.getNodeName().equals("type")) gate.setType(GateType.fromValue(node.getTextContent()));

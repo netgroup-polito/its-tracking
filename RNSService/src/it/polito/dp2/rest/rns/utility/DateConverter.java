@@ -30,4 +30,30 @@ public class DateConverter {
 		
 		return DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
 	}
+	
+	/**
+	 * Get time difference in MILLISECONDS between two dates described
+	 * as XMLGregorianCalendar
+	 * @param start = beginning date
+	 * @param end = end date
+	 * @return the duration in milliseconds elapsed between the two
+	 */
+	public static int getDurationFromXMLGregorianCalendar(XMLGregorianCalendar start, XMLGregorianCalendar end) {
+		return end.getMillisecond() - start.getMillisecond();
+	}
+	
+	/**
+	 * Function to retrieve the "now" time as XMLGregorian calendar
+	 * @return the "now" time embedded in XMLGregorianCalendar structure
+	 * @throws DatatypeConfigurationException --> can be thrown when creating the gregorian representation
+	 */
+	public static XMLGregorianCalendar getXMLGregorianCalendarNow() 
+            throws DatatypeConfigurationException
+    {
+        GregorianCalendar gregorianCalendar = new GregorianCalendar();
+        DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
+        XMLGregorianCalendar now = 
+            datatypeFactory.newXMLGregorianCalendar(gregorianCalendar);
+        return now;
+    }
 }

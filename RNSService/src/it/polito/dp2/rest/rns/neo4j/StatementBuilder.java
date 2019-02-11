@@ -71,7 +71,7 @@ public class StatementBuilder {
 			query += "MERGE (roadSegment: RoadSegment {id: '" + roadSegment.getId() + "'}) "
 					+ "ON CREATE SET roadSegment.name = '" + roadSegment.getName() + "',"
 					+ "roadSegment.capacity = " + roadSegment.getCapacity().intValue() + ","
-					+ "roadSegment.avgTimeSpent = " + roadSegment.getAvgTimeSpent()
+					+ "roadSegment.avgTimeSpent = " + roadSegment.getAvgTimeSpent().intValue()
 					+ " RETURN id(roadSegment)";
 		} else if (element instanceof RoadReaderType) {
 			RoadReaderType road = (RoadReaderType) element;
@@ -84,7 +84,7 @@ public class StatementBuilder {
 			
 			query += "MERGE (park: ParkingArea {id: '" + park.getId() + "'}) "
 					+ "ON CREATE SET park.capacity = " + park.getCapacity() + ","
-					+ "park.avgTimeSpent = " + park.getAvgTimeSpent()
+					+ "park.avgTimeSpent = " + park.getAvgTimeSpent().intValue()
 					+ " RETURN id(park)";
 		}
 		
@@ -160,13 +160,44 @@ public class StatementBuilder {
 	}
 	
 	/**
-	 * Function to obtain a query to update the information of a specific ndoe
-	 * in the database
-	 * @param element = element information to be updated
-	 * @return a string corresponding the the requested query
+	 * Function to create a statement to delete a specific relation
+	 * @param idSource = id of the source node
+	 * @param idDestination = id of the destination node
+	 * @param nameRelation = name of the relation
+	 * @return a string corresponding to the query to be run
 	 */
+	public String deleteRelation(String idSource, String idDestination, String nameRelation) {
+		String query = "MATCH (n)-[r:" + nameRelation + "]->(m) "
+				+ "WHERE id(n)=" + idSource + " " 
+				+ "AND id(m)=" + idDestination + " "
+				+ "DELETE r";
+		return query;
+	}
 
-	public String updateStatement(Object element) {
-		return null;
+	/**
+	 * Function to get the assigned id to a node whose client-side id and 
+	 * type are known
+	 * @param id= client-side id of the node, in neo4j is a property
+	 * @param type = type of the node
+	 * @return the corresponding neo4j id
+	 */
+	public String getIdStatementByTypeAndId(String id, String type) {
+		String query = "MATCH (n: " + type + " {id: '" + id + "' }) RETURN id(n)";
+		return query;
+	}
+
+	/**
+	 * Function to update the position of a vehicle in the database
+	 * @param id = id of the vehicle node. Here we need to use CLIENT-SIDE id
+	 * 			because we can't use MERGE with id()
+	 * @param newPosition = new position to be set as property
+	 * @return the corresponding query
+	 */
+	public String updatePositionVehicle(String id, String newPosition) {
+		String query = "MATCH (n: Vehicle) "
+				+ "WHERE id(n) = " + id + " "
+				+ "SET n.position = '" + newPosition + "' "
+				+ "RETURN id(n)";
+		return query;
 	}
 }

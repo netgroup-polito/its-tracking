@@ -2,7 +2,7 @@
 // Questo file xe8 stato generato dall'architettura JavaTM per XML Binding (JAXB) Reference Implementation, v2.3.0-b170531.0717 
 // Vedere <a href="https://jaxb.java.net/">https://jaxb.java.net/</a> 
 // Qualsiasi modifica a questo file andrxe0 persa durante la ricompilazione dello schema di origine. 
-// Generato il: 2019.02.08 alle 05:59:35 PM CET 
+// Generato il: 2019.02.11 alle 07:39:21 PM CET 
 //
 
 
@@ -35,7 +35,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *         &lt;element name="entryTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
  *         &lt;element name="state" type="{http://www.example.org/RnsInfo}VehicleStateType"/&gt;
  *         &lt;element name="type" type="{http://www.example.org/RnsInfo}VehicleTypeType"/&gt;
- *         &lt;element name="material" type="{http://www.example.org/RnsInfo}DangerousMaterialType" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element name="material" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/extension&gt;
  *   &lt;/complexContent&gt;
@@ -76,7 +76,7 @@ public class VehicleReaderType
     @XmlElement(required = true)
     @XmlSchemaType(name = "string")
     protected VehicleTypeType type;
-    protected List<DangerousMaterialType> material;
+    protected List<String> material;
 
     /**
      * Recupera il valore della proprietxE0 name.
@@ -264,13 +264,13 @@ public class VehicleReaderType
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link DangerousMaterialType }
+     * {@link String }
      * 
      * 
      */
-    public List<DangerousMaterialType> getMaterial() {
+    public List<String> getMaterial() {
         if (material == null) {
-            material = new ArrayList<DangerousMaterialType>();
+            material = new ArrayList<String>();
         }
         return this.material;
     }

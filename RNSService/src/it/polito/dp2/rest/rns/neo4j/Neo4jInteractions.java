@@ -9,12 +9,10 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.TransactionWork;
 import org.neo4j.driver.v1.Value;
-
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
-import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleStateType;
@@ -22,8 +20,6 @@ import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
 import it.polito.dp2.rest.rns.utility.Constants;
 import it.polito.dp2.rest.rns.utility.DateConverter;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
-
-import static org.neo4j.driver.v1.Values.parameters;
 
 import java.math.BigInteger;
 import java.text.ParseException;
@@ -75,32 +71,6 @@ public class Neo4jInteractions implements AutoCloseable {
 	}
 	
 	/**
-	 * Hello world function for test purposes only
-	 * @return a string representing the id of the newly created node
-	 */
-	public synchronized String helloWorld() {
-		try ( Session session = driver.session() )
-        {
-            String greeting = session.writeTransaction( new TransactionWork<String>()
-            {
-                @Override
-                public String execute( Transaction tx )
-                {
-                    StatementResult result = tx.run( 
-                    		"CREATE (a:Greeting) " +
-            				"SET a.message = $message " +
-                            "RETURN a.message + ', from node ' + id(a)",
-                            parameters( "message", "Hello world!" )
-                    );
-                    return result.single().get( 0 ).asString();
-                }
-            } );
-            
-            return greeting;
-        }
-	}
-	
-	/**
 	 * Function to create the new node into the db
 	 * @param element = the new element to be loaded
 	 * @return the corresponding id
@@ -144,6 +114,7 @@ public class Neo4jInteractions implements AutoCloseable {
                 @Override
                 public String execute( Transaction tx )
                 {
+                		//System.err.println("Executing query: " + query);
                     StatementResult result = tx.run(query);
                     return String.valueOf(result.single().get( 0 ));
                 }
@@ -175,6 +146,36 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
         }
+	}
+	
+	/**
+	 * Function to retrieve the assigned id of the node loaded in neo4j
+	 * of a certain type
+	 * @param id = id client side of the node
+	 * @param type = type of the node
+	 * @return the corresponding neo4j id
+	 */
+	public String getNeo4jNodeId(String id, String type) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance().getIdStatementByTypeAndId(id, type);
+            String result = session.writeTransaction( new TransactionWork<String>()
+            {
+                @Override
+                public String execute( Transaction tx )
+                {
+					StatementResult result = tx.run(query);
+					
+					return String.valueOf(result.single().get(0));
+                }
+            } );
+            
+            return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+		return null;
 	}
 	
 	/**
@@ -236,25 +237,11 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @return the desired vehicle
 	 */
 	public synchronized VehicleReaderType getVehicle(String vehicleId) {
-		try ( Session session = driver.session() )
-        {
-			final String query = StatementBuilder.getInstance().getStatementByTypeAndId("Vehicle", this.id2neo4j.getIdTranslation(vehicleId));
-            VehicleReaderType result = session.writeTransaction( new TransactionWork<VehicleReaderType>()
-            {
-                @Override
-                public VehicleReaderType execute( Transaction tx )
-                {
-                		VehicleReaderType vehicle = (new ObjectFactory()).createVehicleReaderType(); 
-					tx.run(query);
-					
-					return vehicle;
-                }
-            } );
-            
-            return result;
-        } catch(Exception e) {
-        		e.printStackTrace();
-        }
+		List<VehicleReaderType> vehicles = this.getVehicles();
+		
+		for(VehicleReaderType vehicle : vehicles) {
+			if(vehicle.getId().equals(vehicleId)) return vehicle;
+		}
 		
 		return null;
 	}
@@ -333,6 +320,7 @@ public class Neo4jInteractions implements AutoCloseable {
 							road.setName((String) r.get(0).asMap().get("name"));
 							road.setId((String) r.get(0).asMap().get("id"));
 							road.setCapacity(new BigInteger(Long.toString((Long) r.get(0).asMap().get("capacity"))));
+							road.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(0).asMap().get("avgTimeSpent"))));
 							road.getConnectedPlaceId().add(IdTranslator.getInstance().fromNeo4jId(
 									String.valueOf((int) r.get(1).asInt())
 								));
@@ -390,6 +378,7 @@ public class Neo4jInteractions implements AutoCloseable {
 							park.setName((String) r.get(0).asMap().get("name"));
 							park.setId((String) r.get(0).asMap().get("id"));
 							park.setCapacity(new BigInteger(Long.toString((Long) r.get(0).asMap().get("capacity"))));
+							park.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(0).asMap().get("avgTimeSpent"))));
 							park.getConnectedPlaceId().add(
 									IdTranslator.getInstance().fromNeo4jId(
 											String.valueOf((int) r.get(1).asInt())
@@ -418,5 +407,69 @@ public class Neo4jInteractions implements AutoCloseable {
         }
 		
 		return null;
+	}
+
+	/**
+	 * Function to update the position of a vehicle in the system
+	 * @param vehicle = the vehicle whose position has to be updated
+	 */
+	public void updatePositionVehicle(VehicleReaderType vehicle, String oldPosition) {
+		try ( Session session = driver.session() )
+        {
+			//System.out.println("*******************************");
+			//System.out.println("Vehicle id: " + vehicle.getId() + " --- Neo4jId: " + IdTranslator.getInstance().getIdTranslation(vehicle.getId()));
+			final String queryDelete = StatementBuilder.getInstance()
+					.deleteRelation(
+							IdTranslator.getInstance().getIdTranslation(vehicle.getId()), 
+							IdTranslator.getInstance().getIdTranslation(oldPosition), 
+							"isLocatedIn");
+			final String queryConnect = StatementBuilder.getInstance()
+					.connectStatement(
+							IdTranslator.getInstance().getIdTranslation(vehicle.getId()), 
+							IdTranslator.getInstance().getIdTranslation(vehicle.getPosition()), 
+							"isLocatedIn");
+			final String queryUpdate = StatementBuilder.getInstance()
+					.updatePositionVehicle(
+							IdTranslator.getInstance().getIdTranslation(vehicle.getId()), 
+							vehicle.getPosition()
+					);
+			//System.out.println("Query delete: " + queryDelete);
+			//System.out.println("Query connect: " + queryConnect);
+			System.out.println("Query update: " + queryUpdate);
+            session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+					tx.run(queryDelete);
+					
+					return true;
+                }
+            } );
+            
+            session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+					tx.run(queryConnect);
+					
+					return true;
+                }
+            } );
+            
+            session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+					tx.run(queryUpdate);
+					
+					return true;
+                }
+            } );
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
 	}
 }

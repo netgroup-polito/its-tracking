@@ -294,7 +294,7 @@
 								type="tns:VehicleTypeType"
 								minOccurs="1" maxOccurs="1"/>
 					<element		name="material"
-								type="tns:DangerousMaterialType"
+								type="string"
 								minOccurs="0" maxOccurs="unbounded"/>
 				</sequence>
 			</extension>

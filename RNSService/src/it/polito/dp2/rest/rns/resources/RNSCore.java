@@ -1,12 +1,15 @@
 package it.polito.dp2.rest.rns.resources;
 
 import java.util.List;
+
+import it.polito.dp2.rest.rns.graph.Graph;
+import it.polito.dp2.rest.rns.graph.PlaceFullException;
+import it.polito.dp2.rest.rns.graph.VehicleNotInSystemException;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.Gates;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RnsReaderType;
-import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.jaxb.Vehicles;
@@ -30,6 +33,7 @@ public class RNSCore {
 	private static RNSCore instance = null; // Instance of the class
 	private Neo4jInteractions neo4j;
 	private IdTranslator id2neo4j;
+	private Graph actualMap;
 	
 	/**
 	 * Private constructor, so that the instance of the object can only be accessed
@@ -38,9 +42,12 @@ public class RNSCore {
 	private RNSCore(){
 		this.neo4j = Neo4jInteractions.getInstance();
 		this.id2neo4j = IdTranslator.getInstance();
+		this.actualMap = Graph.getInstance();
 		
 		// Load the map of the system
 		MapLoader.loadMap();
+		
+		this.actualMap.loadVehiclesInSystem();
 	}
 	
 	/**
@@ -62,7 +69,7 @@ public class RNSCore {
 	 * @return string of a newly created hello world node in neo4j
 	 */
 	public String helloWorld() {
-		return this.neo4j.helloWorld();
+		return "Hello world!";
 	}
 	
 	/**
@@ -70,41 +77,49 @@ public class RNSCore {
 	 * database and in Neo4j
 	 * @param value = the vehicle to be added
 	 * @return the id of the node, assigned automatically by Neo4j
+	 * @throws PlaceFullException --> if the vehicle can't be added to the system
 	 */
-	public String addVehicle(VehicleReaderType value) {
-		String id = this.neo4j.createNode(value);
-		System.out.println("Added new VEHICLE: "+ id);
-		this.id2neo4j.addIdTranslation(value.getId(), id);
-		
-		// ORIGIN
-		if(value.getOrigin() != null) {
-			System.out.println("Connection to origin: " + this.id2neo4j.getIdTranslation(value.getOrigin()));
-			this.neo4j.connectNodes(
-					value.getId(), 
-					value.getOrigin(), 
-					"comesFrom"
-			);
-		}
-		
-		// DESTINATION
-		if(value.getDestination() != null) {
-			this.neo4j.connectNodes(
-					value.getId(), 
-					value.getDestination(), 
-					"isDirectedTo"
-			);
-		}
-		
-		// TODO: retrieve the path from z3
+	public String addVehicle(VehicleReaderType value) throws PlaceFullException {
+		String id = "";
 		
 		// CURRENT POSITION
 		if(value.getPosition() != null) {
+			// Update graph
+			Graph.getInstance().addvehicleToPlace(value.getPosition(), value);
+			
+			// If no exception is thrown, the vehicle can be added to the system
+			
+			id = this.neo4j.createNode(value);
+			System.out.println("Added new VEHICLE: "+ id);
+			this.id2neo4j.addIdTranslation(value.getId(), id);
+			
+			// ORIGIN
+			if(value.getOrigin() != null) {
+				System.out.println("Connection to origin: " + this.id2neo4j.getIdTranslation(value.getOrigin()));
+				this.neo4j.connectNodes(
+						value.getId(), 
+						value.getOrigin(), 
+						"comesFrom"
+				);
+			}
+			
+			// DESTINATION
+			if(value.getDestination() != null) {
+				this.neo4j.connectNodes(
+						value.getId(), 
+						value.getDestination(), 
+						"isDirectedTo"
+				);
+			}
+			
 			this.neo4j.connectNodes(
 					value.getId(), 
 					value.getPosition(), 
 					"isLocatedIn"
 			);
 		}
+		
+		// TODO: retrieve the path from z3
 		
 		return id;
 	}
@@ -113,9 +128,10 @@ public class RNSCore {
 	 * Function to get a vehicle
 	 * @param id
 	 * @return the vehicle
+	 * @throws VehicleNotInSystemException 
 	 */
-	public VehicleReaderType getVehicle(String id) {
-		return this.neo4j.getVehicle(id);
+	public VehicleReaderType getVehicle(String id) throws VehicleNotInSystemException {
+		return this.actualMap.getVehicle(id);
 	}
 
 	/**
@@ -189,10 +205,12 @@ public class RNSCore {
 	 * Function to update the informations of a specific vehicle in the
 	 * database
 	 * @param vehicle = vehicle information to be updated
+	 * @throws PlaceFullException 
+	 * @throws VehicleNotInSystemException 
 	 */
-	public void updateVehicle(VehicleReaderType vehicle) {
-		this.deleteVehicle(vehicle.getId());
-		this.addVehicle(vehicle);
+	public void updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException {
+		System.out.println("Updating position of vehicle: " + vehicle.getId());
+		this.actualMap.updateVehiclePosition(vehicle);
 	}
 
 	/**

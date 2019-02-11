@@ -5,6 +5,7 @@ import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import it.polito.dp2.rest.rns.graph.Graph;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
@@ -56,6 +57,31 @@ public class MapLoader {
 			connectGates(gates);
 			connectRoadSegments(roadSegments);
 			connectParkingAreas(parkings);
+			
+			// Load the final graph in memory
+			gates.stream().forEach((gate) -> {
+				Graph.getInstance().addPlace(
+						gate.getId(), 
+						0, 
+						null, 
+						gate.getCapacity().intValue());
+			});
+			
+			roadSegments.stream().forEach((segment) -> {
+				Graph.getInstance().addPlace(
+						segment.getId(), 
+						segment.getAvgTimeSpent().intValue(), 
+						null, 
+						segment.getCapacity().intValue());
+			});
+			
+			parkings.stream().forEach((park) -> {
+				Graph.getInstance().addPlace(
+						park.getId(), 
+						park.getAvgTimeSpent().intValue(), 
+						null,
+						park.getCapacity().intValue());
+			});
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -142,8 +168,13 @@ public class MapLoader {
 						service.setName(node.getTextContent());
 						park.getService().add(service);
 					}
+					if(node.getNodeName().equals("avgTimeSpent")) { 
+						//System.err.println("Node: " + eElement.getAttribute("id") + " avgTimeSpent: " + node.getTextContent());
+						park.setAvgTimeSpent(new BigInteger(node.getTextContent()));
+					}
 				}
-				
+				/*System.out.println("*************************************");
+				System.out.println("Loading parking area: " + park.getId());*/
 				String parkId = neo4j.createNode(park);
 				id2neo4j.addIdTranslation(park.getId(), parkId);
 				parkings.add(park);
@@ -166,6 +197,8 @@ public class MapLoader {
 				
 				roadSegment.setId(eElement.getAttribute("id"));
 				
+				//System.out.println("List of children: " + list.getLength());
+				
 				for(int i = 0; i < list.getLength(); i++) {
 					Node node = list.item(i);
 					
@@ -173,8 +206,10 @@ public class MapLoader {
 					if(node.getNodeName().equals("capacity")) roadSegment.setCapacity(new BigInteger(node.getTextContent()));
 					if(node.getNodeName().equals("connectedPlace")) roadSegment.getConnectedPlaceId().add(node.getTextContent());
 					if(node.getNodeName().equals("containerPlaceId")) roadSegment.setContainerPlaceId(node.getTextContent());
+					if(node.getNodeName().equals("avgTimeSpent")) roadSegment.setAvgTimeSpent(new BigInteger(node.getTextContent()));
 				}
-				
+				/*System.out.println("*************************************");
+				System.out.println("Loading road segment: " + roadSegment.getId());*/
 				String roadSegmentId = neo4j.createNode(roadSegment);
 				id2neo4j.addIdTranslation(roadSegment.getId(), roadSegmentId);
 				roadSegments.add(roadSegment);
@@ -195,6 +230,8 @@ public class MapLoader {
 				RoadReaderType road = (new ObjectFactory()).createRoadReaderType();
 				road.setId(((Element)nNode).getAttribute("id"));
 				road.setName(((Element)nNode).getAttribute("name"));
+				/*System.out.println("*************************************");
+				System.out.println("Loading road: " + road.getId());*/
 				String roadId = neo4j.createNode(road);
 				id2neo4j.addIdTranslation(road.getId(), roadId);
 				roads.add(road);
@@ -229,7 +266,8 @@ public class MapLoader {
 					if(node.getNodeName().equals("connectedPlace")) gate.getConnectedPlaceId().add(node.getTextContent());
 					if(node.getNodeName().equals("type")) gate.setType(GateType.fromValue(node.getTextContent()));
 				}
-				
+				/*System.out.println("*************************************");
+				System.out.println("Loading gate: " + gate.getId());*/
 				String gateId = neo4j.createNode(gate);
 				id2neo4j.addIdTranslation(gate.getId(), gateId);
 				gates.add(gate);

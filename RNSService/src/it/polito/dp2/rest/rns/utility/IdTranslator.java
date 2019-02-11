@@ -71,4 +71,14 @@ public class IdTranslator {
 	public String fromNeo4jId(String neo4jId) {
 		return this.neo4j2id.get(neo4jId);
 	}
+	
+	/**
+	 * Function that checks whether the passed id is currently
+	 * registered into the system
+	 * @param id = the id to be checked
+	 * @return true if the id is saved in the system
+	 */
+	public boolean isInTheSystem(String id) {
+		return this.id2neo4j.containsKey(id);
+	}
 }

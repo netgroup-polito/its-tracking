@@ -16,6 +16,8 @@ import javax.xml.bind.JAXBElement;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
+import it.polito.dp2.rest.rns.graph.PlaceFullException;
+import it.polito.dp2.rest.rns.graph.VehicleNotInSystemException;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import io.swagger.annotations.ApiResponse;
@@ -61,9 +63,13 @@ public class VehicleResource {
 			MediaType.APPLICATION_JSON
 	})
     public Response getVehicle(@PathParam("id") String vehicleId) {
-		VehicleReaderType vehicle = this.instance.getVehicle(vehicleId);
-    		JAXBElement<VehicleReaderType> jaxbVehicle = (new ObjectFactory()).createVehicle(vehicle);
-    		return Response.status(Status.OK).entity(jaxbVehicle).build();
+		try {
+			VehicleReaderType vehicle = this.instance.getVehicle(vehicleId);
+	    		JAXBElement<VehicleReaderType> jaxbVehicle = (new ObjectFactory()).createVehicle(vehicle);
+	    		return Response.status(Status.OK).entity(jaxbVehicle).build();
+		} catch(VehicleNotInSystemException vnise) {
+			return Response.status(Status.BAD_REQUEST).entity("Vehicle not present in the system").build();
+		}
     }
     
     @GET
@@ -83,6 +89,7 @@ public class VehicleResource {
 			MediaType.APPLICATION_JSON
 	})
     public Response getVehiclePath(@PathParam("id") int vehicleId) {
+    		// TODO: get vehicle path
     		return null;
     }
     
@@ -106,8 +113,12 @@ public class VehicleResource {
 	    	MediaType.APPLICATION_JSON
     })
     public Response createVehicle(JAXBElement<VehicleReaderType> vehicle){
-    		String vehicleId = this.instance.addVehicle(vehicle.getValue());
-		return Response.status(Status.CREATED).entity(vehicleId).build();
+		try {
+			String vehicleId = this.instance.addVehicle(vehicle.getValue());
+			return Response.status(Status.CREATED).entity(vehicleId).build();
+		} catch (PlaceFullException e) {
+			return Response.status(Status.BAD_REQUEST).entity("Place full, vehicle can't be added.").build();
+		}
     }
     
     @PUT
@@ -135,7 +146,8 @@ public class VehicleResource {
 			this.instance.updateVehicle(vehicle.getValue());
 			return Response.status(Status.OK).entity(vehicleId).build();
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
 		}
     }
     

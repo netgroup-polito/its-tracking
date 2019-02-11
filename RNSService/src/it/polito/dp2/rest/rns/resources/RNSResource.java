@@ -3,6 +3,8 @@ package it.polito.dp2.rest.rns.resources;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import io.swagger.annotations.Api;
@@ -28,6 +30,7 @@ public class RNSResource {
 	 */
 	public RNSResource() { }
 	
+	@SuppressWarnings("unlikely-arg-type")
 	@GET
 	@ApiOperation(
 			value = "getSystemState",
@@ -41,11 +44,15 @@ public class RNSResource {
 	)
 	@Produces({
 			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON,
 			MediaType.TEXT_PLAIN
 	})
-	public Response getSystemState() {
+	public Response getSystemState(@Context HttpHeaders headers) {
 		RnsReaderType rns = this.instance.getSystem();
 		JAXBElement<RnsReaderType> rnsJaxb = (new ObjectFactory()).createRns(rns);
-		return Response.status(Status.OK).entity(rnsJaxb).build();
+		return 
+			(headers.getAcceptableMediaTypes().get(0).toString().equals(MediaType.APPLICATION_XML.toString()))
+			? 	Response.status(Status.OK).entity(rnsJaxb).build() :
+				Response.status(Status.OK).entity(rns).build();
 	}
 }

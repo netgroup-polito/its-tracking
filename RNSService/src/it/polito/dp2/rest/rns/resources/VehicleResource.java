@@ -8,6 +8,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -62,11 +64,14 @@ public class VehicleResource {
 			MediaType.APPLICATION_XML,
 			MediaType.APPLICATION_JSON
 	})
-    public Response getVehicle(@PathParam("id") String vehicleId) {
+    public Response getVehicle(@PathParam("id") String vehicleId, @Context HttpHeaders headers) {
 		try {
 			VehicleReaderType vehicle = this.instance.getVehicle(vehicleId);
 	    		JAXBElement<VehicleReaderType> jaxbVehicle = (new ObjectFactory()).createVehicle(vehicle);
-	    		return Response.status(Status.OK).entity(jaxbVehicle).build();
+	    		return
+    				(headers.getAcceptableMediaTypes().get(0).toString().equals(MediaType.APPLICATION_XML.toString()))
+    				? Response.status(Status.OK).entity(jaxbVehicle).build()
+    				: Response.status(Status.OK).entity(vehicle).build();
 		} catch(VehicleNotInSystemException vnise) {
 			return Response.status(Status.BAD_REQUEST).entity("Vehicle not present in the system").build();
 		}

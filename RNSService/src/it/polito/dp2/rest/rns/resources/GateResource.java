@@ -7,6 +7,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -37,9 +39,10 @@ public class GateResource {
 	)
 	@Produces({
 			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON,
 			MediaType.TEXT_PLAIN
 	})
-    public Response getGates() {
+    public Response getGates(@Context HttpHeaders headers) {
 		return Response.status(Status.OK).entity(instance.getGates()).build();
     }
     
@@ -57,12 +60,16 @@ public class GateResource {
 	)
 	@Produces({
 			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON,
 			MediaType.TEXT_XML
 	})
-    public Response getGate(@PathParam("id") String gateId){
-    	GateReaderType gate = this.instance.getGate(gateId);
-    	JAXBElement<GateReaderType> jaxbPlace = (new ObjectFactory()).createGate(gate);
-    	return Response.status(Status.OK).entity(jaxbPlace).build();
+    public Response getGate(@PathParam("id") String gateId, @Context HttpHeaders headers){
+    		GateReaderType gate = this.instance.getGate(gateId);
+	    	JAXBElement<GateReaderType> jaxbPlace = (new ObjectFactory()).createGate(gate);
+	    	return 
+    			(headers.getAcceptableMediaTypes().get(0).toString().equals(MediaType.APPLICATION_XML.toString()))
+    			? Response.status(Status.OK).entity(jaxbPlace).build()
+    			: Response.status(Status.OK).entity(gate).build();
     }
     
     @POST
@@ -80,15 +87,16 @@ public class GateResource {
 			}
 	)
     @Consumes({
-    	MediaType.APPLICATION_XML,
-    	MediaType.APPLICATION_JSON
+	    	MediaType.APPLICATION_XML,
+	    	MediaType.APPLICATION_JSON
     })
 	@Produces({
 			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON,
 			MediaType.TEXT_XML
 	})
-    public Response enterSystem(@PathParam("id") int gateId) {
-    	return null;
+    public Response enterSystem(@PathParam("id") int gateId, @Context HttpHeaders headers) {
+    		return null;
     }
     
     @DELETE
@@ -105,9 +113,10 @@ public class GateResource {
 	)
 	@Produces({
 			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON,
 			MediaType.TEXT_XML
 	})
-    public Response exitSystem(@PathParam("id") int gateId) {
-    	return null;
+    public Response exitSystem(@PathParam("id") int gateId, @Context HttpHeaders headers) {
+    		return null;
     }
 }

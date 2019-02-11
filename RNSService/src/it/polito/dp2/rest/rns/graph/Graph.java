@@ -1,17 +1,22 @@
 package it.polito.dp2.rest.rns.graph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
+import it.polito.dp2.rest.rns.utility.Constants;
+import it.polito.dp2.rest.rns.utility.DangerousMaterialImpl;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
 
 public class Graph {
 	private ConcurrentHashMap<String, List<VehicleReaderType>> placeVehicles;
 	private ConcurrentHashMap<String, Integer> placeAverageTime;
 	private ConcurrentHashMap<String, Integer> placeMaxCountVehicles;
+	private Map<String, DangerousMaterialImpl> dangerousMaterials;
 	private List<String> vehicleIdsInSystem;
 	private Neo4jInteractions neo4j;
 	
@@ -27,6 +32,14 @@ public class Graph {
 		this.placeVehicles.keySet().stream().forEach((placeId) -> {
 			this.placeVehicles.put(placeId, new ArrayList<>());
 		});
+		
+		this.dangerousMaterials = new HashMap<>();
+		
+		// Add all dangerous materials
+		this.dangerousMaterials.put(Constants.dangerousMaterial1, new DangerousMaterialImpl(Constants.dangerousMaterial1, Constants.notCompatibleWith1));
+		this.dangerousMaterials.put(Constants.dangerousMaterial2, new DangerousMaterialImpl(Constants.dangerousMaterial2, Constants.notCompatibleWith2));
+		this.dangerousMaterials.put(Constants.dangerousMaterial3, new DangerousMaterialImpl(Constants.dangerousMaterial3, Constants.notCompatibleWith3));
+		this.dangerousMaterials.put(Constants.dangerousMaterial4, new DangerousMaterialImpl(Constants.dangerousMaterial4, Constants.notCompatibleWith4));
 	}
 	
 	public static Graph getInstance() {

@@ -118,6 +118,7 @@ public class VehicleResource {
 	    	MediaType.APPLICATION_JSON
     })
     public Response createVehicle(JAXBElement<VehicleReaderType> vehicle){
+    		System.out.println("CREATE VEHICLE " + vehicle.getValue().getId() + " " + vehicle.getValue().getState());
 		try {
 			String vehicleId = this.instance.addVehicle(vehicle.getValue());
 			return Response.status(Status.CREATED).entity(vehicleId).build();
@@ -147,7 +148,8 @@ public class VehicleResource {
 		    	MediaType.APPLICATION_JSON
     })
     public Response updateVehicle(@PathParam("id") String vehicleId, JAXBElement<VehicleReaderType> vehicle) {
-	    	try {
+	    	System.out.println("UPDATE VEHICLE " + vehicleId + " --- " + vehicle.getValue().getPosition());
+    		try {
 			this.instance.updateVehicle(vehicle.getValue());
 			return Response.status(Status.OK).entity(vehicleId).build();
 		} catch (Exception e) {

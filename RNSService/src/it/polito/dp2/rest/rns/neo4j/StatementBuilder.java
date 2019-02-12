@@ -193,10 +193,11 @@ public class StatementBuilder {
 	 * @param newPosition = new position to be set as property
 	 * @return the corresponding query
 	 */
-	public String updatePositionVehicle(String id, String newPosition) {
+	public String updatePositionVehicle(String id, String newPosition, String newState) {
 		String query = "MATCH (n: Vehicle) "
 				+ "WHERE id(n) = " + id + " "
 				+ "SET n.position = '" + newPosition + "' "
+				+ "SET n.state = '" + newState + "' "
 				+ "RETURN id(n)";
 		return query;
 	}

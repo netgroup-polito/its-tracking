@@ -431,7 +431,8 @@ public class Neo4jInteractions implements AutoCloseable {
 			final String queryUpdate = StatementBuilder.getInstance()
 					.updatePositionVehicle(
 							IdTranslator.getInstance().getIdTranslation(vehicle.getId()), 
-							vehicle.getPosition()
+							vehicle.getPosition(),
+							vehicle.getState().name()
 					);
 			//System.out.println("Query delete: " + queryDelete);
 			//System.out.println("Query connect: " + queryConnect);

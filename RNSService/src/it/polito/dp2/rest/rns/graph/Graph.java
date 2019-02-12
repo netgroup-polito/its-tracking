@@ -144,6 +144,8 @@ public class Graph {
 	public void loadVehiclesInSystem() {
 		List<VehicleReaderType> vehicles = this.neo4j.getVehicles();
 		
+		if(vehicles == null) return;
+		
 		vehicles.stream().forEach((vehicle) -> {
 			this.placeVehicles.get(vehicle.getPosition()).add(vehicle);
 			this.vehicleIdsInSystem.add(vehicle.getId());

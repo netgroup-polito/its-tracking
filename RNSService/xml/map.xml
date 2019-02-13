@@ -21,8 +21,6 @@
     <gate id="g03">
     	<name>Gate03</name>
     	<capacity>1</capacity>
-    	<connectedPlace>a01-01</connectedPlace>
-    	<connectedPlace>ss01</connectedPlace>
     	<type>OUT</type>
     </gate>
     <gate id="g04">
@@ -44,6 +42,7 @@
     		<capacity>10</capacity>
 		<connectedPlace>g03</connectedPlace>
     		<connectedPlace>a01-02</connectedPlace>
+    		<connectedPlace>ss01</connectedPlace>
     		<containerPlaceId>a01</containerPlaceId>
     		<avgTimeSpent>0</avgTimeSpent>
     	</roadSegment>
@@ -53,6 +52,9 @@
     		<connectedPlace>a01-01</connectedPlace>
     		<connectedPlace>a01-03</connectedPlace>
     		<connectedPlace>a02-01</connectedPlace>
+    		<connectedPlace>a02-02</connectedPlace>
+    		<connectedPlace>ss02</connectedPlace>
+    		<connectedPlace>pa03</connectedPlace>
     		<containerPlaceId>a01</containerPlaceId>
     		<avgTimeSpent>0</avgTimeSpent>
     	</roadSegment>
@@ -69,8 +71,8 @@
     	<roadSegment id="a02-01">
     		<name>A02-01</name>
     		<capacity>22</capacity>
-   			<connectedPlace>g01</connectedPlace>
     		<connectedPlace>a01-02</connectedPlace>
+    		<connectedPlace>ss03</connectedPlace>
     		<containerPlaceId>a02</containerPlaceId>
     		<avgTimeSpent>0</avgTimeSpent>
     	</roadSegment>
@@ -88,6 +90,7 @@
    		<capacity>13</capacity>
    		<connectedPlace>g03</connectedPlace>
    		<connectedPlace>a01-01</connectedPlace>
+   		<connectedPlace>pa01</connectedPlace>
    		<avgTimeSpent>0</avgTimeSpent>
    	</roadSegment>
    	<roadSegment id="ss02">
@@ -95,12 +98,13 @@
    		<capacity>20</capacity>
    		<connectedPlace>g04</connectedPlace>
    		<connectedPlace>a01-02</connectedPlace>
+   		<connectedPlace>pa02</connectedPlace>
    		<avgTimeSpent>0</avgTimeSpent>
    	</roadSegment>
    	<roadSegment id="ss03">
    		<name>SS03</name>
    		<capacity>31</capacity>
-   		<connectedPlace>g05</connectedPlace>
+   		<connectedPlace>pa04</connectedPlace>
    		<connectedPlace>a02-01</connectedPlace>
    		<avgTimeSpent>0</avgTimeSpent>
    	</roadSegment>

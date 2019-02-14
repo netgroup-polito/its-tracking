@@ -18,7 +18,9 @@ import javax.xml.bind.JAXBElement;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
+import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
 import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
+import it.polito.dp2.rest.rns.exceptions.VehicleAlreadyInSystemException;
 import it.polito.dp2.rest.rns.exceptions.VehicleNotInSystemException;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
@@ -123,9 +125,15 @@ public class VehicleResource {
 		try {
 			String vehicleId = this.instance.addVehicle(vehicle.getValue());
 			return Response.status(Status.CREATED).entity(vehicleId).build();
-		} catch (PlaceFullException e) {
+		} catch (PlaceFullException e) { // PLACE FULL
 			System.out.println(e.getMessage());
-			return Response.status(Status.BAD_REQUEST).entity("Place full, vehicle can't be added.").build();
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		} catch (VehicleAlreadyInSystemException e) { // ALREADY ADDED VEHICLE
+			System.out.println(e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		} catch (InvalidEntryPlaceException e) { // GATE NON VALID
+			System.out.println(e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
     }
     

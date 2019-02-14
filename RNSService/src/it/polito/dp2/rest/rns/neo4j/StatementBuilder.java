@@ -1,5 +1,6 @@
 package it.polito.dp2.rest.rns.neo4j;
 
+import it.polito.dp2.rest.rns.jaxb.DangerousMaterialType;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
@@ -86,6 +87,11 @@ public class StatementBuilder {
 					+ "ON CREATE SET park.capacity = " + park.getCapacity() + ","
 					+ "park.avgTimeSpent = " + park.getAvgTimeSpent().intValue()
 					+ " RETURN id(park)";
+		} else if (element instanceof DangerousMaterialType) {
+			DangerousMaterialType material = (DangerousMaterialType) element;
+			
+			query += "MERGE (material: DangerousMaterial {id: '" + material.getId() + "'}) "
+					+ " RETURN id(material)";
 		}
 		
 		return query;
@@ -220,6 +226,20 @@ public class StatementBuilder {
 				+ "WHERE id(n) = " + id + " "
 				+ "OPTIONAL MATCH (n)<-[r:isLocatedIn]-() "
 				+ "RETURN n.capacity, COUNT(r)";
+		return query;
+	}
+	
+	/**
+	 * Function to retrieve the list of incompatible materials with the
+	 * one the id is given as parameter.
+	 * @param id = id of the material we want to retrieve the incompatible
+	 * @return the corresponding query
+	 */
+	public String getIncompatibleMaterialsStatementById(String id) {
+		String query = "MATCH (n: DangerousMaterial)-[r:isIncompatibleWith*1]->(m) "
+				+ "WHERE id(n) = " + id + " "
+				+ "RETURN m.id as id";
+		
 		return query;
 	}
 }

@@ -3,7 +3,9 @@ package it.polito.dp2.rest.rns.resources;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
 import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
+import it.polito.dp2.rest.rns.exceptions.VehicleAlreadyInSystemException;
 import it.polito.dp2.rest.rns.exceptions.VehicleNotInSystemException;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.Gates;
@@ -75,16 +77,32 @@ public class RNSCore {
 	 * @param value = the vehicle to be added
 	 * @return the id of the node, assigned automatically by Neo4j
 	 * @throws PlaceFullException --> if the vehicle can't be added to the system
+	 * @throws VehicleAlreadyInSystemException --> id the vehicle has already been added into the system
+	 * @throws InvalidEntryPlaceException --> if the vehicle is trying to access the system from a gate that isn't of type IN or INOUT
 	 */
-	public String addVehicle(VehicleReaderType vehicle) throws PlaceFullException {
+	public String addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException {
 		String id = "";
 		System.out.println("***************** ADD VEHICLE *********************");
 		// CURRENT POSITION
 		if(vehicle.getPosition() != null) {
+			// Check presence of the vehicle in the system
+			List<String> vehiclesLoadedIds = 
+					this.neo4j.getVehicles()
+							.stream()
+							.map(VehicleReaderType::getId)
+							.collect(Collectors.toList());
+			if(vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleAlreadyInSystemException("Vehicle " + vehicle.getId() + " has already been added to the system."));
+			
 			// Check on the capacity of the place
 			int actualCapacityOfPlace = this.neo4j.getActualCapacityOfPlace(vehicle.getPosition());
 			if(actualCapacityOfPlace < 1) throw(new PlaceFullException("Place " + vehicle.getPosition() + " is full. It can't accept any more vehicles."));
 			
+			// Check if the ORIGIN is a gate of type IN or INOUT
+			GateReaderType origin = this.getGate(vehicle.getOrigin());
+			if(origin != null) {
+				if(origin.getType().toString().equals("OUT"))
+					throw(new InvalidEntryPlaceException("The gate " + vehicle.getOrigin() +" you're trying to enter the system from, is not of type IN, neither INOUT."));
+			}
 			id = this.neo4j.createNode(vehicle);
 			System.out.println("Added new VEHICLE: "+ id);
 			this.id2neo4j.addIdTranslation(vehicle.getId(), id);
@@ -215,6 +233,7 @@ public class RNSCore {
 		
 		// TODO: if the place is in the path of the vehicle OK, otherwise need to recompute
 		// the path
+		
 		// Check on the capacity of the place
 		int actualCapacityOfPlace = this.neo4j.getActualCapacityOfPlace(vehicle.getPosition());
 		if(actualCapacityOfPlace < 1) throw(new PlaceFullException("Place " + vehicle.getPosition() + " is full. It can't accept any more vehicles."));

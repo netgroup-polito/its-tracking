@@ -5,6 +5,7 @@ import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import it.polito.dp2.rest.rns.jaxb.DangerousMaterialType;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
@@ -32,6 +33,7 @@ public class MapLoader {
 	private static List<RoadReaderType> roads = new ArrayList<>();
 	private static List<RoadSegmentReaderType> roadSegments = new ArrayList<>();
 	private static List<ParkingAreaReaderType> parkings = new ArrayList<>();
+	private static List<DangerousMaterialType> dangerousMaterials = new ArrayList<>();
 	
 	public static void loadMap() {
 		try {
@@ -44,28 +46,51 @@ public class MapLoader {
 			doc.getDocumentElement().normalize();
 					
 			// Load all the nodes
+			//System.out.println("###### GATES ######");
 			NodeList nListGates = doc.getElementsByTagName("gate");
 			loadGates(nListGates);
 			
+			//System.out.println("###### ROADS ######");
 			NodeList nListRoads = doc.getElementsByTagName("road");
 			loadRoads(nListRoads);
 			
+			//System.out.println("###### ROAD SEGMENTS ######");
 			NodeList nListRoadSegments = doc.getElementsByTagName("roadSegment");
 			loadRoadSegments(nListRoadSegments);
 			
+			//System.out.println("###### PARKING AREAS ######");
 			NodeList nListParkingAreas = doc.getElementsByTagName("parkingArea");
 			loadParkingAreas(nListParkingAreas);
+			
+			//System.out.println("###### DANGEROUS MATERIAL ######");
+			NodeList nListDangerousMaterials = doc.getElementsByTagName("dangerousMaterial");
+			loadDangerousMaterials(nListDangerousMaterials);
 			
 			// Establish links
 			connectGates(gates);
 			connectRoadSegments(roadSegments);
 			connectParkingAreas(parkings);
-			
+			connectDangerousMaterials(dangerousMaterials);
 		} catch (Exception e) {
 			e.printStackTrace();
 	    }
 	}
-	
+
+	private static void connectDangerousMaterials(List<DangerousMaterialType> materialList) {
+		materialList.stream().forEach((material) -> {
+			String materialId = material.getId();
+			
+			material.getIncompatibleMaterial().stream().forEach((id) -> {
+				Neo4jInteractions.getInstance()
+						.connectNodes(
+								materialId, 
+								id, 
+								"isIncompatibleWith"
+						);
+			});
+		});
+	}
+
 	/**
 	 * Function to connect parking areas to whatever they're connected to
 	 * @param parkingList = list of parking areas that have to be connected
@@ -251,5 +276,48 @@ public class MapLoader {
 				gates.add(gate);
 			}
 		}
+	}
+	
+	private static void loadDangerousMaterials(NodeList nList) {
+		for (int temp = 0; temp < nList.getLength(); temp++) {
+			DangerousMaterialType material = (new ObjectFactory()).createDangerousMaterialType();
+			Node nNode = nList.item(temp);
+			
+			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+				NodeList list = nNode.getChildNodes();
+				Element eElement = (Element) nNode;
+				
+				material.setId(eElement.getAttribute("id"));
+				/*System.out.println("++++++++++++++++++++++++++++++++");
+				System.out.println("MATERIAL: " + material.getId());*/
+				for(int i = 0; i < list.getLength(); i++) {
+					Node node = list.item(i);
+					
+					if(!isStringNullOrWhiteSpace(node.getTextContent())) {
+						//System.out.println("Incompatible Material: " + node.getTextContent());
+						material.getIncompatibleMaterial().add(node.getTextContent());
+					}
+				}
+				
+				String dangerousMaterialId = neo4j.createNode(material);
+				id2neo4j.addIdTranslation(material.getId(), dangerousMaterialId);
+				dangerousMaterials.add(material);
+			}
+		}
+		
+	}
+	
+	public static boolean isStringNullOrWhiteSpace(String value) {
+	    if (value == null) {
+	        return true;
+	    }
+
+	    for (int i = 0; i < value.length(); i++) {
+	        if (!Character.isWhitespace(value.charAt(i))) {
+	            return false;
+	        }
+	    }
+
+	    return true;
 	}
 }

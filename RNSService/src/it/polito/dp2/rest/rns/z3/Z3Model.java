@@ -14,6 +14,8 @@ import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
 
 /**
+ * Z3 class that can load the model of the graph, and while loading it
+ * it prunes the nodes where the vehicle can't be due to capacity constraints
  * 
  * @author eugeniogallea
  *
@@ -22,6 +24,7 @@ public class Z3Model {
 	private List<String> alreadyVisitedNodes;
 	private Optimize mkOptimize;
 	private Context ctx;
+	
 	public Z3Model(String sourceNodeId, String destinationNodeId) throws UnsatisfiableException {
 		if(Neo4jInteractions.getInstance().getActualCapacityOfPlace(sourceNodeId) < 1)
 			throw(new UnsatisfiableException("Node " + sourceNodeId + " has no more room for another vehicle"));
@@ -31,7 +34,11 @@ public class Z3Model {
 		this.recurGraph(sourceNodeId, destinationNodeId, currentNodeBool);
 	}
 	
-	// used to convert boolean values to integer
+	/**
+	 * Function used to convert boolean values to integer ones
+	 * @param value = value to be converted
+	 * @return corresponding integer expression
+	 */
 	private IntExpr bool_to_int(BoolExpr value) {
 		IntExpr integer = ctx.mkIntConst("integer_" + value);
 		// value -> (integer == 1)
@@ -41,6 +48,13 @@ public class Z3Model {
 		return integer;
 	}
 	
+	/**
+	 * Function used to recur onto the graph to load all nodes with their corresponding
+	 * boolean expression.
+	 * @param sourceNodeId = current node
+	 * @param destinationNodeId = final node, to which we want to arrive (end of recursion)
+	 * @param previousNodeBool = preceding node, to which we want to create a connection
+	 */
 	private void recurGraph(String sourceNodeId, String destinationNodeId, BoolExpr previousNodeBool) {
 		// Recursion end condition
 		if(sourceNodeId.equals(destinationNodeId)) {

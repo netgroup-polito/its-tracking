@@ -25,6 +25,7 @@ import it.polito.dp2.rest.rns.utility.IdTranslator;
 
 import java.math.BigInteger;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -539,9 +540,11 @@ public class Neo4jInteractions implements AutoCloseable {
 	}
 
 	/**
-	 * 
-	 * @param position
-	 * @return
+	 * Function to retrieve from Neo4j, given the state of the system,
+	 * the actual capacity o a place. It is derived subtracting from the
+	 * nominal capacity the number of vehicles actually in that place.
+	 * @param position = position whose capacity we want to be retrieved
+	 * @return the actual capacity
 	 */
 	public int getActualCapacityOfPlace(String position) {
 		try ( Session session = driver.session() )
@@ -567,5 +570,43 @@ public class Neo4jInteractions implements AutoCloseable {
         }
 		
 		return 0;
+	}
+	
+	/**
+	 * Function to retrieve all the incompatible material with the one
+	 * whose id is given as parameter.
+	 * @param materialId = material we want to find the incompatible materials
+	 * @return list containing all the incompatible materials with the given one
+	 */
+	public List<String> getIncompatibleMaterialsGivenId(String materialId) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getIncompatibleMaterialsStatementById(
+										IdTranslator.getInstance()
+										.getIdTranslation(materialId)
+								);
+			List<String> result = session.writeTransaction( new TransactionWork<List<String>>()
+            {
+                @Override
+                public List<String> execute( Transaction tx )
+                {
+                		List<String> incompatibleMaterials = new ArrayList<>();
+					StatementResult result = tx.run(query);
+
+					for(Record r : result.list())
+						incompatibleMaterials.add(String.valueOf(r.get(0)));
+					
+					// TODO: convert result into list of strings
+					return incompatibleMaterials;
+                }
+            } );
+            
+            return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+		return null;
 	}
 }

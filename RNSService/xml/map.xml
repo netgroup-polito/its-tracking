@@ -6,6 +6,7 @@
 	xsi:schemaLocation="https://www.w3schools.com/RnsInfo RnsInfo.xsd"
 	id="x0">
 	
+	<!-- GATES -->
     <gate id="g01">
     	<name>Gate01</name>
     	<capacity>1</capacity>
@@ -36,6 +37,8 @@
     	<connectedPlace>ss03</connectedPlace>
     	<type>IN</type>
     </gate>
+    
+    <!-- ROADS -->
     <road id="a01" name="A01">
     	<roadSegment id="a01-01">
     		<name>A01-01</name>
@@ -85,6 +88,8 @@
     		<avgTimeSpent>0</avgTimeSpent>
     	</roadSegment>
     </road>
+    
+    <!-- SINGLE ROAD SEGMENTS -->
     <roadSegment id="ss01">
    		<name>SS01</name>
    		<capacity>13</capacity>
@@ -108,6 +113,8 @@
    		<connectedPlace>a02-01</connectedPlace>
    		<avgTimeSpent>0</avgTimeSpent>
    	</roadSegment>
+   	
+   	<!-- PARKING AREAS -->
    	<parkingArea id="pa01">
    		<name>PA01</name>
    		<capacity>41</capacity>
@@ -137,4 +144,30 @@
    		<connectedPlace>ss03</connectedPlace>
    		<avgTimeSpent>0</avgTimeSpent>
    	</parkingArea>
+   	
+   	<!-- DANGEROUS MATERIALS -->
+   	<dangerousMaterial id="dangerousMaterial1">
+   		<incompatibleMaterial>dangerousMaterial3</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial5</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial6</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial7</incompatibleMaterial>
+   	</dangerousMaterial>
+   	<dangerousMaterial id="dangerousMaterial2">
+   		<incompatibleMaterial>dangerousMaterial1</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial3</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial5</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial6</incompatibleMaterial>
+   	</dangerousMaterial>
+   	<dangerousMaterial id="dangerousMaterial3">
+   		<incompatibleMaterial>dangerousMaterial2</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial4</incompatibleMaterial>
+   	</dangerousMaterial>
+   	<dangerousMaterial id="dangerousMaterial4">
+   		<incompatibleMaterial>dangerousMaterial2</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial5</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial6</incompatibleMaterial>
+   	</dangerousMaterial>
+   	<dangerousMaterial id="dangerousMaterial5"/>
+   	<dangerousMaterial id="dangerousMaterial6"/>
+   	<dangerousMaterial id="dangerousMaterial7"/>
 </rns>

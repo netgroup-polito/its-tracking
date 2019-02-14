@@ -597,8 +597,44 @@ public class Neo4jInteractions implements AutoCloseable {
 					for(Record r : result.list())
 						incompatibleMaterials.add(String.valueOf(r.get(0)));
 					
-					// TODO: convert result into list of strings
 					return incompatibleMaterials;
+                }
+            } );
+            
+            return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+		return null;
+	}
+	
+	/**
+	 * Function to retrieve all the materials carries by vehicles in a certain
+	 * place specified as parameter
+	 * @param placeId = id of the place in question
+	 * @return list containing all the materials in the place
+	 */
+	public List<String> getMaterialsInPlaceGivenId(String placeId) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getMaterialInPlaceStatementById(
+										IdTranslator.getInstance()
+										.getIdTranslation(placeId)
+								);
+			List<String> result = session.writeTransaction( new TransactionWork<List<String>>()
+            {
+                @Override
+                public List<String> execute( Transaction tx )
+                {
+                		List<String> materials = new ArrayList<>();
+					StatementResult result = tx.run(query);
+
+					for(Record r : result.list())
+						materials.add(String.valueOf(r.get(0)));
+					
+					return materials;
                 }
             } );
             

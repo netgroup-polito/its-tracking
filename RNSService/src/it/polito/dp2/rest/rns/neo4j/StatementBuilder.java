@@ -242,4 +242,17 @@ public class StatementBuilder {
 		
 		return query;
 	}
+	
+	/**
+	 * Function to create the statement to retrieve all the dangerous materials into
+	 * specific place
+	 * @param id = id of the place
+	 * @return the corresponding query
+	 */
+	public String getMaterialInPlaceStatementById(String id) {
+		String query = "MATCH (n)<-[r:isLocatedIn]-(v:Vehicle)-[t:transports]->(m) "
+				+ "WHERE id(n) = " + id + " "
+				+ "RETURN m.id as id";
+		return query;
+	}
 }

@@ -1,5 +1,7 @@
 package it.polito.dp2.rest.rns.resources;
 
+import java.util.Date;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -121,6 +123,7 @@ public class VehicleResource {
     })
     public Response createVehicle(JAXBElement<VehicleReaderType> vehicle){
     		System.out.println("++++++++++++++++++++++++++++++++++++++");
+    		System.out.println((new Date()).toString());
     		System.out.println("CREATE VEHICLE " + vehicle.getValue().getId() + " " + vehicle.getValue().getState());
 		try {
 			String vehicleId = this.instance.addVehicle(vehicle.getValue());
@@ -159,6 +162,7 @@ public class VehicleResource {
     })
     public Response updateVehicle(@PathParam("id") String vehicleId, JAXBElement<VehicleReaderType> vehicle) {
     		System.out.println("++++++++++++++++++++++++++++++++++++++");
+    		System.out.println((new Date()).toString());
     		System.out.println("UPDATE VEHICLE " + vehicleId + " --- " + vehicle.getValue().getPosition());
     		try {
 			this.instance.updateVehicle(vehicle.getValue());

@@ -126,11 +126,24 @@ public class RNSCore {
 				);
 			}
 			
+			// CURRENT POSITION
 			this.neo4j.connectNodes(
 					vehicle.getId(), 
 					vehicle.getPosition(), 
 					"isLocatedIn"
 			);
+			
+			// MATERIAL TRANSPORTED IF ANY
+			if(vehicle.getMaterial() != null) {
+				if(vehicle.getMaterial().size() >= 1) {
+					for(String material : vehicle.getMaterial())
+						this.neo4j.connectNodes(
+								vehicle.getId(), 
+								material, 
+								"transports"
+						);
+				}
+			}
 		}
 		
 		// TODO: retrieve the path from z3

@@ -3,6 +3,8 @@ package it.polito.dp2.rest.rns.z3;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
 import com.microsoft.z3.ArithExpr;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
@@ -12,7 +14,6 @@ import com.microsoft.z3.Optimize;
 import com.microsoft.z3.Status;
 
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
-import it.polito.dp2.rest.rns.jaxb.DangerousMaterialType;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RnsReaderType;
@@ -45,6 +46,7 @@ import it.polito.dp2.rest.rns.resources.RNSCore;
 public class Z3Model {
 	private List<String> alreadyVisitedNodes;
 	private List<String> incompatibleMaterials;
+	private Map<String, BoolExpr> exprMaterialPlace;
 	private boolean foundEnd;
 	private Optimize mkOptimize;
 	private Context ctx;
@@ -74,6 +76,7 @@ public class Z3Model {
 		for(GateReaderType place : system.getGate()) {
 			// Expression for material in the place
 			BoolExpr y_mat = ctx.mkBoolConst("y_" + materialId + place.getId());
+			this.exprMaterialPlace.put("y_" + materialId + place.getId(), y_mat);
 			
 			// Expressions for incompatible materials in place
 			List<BoolExpr> incList = new LinkedList<>();
@@ -95,6 +98,7 @@ public class Z3Model {
 		for(RoadSegmentReaderType place : system.getRoadSegment()) {
 			// Expression for material in the place
 			BoolExpr y_mat = ctx.mkBoolConst("y_" + materialId + place.getId());
+			this.exprMaterialPlace.put("y_" + materialId + place.getId(), y_mat);
 			
 			// Expressions for incompatible materials in place
 			List<BoolExpr> incList = new LinkedList<>();
@@ -116,6 +120,7 @@ public class Z3Model {
 		for(ParkingAreaReaderType place : system.getParkingArea()) {
 			// Expression for material in the place
 			BoolExpr y_mat = ctx.mkBoolConst("y_" + materialId + place.getId());
+			this.exprMaterialPlace.put("y_" + materialId + place.getId(), y_mat);
 			
 			// Expressions for incompatible materials in place
 			List<BoolExpr> incList = new LinkedList<>();
@@ -173,6 +178,12 @@ public class Z3Model {
 		// Add constraint to infer that the material is in the node
 		BoolExpr y_mat = ctx.mkBoolConst("y_" + materialId + currentPlace.getId());
 		mkOptimize.Add(x_curr, y_mat); // x_curr = 1 --> y_mat = 1
+		
+		// Add other materials into the constraints
+		for(String material : Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(currentPlace.getId())) {
+			BoolExpr y_mat_place = ctx.mkBoolConst("y_" + material + currentPlace.getId());
+			mkOptimize.Add(x_curr, y_mat_place); // x_curr = 1 --> y_mat = 1
+		}
 		
 		// Create boolean expressions for the place and connections
 		List<BoolExpr> relations = new LinkedList<>();

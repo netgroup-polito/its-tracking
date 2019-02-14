@@ -1,10 +1,10 @@
 package it.polito.dp2.rest.rns.resources;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import it.polito.dp2.rest.rns.graph.Graph;
-import it.polito.dp2.rest.rns.graph.PlaceFullException;
-import it.polito.dp2.rest.rns.graph.VehicleNotInSystemException;
+import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
+import it.polito.dp2.rest.rns.exceptions.VehicleNotInSystemException;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.Gates;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
@@ -33,7 +33,7 @@ public class RNSCore {
 	private static RNSCore instance = null; // Instance of the class
 	private Neo4jInteractions neo4j;
 	private IdTranslator id2neo4j;
-	private Graph actualMap;
+	//private Graph actualMap;
 	
 	/**
 	 * Private constructor, so that the instance of the object can only be accessed
@@ -42,12 +42,9 @@ public class RNSCore {
 	private RNSCore(){
 		this.neo4j = Neo4jInteractions.getInstance();
 		this.id2neo4j = IdTranslator.getInstance();
-		this.actualMap = Graph.getInstance();
 		
 		// Load the map of the system
 		MapLoader.loadMap();
-		
-		this.actualMap.loadVehiclesInSystem();
 	}
 	
 	/**
@@ -79,42 +76,41 @@ public class RNSCore {
 	 * @return the id of the node, assigned automatically by Neo4j
 	 * @throws PlaceFullException --> if the vehicle can't be added to the system
 	 */
-	public String addVehicle(VehicleReaderType value) throws PlaceFullException {
+	public String addVehicle(VehicleReaderType vehicle) throws PlaceFullException {
 		String id = "";
-		
+		System.out.println("***************** ADD VEHICLE *********************");
 		// CURRENT POSITION
-		if(value.getPosition() != null) {
-			// Update graph
-			Graph.getInstance().addvehicleToPlace(value.getPosition(), value);
+		if(vehicle.getPosition() != null) {
+			// Check on the capacity of the place
+			int actualCapacityOfPlace = this.neo4j.getActualCapacityOfPlace(vehicle.getPosition());
+			if(actualCapacityOfPlace < 1) throw(new PlaceFullException("Place " + vehicle.getPosition() + " is full. It can't accept any more vehicles."));
 			
-			// If no exception is thrown, the vehicle can be added to the system
-			
-			id = this.neo4j.createNode(value);
+			id = this.neo4j.createNode(vehicle);
 			System.out.println("Added new VEHICLE: "+ id);
-			this.id2neo4j.addIdTranslation(value.getId(), id);
+			this.id2neo4j.addIdTranslation(vehicle.getId(), id);
 			
 			// ORIGIN
-			if(value.getOrigin() != null) {
-				System.out.println("Connection to origin: " + this.id2neo4j.getIdTranslation(value.getOrigin()));
+			if(vehicle.getOrigin() != null) {
+				System.out.println("Connection to origin: " + this.id2neo4j.getIdTranslation(vehicle.getOrigin()));
 				this.neo4j.connectNodes(
-						value.getId(), 
-						value.getOrigin(), 
+						vehicle.getId(), 
+						vehicle.getOrigin(), 
 						"comesFrom"
 				);
 			}
 			
 			// DESTINATION
-			if(value.getDestination() != null) {
+			if(vehicle.getDestination() != null) {
 				this.neo4j.connectNodes(
-						value.getId(), 
-						value.getDestination(), 
+						vehicle.getId(), 
+						vehicle.getDestination(), 
 						"isDirectedTo"
 				);
 			}
 			
 			this.neo4j.connectNodes(
-					value.getId(), 
-					value.getPosition(), 
+					vehicle.getId(), 
+					vehicle.getPosition(), 
 					"isLocatedIn"
 			);
 		}
@@ -131,7 +127,7 @@ public class RNSCore {
 	 * @throws VehicleNotInSystemException 
 	 */
 	public VehicleReaderType getVehicle(String id) throws VehicleNotInSystemException {
-		return this.actualMap.getVehicle(id);
+		return this.neo4j.getVehicle(id);
 	}
 
 	/**
@@ -209,8 +205,27 @@ public class RNSCore {
 	 * @throws VehicleNotInSystemException 
 	 */
 	public void updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException {
-		System.out.println("Updating position of vehicle: " + vehicle.getId());
-		this.actualMap.updateVehiclePosition(vehicle);
+		// Check presence of the vehicle in the system
+		List<String> vehiclesLoadedIds = 
+				this.neo4j.getVehicles()
+						.stream()
+						.map(VehicleReaderType::getId)
+						.collect(Collectors.toList());
+		if(!vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleNotInSystemException("Vehicle " + vehicle.getId() + " is not currently in the system."));
+		
+		// TODO: if the place is in the path of the vehicle OK, otherwise need to recompute
+		// the path
+		// Check on the capacity of the place
+		int actualCapacityOfPlace = this.neo4j.getActualCapacityOfPlace(vehicle.getPosition());
+		if(actualCapacityOfPlace < 1) throw(new PlaceFullException("Place " + vehicle.getPosition() + " is full. It can't accept any more vehicles."));
+		
+		// Can update
+		System.out.println("*************** UPDATE VEHICLE POSITION ****************");
+		System.out.println("Updating position of vehicle " + vehicle.getId());
+		VehicleReaderType currentVehicle = this.neo4j.getVehicle(vehicle.getId());
+		System.out.println("\tFROM: " + currentVehicle.getPosition());
+		System.out.println("\tTO: " + vehicle.getPosition());
+		this.neo4j.updatePositionVehicle(vehicle, currentVehicle.getPosition());
 	}
 
 	/**
@@ -228,6 +243,11 @@ public class RNSCore {
 		return vehicles;
 	}
 
+	/**
+	 * Function to retrieve all informations currently stored 
+	 * in the database.
+	 * @return an object containing such information
+	 */
 	public RnsReaderType getSystem() {
 		RnsReaderType rns = (new ObjectFactory()).createRnsReaderType();
 		

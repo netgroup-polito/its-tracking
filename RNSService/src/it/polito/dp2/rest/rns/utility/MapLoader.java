@@ -5,7 +5,6 @@ import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import it.polito.dp2.rest.rns.graph.Graph;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
@@ -22,6 +21,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class that offers methods to load a map from an xml file.
+ * @author eugeniogallea
+ */
 public class MapLoader {
 	private static final Neo4jInteractions neo4j = Neo4jInteractions.getInstance();
 	private static final IdTranslator id2neo4j = IdTranslator.getInstance();
@@ -57,31 +60,6 @@ public class MapLoader {
 			connectGates(gates);
 			connectRoadSegments(roadSegments);
 			connectParkingAreas(parkings);
-			
-			// Load the final graph in memory
-			gates.stream().forEach((gate) -> {
-				Graph.getInstance().addPlace(
-						gate.getId(), 
-						0, 
-						null, 
-						gate.getCapacity().intValue());
-			});
-			
-			roadSegments.stream().forEach((segment) -> {
-				Graph.getInstance().addPlace(
-						segment.getId(), 
-						segment.getAvgTimeSpent().intValue(), 
-						null, 
-						segment.getCapacity().intValue());
-			});
-			
-			parkings.stream().forEach((park) -> {
-				Graph.getInstance().addPlace(
-						park.getId(), 
-						park.getAvgTimeSpent().intValue(), 
-						null,
-						park.getCapacity().intValue());
-			});
 			
 		} catch (Exception e) {
 			e.printStackTrace();

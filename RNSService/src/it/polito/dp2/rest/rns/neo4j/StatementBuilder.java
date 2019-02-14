@@ -208,4 +208,18 @@ public class StatementBuilder {
 				+ "RETURN n, c";
 		return query;
 	}
+
+	/**
+	 * Function to get a query in order to retrieve the actual capacity of 
+	 * a node in the database
+	 * @param id = id of the node in question
+	 * @return the corresponding query
+	 */
+	public String getActualCapacityStatementById(String id) {
+		String query = "MATCH(n) "
+				+ "WHERE id(n) = " + id + " "
+				+ "OPTIONAL MATCH (n)<-[r:isLocatedIn]-() "
+				+ "RETURN n.capacity, COUNT(r)";
+		return query;
+	}
 }

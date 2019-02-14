@@ -3,16 +3,13 @@ package it.polito.dp2.rest.rns.z3;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
 import com.microsoft.z3.ArithExpr;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
 import com.microsoft.z3.IntExpr;
 import com.microsoft.z3.Optimize;
-import com.microsoft.z3.Optimize.Handle;
 
-import it.polito.dp2.rest.rns.graph.Graph;
+import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
 
@@ -22,20 +19,14 @@ import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
  *
  */
 public class Z3Model {
-	private static Graph graph = Graph.getInstance();
 	private List<String> alreadyVisitedNodes;
-	private Handle handle;
 	private Optimize mkOptimize;
 	private Context ctx;
-	private boolean pathPossible;
-	
 	public Z3Model(String sourceNodeId, String destinationNodeId) throws UnsatisfiableException {
-		if(!graph.hasEnoughCapacity(sourceNodeId))
+		if(Neo4jInteractions.getInstance().getActualCapacityOfPlace(sourceNodeId) < 1)
 			throw(new UnsatisfiableException("Node " + sourceNodeId + " has no more room for another vehicle"));
 	
 		this.alreadyVisitedNodes = new ArrayList<>();
-		this.pathPossible = false;
-		
 		BoolExpr currentNodeBool = ctx.mkBoolConst(sourceNodeId);
 		this.recurGraph(sourceNodeId, destinationNodeId, currentNodeBool);
 	}
@@ -53,7 +44,6 @@ public class Z3Model {
 	private void recurGraph(String sourceNodeId, String destinationNodeId, BoolExpr previousNodeBool) {
 		// Recursion end condition
 		if(sourceNodeId.equals(destinationNodeId)) {
-			this.pathPossible = true;
 			return;
 		}
 		

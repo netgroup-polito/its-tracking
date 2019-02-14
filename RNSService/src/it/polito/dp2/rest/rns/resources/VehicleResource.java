@@ -18,8 +18,8 @@ import javax.xml.bind.JAXBElement;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
-import it.polito.dp2.rest.rns.graph.PlaceFullException;
-import it.polito.dp2.rest.rns.graph.VehicleNotInSystemException;
+import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
+import it.polito.dp2.rest.rns.exceptions.VehicleNotInSystemException;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import io.swagger.annotations.ApiResponse;
@@ -118,11 +118,13 @@ public class VehicleResource {
 	    	MediaType.APPLICATION_JSON
     })
     public Response createVehicle(JAXBElement<VehicleReaderType> vehicle){
+    		System.out.println("++++++++++++++++++++++++++++++++++++++");
     		System.out.println("CREATE VEHICLE " + vehicle.getValue().getId() + " " + vehicle.getValue().getState());
 		try {
 			String vehicleId = this.instance.addVehicle(vehicle.getValue());
 			return Response.status(Status.CREATED).entity(vehicleId).build();
 		} catch (PlaceFullException e) {
+			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity("Place full, vehicle can't be added.").build();
 		}
     }
@@ -148,7 +150,8 @@ public class VehicleResource {
 		    	MediaType.APPLICATION_JSON
     })
     public Response updateVehicle(@PathParam("id") String vehicleId, JAXBElement<VehicleReaderType> vehicle) {
-	    	System.out.println("UPDATE VEHICLE " + vehicleId + " --- " + vehicle.getValue().getPosition());
+    		System.out.println("++++++++++++++++++++++++++++++++++++++");
+    		System.out.println("UPDATE VEHICLE " + vehicleId + " --- " + vehicle.getValue().getPosition());
     		try {
 			this.instance.updateVehicle(vehicle.getValue());
 			return Response.status(Status.OK).entity(vehicleId).build();

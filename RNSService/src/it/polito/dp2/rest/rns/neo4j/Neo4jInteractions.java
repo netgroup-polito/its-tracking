@@ -10,7 +10,6 @@ import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.TransactionWork;
 import org.neo4j.driver.v1.Value;
 
-import it.polito.dp2.rest.rns.graph.Graph;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
@@ -477,6 +476,11 @@ public class Neo4jInteractions implements AutoCloseable {
         }
 	}
 
+	/**
+	 * Function to retrieve the basic informations about a specific place
+	 * @param sourceNodeId = id of the node to be considered
+	 * @return information about the desired node
+	 */
 	public SimplePlaceReaderType getPlace(String sourceNodeId) {
 		try ( Session session = driver.session() )
         {
@@ -507,7 +511,7 @@ public class Neo4jInteractions implements AutoCloseable {
 							place1.setCapacity(new BigInteger(Long.toString((Long) r.get(1).asMap().get("capacity"))));
 							place1.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(1).asMap().get("avgTimeSpent"))));
 						
-							if(Graph.getInstance().hasEnoughCapacity(place1.getId())) {
+							if(getActualCapacityOfPlace(place1.getId()) >= 1) {
 								place.getConnectedPlaceId().add(place1.getId());
 							}
 						} else {
@@ -516,7 +520,7 @@ public class Neo4jInteractions implements AutoCloseable {
 							place1.setCapacity(new BigInteger(Long.toString((Long) r.get(1).asMap().get("capacity"))));
 							place1.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(1).asMap().get("avgTimeSpent"))));
 						
-							if(Graph.getInstance().hasEnoughCapacity(place1.getId())) {
+							if(getActualCapacityOfPlace(place1.getId()) >= 1) {
 								place.getConnectedPlaceId().add(place1.getId());
 							}
 						}
@@ -532,5 +536,36 @@ public class Neo4jInteractions implements AutoCloseable {
         }
 		
 		return null;
+	}
+
+	/**
+	 * 
+	 * @param position
+	 * @return
+	 */
+	public int getActualCapacityOfPlace(String position) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getActualCapacityStatementById(
+										IdTranslator.getInstance().getIdTranslation(position));
+			int result = session.writeTransaction( new TransactionWork<Integer>()
+            {
+                @Override
+                public Integer execute( Transaction tx )
+                {
+					StatementResult result = tx.run(query);
+					Record record = result.next();
+					return 	Integer.parseInt(String.valueOf(record.get(0))) - 
+							Integer.parseInt(String.valueOf(record.get(1)));
+                }
+            } );
+            
+            return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+		return 0;
 	}
 }

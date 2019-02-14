@@ -1,11 +1,8 @@
 package it.polito.dp2.rest.rns.z3;
 
-import com.microsoft.z3.Context;
-import com.microsoft.z3.Optimize;
-import com.microsoft.z3.Optimize.Handle;
+import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 
 public class Z3 {
-	private Optimize mkOptimize;
 	private Z3Model model;
 	
 	

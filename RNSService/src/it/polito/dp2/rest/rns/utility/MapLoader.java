@@ -320,4 +320,15 @@ public class MapLoader {
 
 	    return true;
 	}
+	
+	public static boolean areCompatible(String material1, String material2) {
+		int index = -1;
+		for(DangerousMaterialType material : dangerousMaterials) {
+			if(!material.getId().equals(material1)) {
+				index++;
+			}
+		}
+		
+		return dangerousMaterials.get(index).getIncompatibleMaterial().contains(material2);
+	}
 }

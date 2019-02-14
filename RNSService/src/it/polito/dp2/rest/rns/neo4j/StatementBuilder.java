@@ -116,8 +116,8 @@ public class StatementBuilder {
 	 */
 	public String getStatementByTypeAndConnectionAndContainer(String type) {
 		String query = 
-				"MATCH (n: " + type + ")-[:isConnectedTo*1]->(connected) "
-				+ "MATCH (n: " + type + " )-[:isContainedInto*1]->(container) "
+				"MATCH (n: " + type + ")-[:isConnectedTo*0..1]->(connected) "
+				+ "MATCH (n: " + type + " )-[:isContainedInto*0..1]->(container) "
 				+ "RETURN properties(n), id(connected), id(container)";
 		return query;
 	}

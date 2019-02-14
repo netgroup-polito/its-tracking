@@ -10,6 +10,9 @@ public interface Constants {
 	public static final String dangerousMaterial2 = "dangerousMaterial2";
 	public static final String dangerousMaterial3 = "dangerousMaterial3";
 	public static final String dangerousMaterial4 = "dangerousMaterial4";
+	public static final String dangerousMaterial5 = "dangerousMaterial5";
+	public static final String dangerousMaterial6 = "dangerousMaterial6";
+	public static final String dangerousMaterial7 = "dangerousMaterial7";
 	
 	public static final String[] notCompatibleWith1 = {"dangerousMaterial3", "dangerousMaterial5", "dangerousMaterial6", "dangerousMaterial7"};
 	public static final String[] notCompatibleWith2 = {"dangerousMaterial1", "dangerousMaterial3", "dangerousMaterial5", "dangerousMaterial6"};

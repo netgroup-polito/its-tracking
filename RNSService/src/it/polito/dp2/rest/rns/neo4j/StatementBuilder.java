@@ -201,4 +201,11 @@ public class StatementBuilder {
 				+ "RETURN id(n)";
 		return query;
 	}
+
+	public String getNodeById(String id) {
+		String query = "MATCH(n)-[:isConnectedTo]->(c) "
+				+ "WHERE id(n) = " + id + " "
+				+ "RETURN n, c";
+		return query;
+	}
 }

@@ -153,4 +153,11 @@ public class Graph {
 			IdTranslator.getInstance().addIdTranslation(vehicle.getId(), neo4jId);
 		});
 	}
+
+	public boolean hasEnoughCapacity(String inputNode) {
+		return 
+			(	this.placeMaxCountVehicles.get(inputNode) - 
+				this.placeVehicles.get(inputNode).size()
+			) >= 1;
+	}
 }

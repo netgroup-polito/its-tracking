@@ -30,7 +30,6 @@ public class RNSResource {
 	 */
 	public RNSResource() { }
 	
-	@SuppressWarnings("unlikely-arg-type")
 	@GET
 	@ApiOperation(
 			value = "getSystemState",

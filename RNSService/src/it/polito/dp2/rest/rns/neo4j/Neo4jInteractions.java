@@ -9,11 +9,14 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.TransactionWork;
 import org.neo4j.driver.v1.Value;
+
+import it.polito.dp2.rest.rns.graph.Graph;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
+import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleStateType;
 import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
@@ -472,5 +475,62 @@ public class Neo4jInteractions implements AutoCloseable {
         } catch(Exception e) {
         		e.printStackTrace();
         }
+	}
+
+	public SimplePlaceReaderType getPlace(String sourceNodeId) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getNodeById(
+									IdTranslator.getInstance().getIdTranslation(sourceNodeId)
+								);
+			SimplePlaceReaderType result = session.writeTransaction( new TransactionWork<SimplePlaceReaderType>()
+            {
+                @Override
+                public SimplePlaceReaderType execute( Transaction tx )
+                {
+					StatementResult result = tx.run(query);
+					SimplePlaceReaderType place = null;
+					SimplePlaceReaderType place1 = (new ObjectFactory()).createSimplePlaceReaderType();
+					
+					for(Record r : result.list()) {
+						if(place == null) {
+							place = (new ObjectFactory()).createSimplePlaceReaderType();
+							
+							place.setName((String) r.get(0).asMap().get("name"));
+							place.setId((String) r.get(0).asMap().get("id"));
+							place.setCapacity(new BigInteger(Long.toString((Long) r.get(0).asMap().get("capacity"))));
+							place.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(0).asMap().get("avgTimeSpent"))));
+							
+							place1.setName((String) r.get(1).asMap().get("name"));
+							place1.setId((String) r.get(1).asMap().get("id"));
+							place1.setCapacity(new BigInteger(Long.toString((Long) r.get(1).asMap().get("capacity"))));
+							place1.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(1).asMap().get("avgTimeSpent"))));
+						
+							if(Graph.getInstance().hasEnoughCapacity(place1.getId())) {
+								place.getConnectedPlaceId().add(place1.getId());
+							}
+						} else {
+							place1.setName((String) r.get(1).asMap().get("name"));
+							place1.setId((String) r.get(1).asMap().get("id"));
+							place1.setCapacity(new BigInteger(Long.toString((Long) r.get(1).asMap().get("capacity"))));
+							place1.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(1).asMap().get("avgTimeSpent"))));
+						
+							if(Graph.getInstance().hasEnoughCapacity(place1.getId())) {
+								place.getConnectedPlaceId().add(place1.getId());
+							}
+						}
+					}
+					
+					return place;
+                }
+            } );
+            
+            return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+		return null;
 	}
 }

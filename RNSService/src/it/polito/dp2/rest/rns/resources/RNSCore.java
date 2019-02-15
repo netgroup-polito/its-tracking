@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
 import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
+import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.exceptions.VehicleAlreadyInSystemException;
 import it.polito.dp2.rest.rns.exceptions.VehicleNotInSystemException;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
@@ -18,6 +19,7 @@ import it.polito.dp2.rest.rns.jaxb.Vehicles;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
 import it.polito.dp2.rest.rns.utility.MapLoader;
+import it.polito.dp2.rest.rns.z3.Z3;
 
 /**
  * This class is the core of the application. All the end-points should refer to some
@@ -79,8 +81,9 @@ public class RNSCore {
 	 * @throws PlaceFullException --> if the vehicle can't be added to the system
 	 * @throws VehicleAlreadyInSystemException --> id the vehicle has already been added into the system
 	 * @throws InvalidEntryPlaceException --> if the vehicle is trying to access the system from a gate that isn't of type IN or INOUT
+	 * @throws UnsatisfiableException 
 	 */
-	public String addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException {
+	public String addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException {
 		String id = "";
 		System.out.println("***************** ADD VEHICLE *********************");
 		// CURRENT POSITION
@@ -93,9 +96,9 @@ public class RNSCore {
 							.collect(Collectors.toList());
 			if(vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleAlreadyInSystemException("Vehicle " + vehicle.getId() + " has already been added to the system."));
 			
-			// Check on the capacity of the place
-			int actualCapacityOfPlace = this.neo4j.getActualCapacityOfPlace(vehicle.getPosition());
-			if(actualCapacityOfPlace < 1) throw(new PlaceFullException("Place " + vehicle.getPosition() + " is full. It can't accept any more vehicles."));
+			// TODO: retrieve the path from z3
+			Z3 z3 = new Z3(vehicle.getOrigin(), vehicle.getDestination(), vehicle.getMaterial().get(0));
+			z3.findPath();
 			
 			// Check if the ORIGIN is a gate of type IN or INOUT
 			GateReaderType origin = this.getGate(vehicle.getOrigin());
@@ -145,8 +148,6 @@ public class RNSCore {
 				}
 			}
 		}
-		
-		// TODO: retrieve the path from z3
 		
 		return id;
 	}

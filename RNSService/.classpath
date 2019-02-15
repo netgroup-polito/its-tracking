@@ -76,7 +76,16 @@
 	<classpathentry kind="lib" path="lib/neo4j-java-driver-1.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.12.jar"/>
 	<classpathentry kind="lib" path="lib/hamcrest-all-1.3.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/opt/z3-osx/bin/com.microsoft.z3.jar"/>
+	<classpathentry kind="lib" path="rns/WebContent/WEB-INF/lib/z3-osx/bin/com.microsoft.z3.jar"/>
+	<classpathentry kind="lib" path="lib/javasmt-solver-z3-z3-4.4.1-1558-gf96cfea.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/opt/z3-osx/bin"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/opt/z3-osx"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

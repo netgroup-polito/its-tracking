@@ -559,6 +559,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 {
 					StatementResult result = tx.run(query);
 					Record record = result.next();
+					System.out.println("Actual capacity of node " + position + " = " + (Integer.parseInt(String.valueOf(record.get(0))) - 
+							Integer.parseInt(String.valueOf(record.get(1)))));
 					return 	Integer.parseInt(String.valueOf(record.get(0))) - 
 							Integer.parseInt(String.valueOf(record.get(1)));
                 }

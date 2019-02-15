@@ -30,7 +30,7 @@ public class DangerousMaterialImpl extends DangerousMaterialType {
 	}
 	
 	public boolean isCompatibleWith(String material) {
-		return this.incompatibleMaterial.contains(material);
+		return !this.incompatibleMaterial.contains(material);
 	}
 
 }

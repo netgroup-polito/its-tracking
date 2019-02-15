@@ -3,8 +3,6 @@ package it.polito.dp2.rest.rns.z3;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
 import com.microsoft.z3.ArithExpr;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
@@ -14,13 +12,9 @@ import com.microsoft.z3.Optimize;
 import com.microsoft.z3.Status;
 
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
-import it.polito.dp2.rest.rns.jaxb.GateReaderType;
-import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
-import it.polito.dp2.rest.rns.jaxb.RnsReaderType;
-import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
-import it.polito.dp2.rest.rns.resources.RNSCore;
+import it.polito.dp2.rest.rns.utility.DangerousMaterialImpl;
 
 /**
  * Z3 class that can load the model of the graph, and while loading it
@@ -45,8 +39,6 @@ import it.polito.dp2.rest.rns.resources.RNSCore;
  */
 public class Z3Model {
 	private List<String> alreadyVisitedNodes;
-	private List<String> incompatibleMaterials;
-	private Map<String, BoolExpr> exprMaterialPlace;
 	private boolean foundEnd;
 	private Optimize mkOptimize;
 	private Context ctx;
@@ -55,90 +47,16 @@ public class Z3Model {
 		if(Neo4jInteractions.getInstance().getActualCapacityOfPlace(sourceNodeId) < 1)
 			throw(new UnsatisfiableException("Node " + sourceNodeId + " has no more room for another vehicle"));
 		
-		this.incompatibleMaterials = Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId);
-		
-		this.loadExpressionsMaterialCompatibility(materialId);
-		
+		ctx = new Context();
+		mkOptimize = ctx.mkOptimize();
 		this.foundEnd = false;
 		this.alreadyVisitedNodes = new ArrayList<>();
 		BoolExpr x_curr = ctx.mkBoolConst(sourceNodeId);
-		this.recurGraph(sourceNodeId, destinationNodeId, materialId, x_curr);
-	}
-	
-	/**
-	 * Function to load into the optimizer the constraints for avoid 
-	 * incompatible dangerous materials to be in the same place
-	 * @param materialId
-	 */
-	private void loadExpressionsMaterialCompatibility(String materialId) {
-		RnsReaderType system = RNSCore.getInstance().getSystem();
-		
-		for(GateReaderType place : system.getGate()) {
-			// Expression for material in the place
-			BoolExpr y_mat = ctx.mkBoolConst("y_" + materialId + place.getId());
-			this.exprMaterialPlace.put("y_" + materialId + place.getId(), y_mat);
-			
-			// Expressions for incompatible materials in place
-			List<BoolExpr> incList = new LinkedList<>();
-			for(String material : this.incompatibleMaterials) {
-				BoolExpr y_inc = ctx.mkBoolConst("y_" + material + place.getId());
-				incList.add(y_inc);
-			}
-			
-			// Arithmetic expression to select one material in the place
-			ArithExpr leftSide = bool_to_int(y_mat);
-			for(BoolExpr yi : incList) {
-				leftSide = ctx.mkAdd(leftSide, bool_to_int(yi));
-			}
-			
-			// y0 + ... + yn = 1
-			mkOptimize.Add(ctx.mkEq(leftSide, ctx.mkInt(1)));
-		}
-		
-		for(RoadSegmentReaderType place : system.getRoadSegment()) {
-			// Expression for material in the place
-			BoolExpr y_mat = ctx.mkBoolConst("y_" + materialId + place.getId());
-			this.exprMaterialPlace.put("y_" + materialId + place.getId(), y_mat);
-			
-			// Expressions for incompatible materials in place
-			List<BoolExpr> incList = new LinkedList<>();
-			for(String material : this.incompatibleMaterials) {
-				BoolExpr y_inc = ctx.mkBoolConst("y_" + material + place.getId());
-				incList.add(y_inc);
-			}
-			
-			// Arithmetic expression to select one material in the place
-			ArithExpr leftSide = bool_to_int(y_mat);
-			for(BoolExpr yi : incList) {
-				leftSide = ctx.mkAdd(leftSide, bool_to_int(yi));
-			}
-			
-			// y0 + ... + yn = 1
-			mkOptimize.Add(ctx.mkEq(leftSide, ctx.mkInt(1)));
-		}
-		
-		for(ParkingAreaReaderType place : system.getParkingArea()) {
-			// Expression for material in the place
-			BoolExpr y_mat = ctx.mkBoolConst("y_" + materialId + place.getId());
-			this.exprMaterialPlace.put("y_" + materialId + place.getId(), y_mat);
-			
-			// Expressions for incompatible materials in place
-			List<BoolExpr> incList = new LinkedList<>();
-			for(String material : this.incompatibleMaterials) {
-				BoolExpr y_inc = ctx.mkBoolConst("y_" + material + place.getId());
-				incList.add(y_inc);
-			}
-			
-			// Arithmetic expression to select one material in the place
-			ArithExpr leftSide = bool_to_int(y_mat);
-			for(BoolExpr yi : incList) {
-				leftSide = ctx.mkAdd(leftSide, bool_to_int(yi));
-			}
-			
-			// y0 + ... + yn = 1
-			mkOptimize.Add(ctx.mkEq(leftSide, ctx.mkInt(1)));
-		}
-		
+		this.recurGraph(
+				sourceNodeId, 
+				destinationNodeId, 
+				new DangerousMaterialImpl(materialId, Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)), 
+				x_curr);
 	}
 
 	/**
@@ -162,8 +80,10 @@ public class Z3Model {
 	 * @param destinationNodeId = final node, to which we want to arrive (end of recursion)
 	 * @param x_curr = preceding node, to which we want to create a connection
 	 */
-	private void recurGraph(String sourceNodeId, String destinationNodeId, String materialId, BoolExpr x_curr) {
-		// Recursion end condition
+	private void recurGraph(String sourceNodeId, String destinationNodeId, DangerousMaterialImpl material, BoolExpr x_curr) {
+		//****************************************************************************//
+	    //						PRUNING AND RECURSION CONDITIONS						//
+	 	//****************************************************************************//
 		if(sourceNodeId.equals(destinationNodeId)) {
 			foundEnd = true;
 			return;
@@ -175,16 +95,14 @@ public class Z3Model {
 		SimplePlaceReaderType currentPlace = Neo4jInteractions.getInstance().getPlace(sourceNodeId);
 		if(currentPlace == null) return;
 		
-		// Add constraint to infer that the material is in the node
-		BoolExpr y_mat = ctx.mkBoolConst("y_" + materialId + currentPlace.getId());
-		mkOptimize.Add(x_curr, y_mat); // x_curr = 1 --> y_mat = 1
-		
-		// Add other materials into the constraints
-		for(String material : Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(currentPlace.getId())) {
-			BoolExpr y_mat_place = ctx.mkBoolConst("y_" + material + currentPlace.getId());
-			mkOptimize.Add(x_curr, y_mat_place); // x_curr = 1 --> y_mat = 1
+		// Prune directly the nodes which contains incompatible materials
+		for(String dm : Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(sourceNodeId)) {
+			if(!material.isCompatibleWith(dm)) return;
 		}
 		
+		//****************************************************************************/
+	    //						    Z3 CONSTRAINTS								   //
+	 	//****************************************************************************/
 		// Create boolean expressions for the place and connections
 		List<BoolExpr> relations = new LinkedList<>();
 		for(String id : currentPlace.getConnectedPlaceId()) { 
@@ -196,7 +114,7 @@ public class Z3Model {
 			mkOptimize.Add(ctx.mkImplies(ctx.mkAnd(x_curr, x_conn), z));
 			relations.add(z);
 
-			this.recurGraph(id, destinationNodeId, materialId, x_conn);
+			this.recurGraph(id, destinationNodeId, material, x_conn);
 		}
 		
 		// Arithmetic expression to select only one path
@@ -204,8 +122,10 @@ public class Z3Model {
 		for(BoolExpr xi : relations) {
 			leftSide = ctx.mkAdd(leftSide, bool_to_int(xi));
 		}
-		// x0 + ... + xn = 1
-		mkOptimize.Add(ctx.mkEq(leftSide, ctx.mkInt(1)));
+		
+		if(leftSide != null)
+			// x0 + ... + xn = 1
+			mkOptimize.Add(ctx.mkEq(leftSide, ctx.mkInt(1)));
 		
 	}
 	

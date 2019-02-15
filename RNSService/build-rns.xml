@@ -66,18 +66,19 @@
 	
 	<target name="package.service" depends="build.service" description="Package the service">
 		<!-- copy web module resource files to temporary destination folder -->
-    	<copy toDir="${gen-tomcat-service.dir}" overwrite="true">
-        	<fileset dir="${resources.dir}">
+    		<copy toDir="${gen-tomcat-service.dir}" overwrite="true">
+	        	<fileset dir="${resources.dir}">
 			</fileset>
       	</copy>
 		<!-- copy class files to WEB-INF/classes directory -->
-    	<copy toDir="${gen-tomcat-service.dir}/WEB-INF/classes" overwrite="true">
-        	<fileset dir="${build.dir}"/>
+    		<copy toDir="${gen-tomcat-service.dir}/WEB-INF/classes" overwrite="true">
+        		<fileset dir="${build.dir}"/>
       	</copy>
 		<!-- copy lib files to WEB-INF/lib directory -->
-    	<copy toDir="${gen-tomcat-service.dir}/WEB-INF/lib" overwrite="true">
-        	<fileset dir="${lib.dir}">
-        		<include name="*.jar"/>
+    		<copy toDir="${gen-tomcat-service.dir}/WEB-INF/lib" overwrite="true">
+	        	<fileset dir="${lib.dir}">
+	        		<include name="*.jar"/>
+	        		<include name="*.dylib"/>
 			</fileset>
       	</copy> 
 		<!-- make war archive -->

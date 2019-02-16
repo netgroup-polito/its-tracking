@@ -268,6 +268,7 @@ public class MapLoader {
 					if(node.getNodeName().equals("capacity")) gate.setCapacity(new BigInteger(node.getTextContent()));
 					if(node.getNodeName().equals("connectedPlace")) gate.getConnectedPlaceId().add(node.getTextContent());
 					if(node.getNodeName().equals("type")) gate.setType(GateType.fromValue(node.getTextContent()));
+					if(node.getNodeName().equals("avgTimeSpent")) gate.setAvgTimeSpent(new BigInteger(node.getTextContent()));
 				}
 				/*System.out.println("*************************************");
 				System.out.println("Loading gate: " + gate.getId());*/

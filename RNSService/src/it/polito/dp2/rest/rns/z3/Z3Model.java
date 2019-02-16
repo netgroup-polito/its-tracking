@@ -1,8 +1,8 @@
 package it.polito.dp2.rest.rns.z3;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+
 import com.microsoft.z3.ArithExpr;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
@@ -38,7 +38,6 @@ import it.polito.dp2.rest.rns.utility.DangerousMaterialImpl;
  *
  */
 public class Z3Model {
-	private List<String> alreadyVisitedNodes;
 	private boolean foundEnd;
 	private Optimize mkOptimize;
 	private Context ctx;
@@ -47,16 +46,18 @@ public class Z3Model {
 		if(Neo4jInteractions.getInstance().getActualCapacityOfPlace(sourceNodeId) < 1)
 			throw(new UnsatisfiableException("Node " + sourceNodeId + " has no more room for another vehicle"));
 		
+		System.out.println("############# INITIALIZATION OF Z3 MODEL #############");
 		ctx = new Context();
 		mkOptimize = ctx.mkOptimize();
 		this.foundEnd = false;
-		this.alreadyVisitedNodes = new ArrayList<>();
-		BoolExpr x_curr = ctx.mkBoolConst(sourceNodeId);
-		this.recurGraph(
-				sourceNodeId, 
-				destinationNodeId, 
-				new DangerousMaterialImpl(materialId, Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)), 
-				x_curr);
+		BoolExpr x_src = ctx.mkBoolConst(sourceNodeId);
+		BoolExpr x_dst = ctx.mkBoolConst(destinationNodeId);
+		
+		// Add the fact that x_src and x_dst have to be one
+		mkOptimize.Add(x_src, ctx.mkBool(true));
+		mkOptimize.Add(x_dst, ctx.mkBool(true));
+		
+		this.defineConstraintsForNodes(sourceNodeId, materialId, destinationNodeId, null);
 	}
 
 	/**
@@ -73,60 +74,44 @@ public class Z3Model {
 		return integer;
 	}
 	
-	/**
-	 * Function used to recur onto the graph to load all nodes with their corresponding
-	 * boolean expression.
-	 * @param sourceNodeId = current node
-	 * @param destinationNodeId = final node, to which we want to arrive (end of recursion)
-	 * @param x_curr = preceding node, to which we want to create a connection
-	 */
-	private void recurGraph(String sourceNodeId, String destinationNodeId, DangerousMaterialImpl material, BoolExpr x_curr) {
-		//****************************************************************************//
-	    //						PRUNING AND RECURSION CONDITIONS						//
-	 	//****************************************************************************//
-		if(sourceNodeId.equals(destinationNodeId)) {
+	public void defineConstraintsForNodes(String source, String materialId, String destination, List<String> tabuList) {
+		DangerousMaterialImpl material = new DangerousMaterialImpl(materialId, Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId));
+		System.out.println("Current place: " + source);
+		SimplePlaceReaderType current = Neo4jInteractions.getInstance().getPlace(source);
+		if(current == null) return;
+		int actualCapacity = Neo4jInteractions.getInstance().getActualCapacityOfPlace(current.getId());
+		List<String> materials = Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(current.getId());
+		
+		// Check on capacity and materials
+		if(actualCapacity < 1) return;
+		for(String mat : materials) {
+			if(!material.isCompatibleWith(mat)) return;
+		}
+		
+		// Check on end of recursion
+		if(source.equals(destination)) {
 			foundEnd = true;
 			return;
 		}
 		
-		if(this.alreadyVisitedNodes.contains(sourceNodeId)) return;
+		if(tabuList == null)  tabuList = new ArrayList<>();
 		
-		// Retrieve the current node, with connected places (with enough capacity)
-		SimplePlaceReaderType currentPlace = Neo4jInteractions.getInstance().getPlace(sourceNodeId);
-		if(currentPlace == null) return;
-		
-		// Prune directly the nodes which contains incompatible materials
-		for(String dm : Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(sourceNodeId)) {
-			if(!material.isCompatibleWith(dm)) return;
+		// Connections
+		ArithExpr leftSide = ctx.mkInt(0);
+		for(String id : current.getConnectedPlaceId()) {
+			if(!tabuList.contains(id)) {
+				ctx.mkAdd(leftSide, bool_to_int(ctx.mkBoolConst(id)));
+			}
 		}
+		mkOptimize.Add(ctx.mkImplies(ctx.mkBoolConst(current.getId()), ctx.mkEq(leftSide, ctx.mkInt(1))));
 		
-		//****************************************************************************/
-	    //						    Z3 CONSTRAINTS								   //
-	 	//****************************************************************************/
-		// Create boolean expressions for the place and connections
-		List<BoolExpr> relations = new LinkedList<>();
-		for(String id : currentPlace.getConnectedPlaceId()) { 
-			BoolExpr x_conn = ctx.mkBoolConst(id);
-			BoolExpr z = ctx.mkBoolConst(sourceNodeId + "_" + id);
-			
-			// If the previous node and the connected one's boolean expressions are
-			// set to one, then the relation is taken
-			mkOptimize.Add(ctx.mkImplies(ctx.mkAnd(x_curr, x_conn), z));
-			relations.add(z);
-
-			this.recurGraph(id, destinationNodeId, material, x_conn);
-		}
+		// Add in order to not loop back
+		tabuList.add(current.getId());
 		
-		// Arithmetic expression to select only one path
-		ArithExpr leftSide = null;
-		for(BoolExpr xi : relations) {
-			leftSide = ctx.mkAdd(leftSide, bool_to_int(xi));
-		}
-		
-		if(leftSide != null)
-			// x0 + ... + xn = 1
-			mkOptimize.Add(ctx.mkEq(leftSide, ctx.mkInt(1)));
-		
+		// Recur
+		for(String id : current.getConnectedPlaceId())
+			if(!tabuList.contains(id))
+				this.defineConstraintsForNodes(id, materialId, destination, tabuList);
 	}
 	
 	/**
@@ -139,6 +124,10 @@ public class Z3Model {
 		return (this.foundEnd) ? this.mkOptimize.Check() : null;
 	}
 	
+	/**
+	 * Function to evaluate the model
+	 * @return the model that Z3 has found
+	 */
 	public Model evaluateModel() {
 		return (this.evaluateFeasibility() == Status.SATISFIABLE) ?
 				mkOptimize.getModel() : // We can find a model

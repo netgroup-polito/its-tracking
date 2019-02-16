@@ -107,12 +107,12 @@ public class RNSCore {
 					throw(new InvalidEntryPlaceException("The gate " + vehicle.getOrigin() +" you're trying to enter the system from, is not of type IN, neither INOUT."));
 			}
 			id = this.neo4j.createNode(vehicle);
-			System.out.println("Added new VEHICLE: "+ id);
+			//System.out.println("Added new VEHICLE: "+ id);
 			this.id2neo4j.addIdTranslation(vehicle.getId(), id);
 			
 			// ORIGIN
 			if(vehicle.getOrigin() != null) {
-				System.out.println("Connection to origin: " + this.id2neo4j.getIdTranslation(vehicle.getOrigin()));
+				//System.out.println("Connection to origin: " + this.id2neo4j.getIdTranslation(vehicle.getOrigin()));
 				this.neo4j.connectNodes(
 						vehicle.getId(), 
 						vehicle.getOrigin(), 

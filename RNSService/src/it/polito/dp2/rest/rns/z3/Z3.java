@@ -11,6 +11,7 @@ public class Z3 {
 	
 	// TODO: retrieve from the model the path
 	public void findPath() {
+		System.out.println("############# MODEL #############");
 		System.out.println(this.model.evaluateModel());
 	}
 }

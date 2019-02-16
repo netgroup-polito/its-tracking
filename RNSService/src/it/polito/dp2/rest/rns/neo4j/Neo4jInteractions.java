@@ -499,31 +499,32 @@ public class Neo4jInteractions implements AutoCloseable {
 					SimplePlaceReaderType place1 = (new ObjectFactory()).createSimplePlaceReaderType();
 					
 					for(Record r : result.list()) {
-						System.out.println(r);
-						if(place == null) {
-							place = (new ObjectFactory()).createSimplePlaceReaderType();
+						if(r != null) {
+							if(place == null) {
+								place = (new ObjectFactory()).createSimplePlaceReaderType();
+								
+								place.setName((String) r.get(0).asMap().get("name"));
+								place.setId((String) r.get(0).asMap().get("id"));
+								place.setCapacity(new BigInteger(Long.toString((Long) r.get(0).asMap().get("capacity"))));
+								place.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(0).asMap().get("avgTimeSpent"))));
+								
+								place1.setName((String) r.get(1).asMap().get("name"));
+								place1.setId((String) r.get(1).asMap().get("id"));
+								place1.setCapacity(new BigInteger(Long.toString((Long) r.get(1).asMap().get("capacity"))));
+								place1.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(1).asMap().get("avgTimeSpent"))));
 							
-							place.setName((String) r.get(0).asMap().get("name"));
-							place.setId((String) r.get(0).asMap().get("id"));
-							place.setCapacity(new BigInteger(Long.toString((Long) r.get(0).asMap().get("capacity"))));
-							place.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(0).asMap().get("avgTimeSpent"))));
+								if(getActualCapacityOfPlace(place1.getId()) >= 1) {
+									place.getConnectedPlaceId().add(place1.getId());
+								}
+							} else {
+								place1.setName((String) r.get(1).asMap().get("name"));
+								place1.setId((String) r.get(1).asMap().get("id"));
+								place1.setCapacity(new BigInteger(Long.toString((Long) r.get(1).asMap().get("capacity"))));
+								place1.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(1).asMap().get("avgTimeSpent"))));
 							
-							place1.setName((String) r.get(1).asMap().get("name"));
-							place1.setId((String) r.get(1).asMap().get("id"));
-							place1.setCapacity(new BigInteger(Long.toString((Long) r.get(1).asMap().get("capacity"))));
-							place1.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(1).asMap().get("avgTimeSpent"))));
-						
-							if(getActualCapacityOfPlace(place1.getId()) >= 1) {
-								place.getConnectedPlaceId().add(place1.getId());
-							}
-						} else {
-							place1.setName((String) r.get(1).asMap().get("name"));
-							place1.setId((String) r.get(1).asMap().get("id"));
-							place1.setCapacity(new BigInteger(Long.toString((Long) r.get(1).asMap().get("capacity"))));
-							place1.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(1).asMap().get("avgTimeSpent"))));
-						
-							if(getActualCapacityOfPlace(place1.getId()) >= 1) {
-								place.getConnectedPlaceId().add(place1.getId());
+								if(getActualCapacityOfPlace(place1.getId()) >= 1) {
+									place.getConnectedPlaceId().add(place1.getId());
+								}
 							}
 						}
 					}
@@ -560,8 +561,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 {
 					StatementResult result = tx.run(query);
 					Record record = result.next();
-					System.out.println("Actual capacity of node " + position + " = " + (Integer.parseInt(String.valueOf(record.get(0))) - 
-							Integer.parseInt(String.valueOf(record.get(1)))));
+					/*System.out.println("Actual capacity of node " + position + " = " + (Integer.parseInt(String.valueOf(record.get(0))) - 
+							Integer.parseInt(String.valueOf(record.get(1)))));*/
 					return 	Integer.parseInt(String.valueOf(record.get(0))) - 
 							Integer.parseInt(String.valueOf(record.get(1)));
                 }

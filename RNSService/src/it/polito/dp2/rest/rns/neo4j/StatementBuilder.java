@@ -64,6 +64,7 @@ public class StatementBuilder {
 					+ "ON CREATE SET "
 					+ "gate.name = '" + gate.getName() + "',"
 					+ "gate.capacity = " + gate.getCapacity() + ","
+					+ "gate.avgTimeSpent = " + gate.getAvgTimeSpent() + ","
 					+ "gate.type = '" + gate.getType() + "'"
                     + " RETURN id(gate)";
 		} else if (element instanceof RoadSegmentReaderType) {
@@ -84,7 +85,8 @@ public class StatementBuilder {
 			ParkingAreaReaderType park = (ParkingAreaReaderType) element;
 			
 			query += "MERGE (park: ParkingArea {id: '" + park.getId() + "'}) "
-					+ "ON CREATE SET park.capacity = " + park.getCapacity() + ","
+					+ "ON CREATE SET park.capacity = " + park.getCapacity() + ", "
+					+ "park.name = '" + park.getName() + "', "
 					+ "park.avgTimeSpent = " + park.getAvgTimeSpent().intValue()
 					+ " RETURN id(park)";
 		} else if (element instanceof DangerousMaterialType) {

@@ -125,6 +125,7 @@ public class VehicleResource {
     public Response createVehicle(JAXBElement<VehicleReaderType> vehicle){
     		System.out.println("++++++++++++++++++++++++++++++++++++++");
     		System.out.println((new Date()).toString());
+    		System.out.println("Working Directory = " + System.getProperty("user.dir"));
     		System.out.println("CREATE VEHICLE " + vehicle.getValue().getId() + " " + vehicle.getValue().getState());
 		try {
 			String vehicleId = this.instance.addVehicle(vehicle.getValue());

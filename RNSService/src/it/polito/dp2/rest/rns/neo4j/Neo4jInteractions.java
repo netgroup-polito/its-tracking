@@ -499,6 +499,7 @@ public class Neo4jInteractions implements AutoCloseable {
 					SimplePlaceReaderType place1 = (new ObjectFactory()).createSimplePlaceReaderType();
 					
 					for(Record r : result.list()) {
+						System.out.println(r);
 						if(place == null) {
 							place = (new ObjectFactory()).createSimplePlaceReaderType();
 							

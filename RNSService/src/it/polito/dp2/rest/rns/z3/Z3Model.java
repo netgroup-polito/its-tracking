@@ -78,23 +78,33 @@ public class Z3Model {
 		DangerousMaterialImpl material = new DangerousMaterialImpl(materialId, Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId));
 		System.out.println("Current place: " + source);
 		SimplePlaceReaderType current = Neo4jInteractions.getInstance().getPlace(source);
-		if(current == null) return;
+		
+		if(current == null) {
+			System.out.println("Couldn't retrieve node with id: " + source);
+			return;
+		}
+		
+		// Retrieve materials and actual capacity
 		int actualCapacity = Neo4jInteractions.getInstance().getActualCapacityOfPlace(current.getId());
 		List<String> materials = Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(current.getId());
 		
 		// Check on capacity and materials
-		if(actualCapacity < 1) return;
+		if(actualCapacity < 1) {
+			System.out.println("Place " + current.getId() + " has no more room.");
+			return;
+		}
 		for(String mat : materials) {
 			if(!material.isCompatibleWith(mat)) return;
 		}
 		
 		// Check on end of recursion
 		if(source.equals(destination)) {
+			System.out.println("Found end: " + source);
 			foundEnd = true;
 			return;
 		}
 		
-		if(tabuList == null)  tabuList = new ArrayList<>();
+		if(tabuList == null) tabuList = new ArrayList<>();
 		
 		// Connections
 		ArithExpr leftSide = ctx.mkInt(0);
@@ -121,6 +131,7 @@ public class Z3Model {
 	private Status evaluateFeasibility() {
 		// We perform a check only if in the traverse of the graph
 		// we actually found at least once the destination
+		System.out.println("Fesibility of the problem: " + mkOptimize.Check());
 		return (this.foundEnd) ? this.mkOptimize.Check() : null;
 	}
 	

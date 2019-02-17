@@ -211,7 +211,7 @@ public class StatementBuilder {
 	}
 
 	public String getNodeById(String id) {
-		String query = "MATCH(n)-[:isConnectedTo]->(c) "
+		String query = "MATCH(n)-[:isConnectedTo*0..1]->(c) "
 				+ "WHERE id(n) = " + id + " "
 				+ "RETURN n, c";
 		return query;

@@ -54,8 +54,8 @@ public class Z3Model {
 		BoolExpr x_dst = ctx.mkBoolConst(destinationNodeId);
 		
 		// Add the fact that x_src and x_dst have to be one
-		mkOptimize.Add(x_src, ctx.mkBool(true));
-		mkOptimize.Add(x_dst, ctx.mkBool(true));
+		mkOptimize.Add(ctx.mkEq(x_src, ctx.mkBool(true)));
+		mkOptimize.Add(ctx.mkEq(x_dst, ctx.mkBool(true)));
 		
 		this.defineConstraintsForNodes(sourceNodeId, materialId, destinationNodeId, null);
 	}
@@ -75,7 +75,10 @@ public class Z3Model {
 	}
 	
 	public void defineConstraintsForNodes(String source, String materialId, String destination, List<String> tabuList) {
-		DangerousMaterialImpl material = new DangerousMaterialImpl(materialId, Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId));
+		DangerousMaterialImpl material = new DangerousMaterialImpl(
+											materialId, 
+											Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)
+									);
 		System.out.println("Current place: " + source);
 		SimplePlaceReaderType current = Neo4jInteractions.getInstance().getPlace(source);
 		
@@ -125,7 +128,9 @@ public class Z3Model {
 				ctx.mkAdd(leftSide, bool_to_int(ctx.mkBoolConst(id)));
 			}
 		}
-		mkOptimize.Add(ctx.mkImplies(ctx.mkBoolConst(current.getId()), ctx.mkEq(leftSide, ctx.mkInt(1))));
+		mkOptimize.Add(ctx.mkImplies(
+				ctx.mkEq(ctx.mkBoolConst(current.getId()), ctx.mkBool(true)), 
+				ctx.mkEq(leftSide, ctx.mkInt(1))));
 		
 		// Add in order to not loop back
 		tabuList.add(current.getId());

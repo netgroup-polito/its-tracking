@@ -88,23 +88,35 @@ public class Z3Model {
 		int actualCapacity = Neo4jInteractions.getInstance().getActualCapacityOfPlace(current.getId());
 		List<String> materials = Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(current.getId());
 		
-		// Check on capacity and materials
+		/*// Check on capacity and materials
 		if(actualCapacity < 1) {
 			System.out.println("Place " + current.getId() + " has no more room.");
 			return;
-		}
+		}*/
+		
 		for(String mat : materials) {
-			if(!material.isCompatibleWith(mat)) return;
+			if(!material.isCompatibleWith(mat)) {
+				System.out.println(
+						"Node " + current.getId() + 
+						" contains material " + mat + 
+						" that is not compatible with " + materialId);
+				return;
+			}
 		}
 		
 		// Check on end of recursion
 		if(source.equals(destination)) {
-			System.out.println("Found end: " + source);
+			System.out.println("!!!! Found end: " + source + " !!!!");
 			foundEnd = true;
 			return;
 		}
 		
 		if(tabuList == null) tabuList = new ArrayList<>();
+		
+		// Capacity constraint
+		mkOptimize.Add(ctx.mkImplies(
+				ctx.mkLe(ctx.mkInt(actualCapacity), ctx.mkInt(1)), // if capacity < 1
+				ctx.mkEq(ctx.mkBoolConst(current.getId()), ctx.mkBool(false)))); // this node has to be false
 		
 		// Connections
 		ArithExpr leftSide = ctx.mkInt(0);

@@ -210,6 +210,12 @@ public class StatementBuilder {
 		return query;
 	}
 
+	/**
+	 * Function to retrieve a single node with its connected nodes
+	 * given its id.
+	 * @param id = id of the node to be retrieved
+	 * @return the corresponding statement
+	 */
 	public String getNodeById(String id) {
 		String query = "MATCH(n)-[:isConnectedTo*0..1]->(c) "
 				+ "WHERE id(n) = " + id + " "

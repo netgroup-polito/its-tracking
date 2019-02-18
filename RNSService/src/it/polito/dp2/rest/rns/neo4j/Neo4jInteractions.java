@@ -43,12 +43,10 @@ import javax.xml.datatype.DatatypeConfigurationException;
  */
 public class Neo4jInteractions implements AutoCloseable {
 	private Driver driver;
-	private IdTranslator id2neo4j;
 	private static Neo4jInteractions instance = null;
 	
 	private Neo4jInteractions(String uri, String username, String password){
 		driver = GraphDatabase.driver(uri, AuthTokens.basic(username, password));
-		this.id2neo4j = IdTranslator.getInstance();
 	}
 	
 	public static Neo4jInteractions getInstance() {
@@ -93,6 +91,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
             
+            session.close();
+            
             return nodeId;
         }
 	}
@@ -106,8 +106,8 @@ public class Neo4jInteractions implements AutoCloseable {
 	 */
 	public String connectNodes(String node1, String node2, String label) {
 		String query = StatementBuilder.getInstance().connectStatement(
-				this.id2neo4j.getIdTranslation(node1), 
-				this.id2neo4j.getIdTranslation(node2), 
+				IdTranslator.getInstance().getIdTranslation(node1), 
+				IdTranslator.getInstance().getIdTranslation(node2), 
 				label);
 		
 		try ( Session session = driver.session() )
@@ -123,6 +123,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
             
+            session.close();
+            
             return relationshipId;
         }
 	}
@@ -134,7 +136,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 */
 	public void deleteNode(String nodeId, String type) {
 		String query = StatementBuilder.getInstance().deleteByTypeAndIdStatement(
-				this.id2neo4j.getIdTranslation(nodeId),  
+				IdTranslator.getInstance().getIdTranslation(nodeId),  
 				type);
 		
 		try ( Session session = driver.session() )
@@ -148,6 +150,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 		return "";
                 }
             } );
+            
+            session.close();
         }
 	}
 	
@@ -172,6 +176,8 @@ public class Neo4jInteractions implements AutoCloseable {
 					return String.valueOf(result.single().get(0));
                 }
             } );
+            
+            session.close();
             
             return result;
         } catch(Exception e) {
@@ -225,6 +231,8 @@ public class Neo4jInteractions implements AutoCloseable {
 					return map.values().stream().collect(Collectors.toList());
                 }
             } );
+            
+            session.close();
             
             return result;
         } catch(Exception e) {
@@ -292,6 +300,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
             
+            session.close();
+            
             return result;
         } catch(Exception e) {
         		e.printStackTrace();
@@ -350,6 +360,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
             
+            session.close();
+            
             return result;
         } catch(Exception e) {
         		e.printStackTrace();
@@ -403,6 +415,8 @@ public class Neo4jInteractions implements AutoCloseable {
 					return map.values().stream().collect(Collectors.toList());
                 }
             } );
+            
+            session.close();
             
             return result;
         } catch(Exception e) {
@@ -472,6 +486,9 @@ public class Neo4jInteractions implements AutoCloseable {
 					return true;
                 }
             } );
+            
+            session.close();
+            
         } catch(Exception e) {
         		e.printStackTrace();
         }
@@ -483,6 +500,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @return information about the desired node
 	 */
 	public SimplePlaceReaderType getPlace(String sourceNodeId) {
+		if(sourceNodeId == null || sourceNodeId.equals("")) return null;
 		try ( Session session = driver.session() )
         {
 			final String query = StatementBuilder.getInstance()
@@ -528,6 +546,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
             
+			session.close();
+			
             return result;
         } catch(Exception e) {
         		e.printStackTrace();
@@ -563,6 +583,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
             
+			session.close();
+			
             return result;
         } catch(Exception e) {
         		e.printStackTrace();
@@ -600,9 +622,11 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
             
+			session.close();
+			
             return result;
         } catch(Exception e) {
-        		e.printStackTrace();
+    		e.printStackTrace();
         }
 		
 		return null;
@@ -637,6 +661,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
             
+			session.close();
+			
             return result;
         } catch(Exception e) {
         		e.printStackTrace();
@@ -670,6 +696,8 @@ public class Neo4jInteractions implements AutoCloseable {
                 }
             } );
             
+			session.close();
+			
             return result;
         } catch(Exception e) {
         		e.printStackTrace();

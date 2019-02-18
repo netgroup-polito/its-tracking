@@ -57,14 +57,18 @@ public class Z3Model {
 		mkOptimize = ctx.mkOptimize();
 		this.foundEnd = false;
 		
-		System.out.println("############# INITIALIZATION OF Z3 MODEL #############");
+		//System.out.println("############# INITIALIZATION OF Z3 MODEL #############");
 		this.sourceNodeId = sourceNodeId;
 		this.createBooleanExpressions(sourceNodeId, materialId, destinationNodeId, null, null, null, null);
-		System.out.println("#############  DEFINITION OF CONSTRAINTS #############");
+		//System.out.println("#############  DEFINITION OF CONSTRAINTS #############");
 		this.defineHardConstraints(sourceNodeId, destinationNodeId);
 		this.defineSoftConstraints();
 	}
 	
+	/**
+	 * Function to define soft constraints on the 
+	 * average time.
+	 */
 	private void defineSoftConstraints() {
 		for(Entry<String, BoolExpr> node : this.nodes.entrySet()) {
 			SimplePlaceReaderType place = Neo4jInteractions.getInstance().getPlace(node.getKey());
@@ -72,6 +76,11 @@ public class Z3Model {
 		}
 	}
 
+	/**
+	 * Function to define hard constraints for the optimizer
+	 * @param source = where we start
+	 * @param destination = where we want to go
+	 */
 	private void defineHardConstraints(String source, String destination) {
 		for(Entry<String, BoolExpr> node : this.nodes.entrySet()) {
 			if(source.equals(node.getKey())) {
@@ -105,6 +114,7 @@ public class Z3Model {
 	 * @param value = value to be converted
 	 * @return corresponding integer expression
 	 */
+	@SuppressWarnings("unused")
 	private IntExpr bool_to_int(BoolExpr value) {
 		IntExpr integer = ctx.mkIntConst("integer_" + value);
 		// value -> (integer == 1)
@@ -114,6 +124,16 @@ public class Z3Model {
 		return integer;
 	}
 	
+	/**
+	 * Function to setup the boolean expressions for the map.
+	 * @param source = source where we are at the moment
+	 * @param materialId = material carried by the vehicle
+	 * @param destination = where the vehicle wants to go
+	 * @param tabuList = already visited places in the path, no need to bother setting them up
+	 * @param z_prev = connection where we came from
+	 * @param y_prev = previous node where we were
+	 * @param prevId = id of the previous node where we came from
+	 */
 	public void createBooleanExpressions(String source, String materialId, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) {
 		DangerousMaterialImpl material = new DangerousMaterialImpl(
 											materialId, 
@@ -123,7 +143,7 @@ public class Z3Model {
 		SimplePlaceReaderType current = Neo4jInteractions.getInstance().getPlace(source);
 		
 		if(current == null) {
-			System.out.println("Couldn't retrieve node with id: " + source);
+			//System.out.println("Couldn't retrieve node with id: " + source);
 			return;
 		}
 		
@@ -133,23 +153,23 @@ public class Z3Model {
 		
 		// Check on capacity and materials
 		if(actualCapacity < 1) {
-			System.out.println("Place " + current.getId() + " has no more room.");
+			//System.out.println("Place " + current.getId() + " has no more room.");
 			return;
 		}
 		
 		for(String mat : materials) {
 			if(!material.isCompatibleWith(mat)) {
-				System.out.println(
+				/*System.out.println(
 						"Node " + current.getId() + 
 						" contains material " + mat + 
-						" that is not compatible with " + materialId);
+						" that is not compatible with " + materialId);*/
 				return;
 			}
 		}
 		
 		// Check on end of recursion
 		if(source.equals(destination)) {
-			System.out.println("!!!! Found end: " + source + " !!!!");
+			//System.out.println("!!!! Found end: " + source + " !!!!");
 			
 			// Current node
 			BoolExpr y_curr = ctx.mkBoolConst("y_" + current.getId());
@@ -166,9 +186,9 @@ public class Z3Model {
 		// Check if it is a gate or a parking area, if it's not the end
 		// it can be neither a gate nor a parking area
 		String label = Neo4jInteractions.getInstance().getLabelOfNode(current.getId());
-		System.out.println(current.getId() + ": " + label);
+		//System.out.println(current.getId() + ": " + label);
 		if(!current.getId().equals(this.sourceNodeId) && (label.equals("Gate") || label.equals("ParkingArea"))) {
-			System.out.println("Place " + current.getId() + " is not viable as node because it's a " + label + ".");
+			//System.out.println("Place " + current.getId() + " is not viable as node because it's a " + label + ".");
 			return;
 		}
 		
@@ -203,7 +223,7 @@ public class Z3Model {
 	private Status evaluateFeasibility() {
 		// We perform a check only if in the traverse of the graph
 		// we actually found at least once the destination
-		System.out.println("Fesibility of the problem: " + mkOptimize.Check());
+		//System.out.println("Fesibility of the problem: " + mkOptimize.Check() + " --- " + foundEnd);
 		return (this.foundEnd) ? this.mkOptimize.Check() : null;
 	}
 	

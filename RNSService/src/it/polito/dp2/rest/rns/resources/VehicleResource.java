@@ -26,13 +26,13 @@ import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.exceptions.VehicleAlreadyInSystemException;
 import it.polito.dp2.rest.rns.exceptions.VehicleNotInSystemException;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
+import it.polito.dp2.rest.rns.jaxb.Places;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import io.swagger.annotations.ApiResponse;
 
 @Path("vehicles")
 @Api(value = "/vehicles")
 public class VehicleResource {
-	private final RNSCore instance = RNSCore.getInstance();
 	
 	@GET
     @ApiOperation(
@@ -50,7 +50,7 @@ public class VehicleResource {
 		MediaType.APPLICATION_JSON
 	})
 	public Response getVehicles() {
-		return Response.status(Status.OK).entity(this.instance.getVehicles()).build();
+		return Response.status(Status.OK).entity(RNSCore.getInstance().getVehicles()).build();
 	}
 	
 	@GET
@@ -71,7 +71,7 @@ public class VehicleResource {
 	})
     public Response getVehicle(@PathParam("id") String vehicleId, @Context HttpHeaders headers) {
 		try {
-			VehicleReaderType vehicle = this.instance.getVehicle(vehicleId);
+			VehicleReaderType vehicle = RNSCore.getInstance().getVehicle(vehicleId);
 	    		JAXBElement<VehicleReaderType> jaxbVehicle = (new ObjectFactory()).createVehicle(vehicle);
 	    		return
     				(headers.getAcceptableMediaTypes().get(0).toString().equals(MediaType.APPLICATION_XML.toString()))
@@ -130,8 +130,8 @@ public class VehicleResource {
     		//System.out.println("CATALINA_HOME = " + System.getenv("CATALINA_HOME"));
     		System.out.println("VEHICLE: " + vehicle.getValue().getId() + " --- STATE: " + vehicle.getValue().getState());
 		try {
-			String vehicleId = this.instance.addVehicle(vehicle.getValue());
-			return Response.status(Status.CREATED).entity(vehicleId).build();
+			Places path = RNSCore.getInstance().addVehicle(vehicle.getValue());
+			return Response.status(Status.CREATED).entity(path).build();
 		} catch (PlaceFullException e) { // PLACE FULL
 			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
@@ -141,7 +141,7 @@ public class VehicleResource {
 		} catch (InvalidEntryPlaceException e) { // GATE NON VALID
 			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
-		} catch (UnsatisfiableException e) {
+		} catch (UnsatisfiableException e) { // GENERIC ERROR WHEN GETTING THE PATH
 			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
@@ -172,7 +172,7 @@ public class VehicleResource {
     		System.out.println((new Date()).toString());
     		System.out.println("UPDATE VEHICLE " + vehicleId + " --- " + vehicle.getValue().getPosition());
     		try {
-			this.instance.updateVehicle(vehicle.getValue());
+			RNSCore.getInstance().updateVehicle(vehicle.getValue());
 			return Response.status(Status.OK).entity(vehicleId).build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -199,7 +199,7 @@ public class VehicleResource {
 	})
     public Response deleteVehicle(@PathParam("id") int vehicleId) {
     		try {
-    			this.instance.deleteVehicle(String.valueOf(vehicleId));
+    			RNSCore.getInstance().deleteVehicle(String.valueOf(vehicleId));
     			return Response.status(Status.OK).entity("deleted").build();
     		} catch (Exception e) {
     			return Response.status(Status.INTERNAL_SERVER_ERROR).build();

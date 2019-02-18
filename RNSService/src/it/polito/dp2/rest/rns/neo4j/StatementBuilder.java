@@ -276,6 +276,12 @@ public class StatementBuilder {
 		return query;
 	}
 
+	/**
+	 * Function to obtain a query to retrieve the labels of
+	 * a specific node given its id
+	 * @param id = the id of the node we want
+	 * @return the corresponding query
+	 */
 	public String getLabelOfNodeById(String id) {
 		String query = "MATCH (n) WHERE id(n) = " + id + " "
 				+ "RETURN labels(n)";

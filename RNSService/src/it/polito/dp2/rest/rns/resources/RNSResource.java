@@ -21,7 +21,6 @@ import javax.xml.bind.JAXBElement;
 @Path("rns")
 @Api(value = "/rns")
 public class RNSResource {
-	private final RNSCore instance = RNSCore.getInstance();
 	
 	/**
 	 * In the constructor we want to retrieve the instance of RNSCore in order to have
@@ -47,7 +46,7 @@ public class RNSResource {
 			MediaType.TEXT_PLAIN
 	})
 	public Response getSystemState(@Context HttpHeaders headers) {
-		RnsReaderType rns = this.instance.getSystem();
+		RnsReaderType rns = RNSCore.getInstance().getSystem();
 		JAXBElement<RnsReaderType> rnsJaxb = (new ObjectFactory()).createRns(rns);
 		return 
 			(headers.getAcceptableMediaTypes().get(0).toString().equals(MediaType.APPLICATION_XML.toString()))

@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiResponse;
 @Path("gates")
 @Api(value = "/gates")
 public class GateResource {
-	private final RNSCore instance = RNSCore.getInstance();
 
 	@GET
     @ApiOperation(
@@ -43,7 +42,7 @@ public class GateResource {
 			MediaType.TEXT_PLAIN
 	})
     public Response getGates(@Context HttpHeaders headers) {
-		return Response.status(Status.OK).entity(instance.getGates()).build();
+		return Response.status(Status.OK).entity(RNSCore.getInstance().getGates()).build();
     }
     
     @GET
@@ -64,7 +63,7 @@ public class GateResource {
 			MediaType.TEXT_XML
 	})
     public Response getGate(@PathParam("id") String gateId, @Context HttpHeaders headers){
-    		GateReaderType gate = this.instance.getGate(gateId);
+    		GateReaderType gate = RNSCore.getInstance().getGate(gateId);
 	    	JAXBElement<GateReaderType> jaxbPlace = (new ObjectFactory()).createGate(gate);
 	    	return 
     			(headers.getAcceptableMediaTypes().get(0).toString().equals(MediaType.APPLICATION_XML.toString()))

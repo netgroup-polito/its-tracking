@@ -68,7 +68,7 @@
     	</roadSegment>
     	<roadSegment id="a01-03">
     		<name>A01-03</name>
-    		<capacity>8</capacity>
+    		<capacity>10</capacity>
 		<connectedPlace>g04</connectedPlace>
     		<connectedPlace>a01-02</connectedPlace>
     		<containerPlaceId>a01</containerPlaceId>
@@ -113,7 +113,7 @@
    	</roadSegment>
    	<roadSegment id="ss03">
    		<name>SS03</name>
-   		<capacity>31</capacity>
+   		<capacity>10</capacity>
    		<connectedPlace>pa04</connectedPlace>
    		<connectedPlace>a02-01</connectedPlace>
    		<avgTimeSpent>1</avgTimeSpent>

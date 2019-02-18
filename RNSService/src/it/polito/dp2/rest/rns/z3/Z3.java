@@ -14,21 +14,29 @@ public class Z3 {
 		this.model = new Z3Model(sourceNodeId, destinationNodeId, materialId);
 	}
 	
-	// TODO: retrieve from the model the path
+	/**
+	 * Function to retrieve a path from the model
+	 * we have stored in the db.
+	 * @return the list of ids included in the path or an empty list otherwise
+	 */
 	public List<String> findPath() {
 		System.out.println("############# MODEL #############");
 		Model result = this.model.evaluateModel();
 		List<String> resultList = new ArrayList<String>();
 		
 		// If we have found nothing we don't do anything
-		if(model != null)
+		if(result != null)
 		 resultList = this.parseModel(result);
-		
-		for(String s : resultList) System.out.println(s);
 		
 		return resultList;
 	}
 	
+	/**
+	 * Function used to parse the string of the model and return
+	 * a list containing the ids of the places we have to go through.
+	 * @param result = the model obtained from the optimizer
+	 * @return the list of id of the viable nodes
+	 */
 	private List<String> parseModel(Model result) {
 		List<String> list = new ArrayList<String>();
 		String[] s1 = result.toString().replace("(", "").replace(")", "").split("define-fun");

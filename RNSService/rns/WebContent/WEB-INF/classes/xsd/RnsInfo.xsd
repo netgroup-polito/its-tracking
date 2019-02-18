@@ -89,6 +89,13 @@
 			</sequence>
 		</complexType>
 	</element>
+	<element name="places">
+		<complexType>
+			<sequence>
+				<element name="place" type="tns:SimplePlaceReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
 	
 	<element name="vehicles">
 		<complexType>

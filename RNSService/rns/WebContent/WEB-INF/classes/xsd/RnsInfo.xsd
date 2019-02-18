@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema version="1.0"
+		xmlns="http://www.w3.org/2001/XMLSchema" 
+		targetNamespace="http://www.example.org/RnsInfo" 
+		xmlns:tns="http://www.example.org/RnsInfo" 
+		xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+		jaxb:version="2.1"
+		elementFormDefault="qualified">
+
+	<!-- Annotation -->
+	<annotation>
+		<documentation>
+			Schema for the description of an RNS system
+		</documentation>
+	</annotation>
+
+	<!-- Global element definition -->
+	<element 	name="rns" 
+				type="tns:RnsReaderType">
+				
+		<!-- Uniqueness constraints -->
+		<key name="connectionKey">
+			<selector xpath="connection"/>
+			<field xpath="@id"/>
+		</key>
+		<key name="gateKey">
+			<selector xpath="gate"/>
+			<field xpath="@id"/>
+		</key>
+		<key name="parkingAreaKey">
+			<selector xpath="parkingArea"/>
+			<field xpath="@id"/>
+		</key>
+		<key name="placeKey">
+			<selector xpath="place"/>
+			<field xpath="@id"/>
+		</key>
+		<key name="roadSegmentKeyId">
+			<selector xpath="roadSegment"/>
+			<field xpath="@id"/>
+		</key>
+		<key name="roadKeyId">
+			<selector xpath="road"/>
+			<field xpath="@id"/>
+		</key>
+		<key name="vehicleKey">
+			<selector xpath="vehicle"/>
+			<field xpath="@id"/>
+		</key>
+		<key name="dangerousMaterialKeyId">
+			<selector xpath="dangerousMaterial"/>
+			<field xpath="@id"/>
+		</key>
+		
+		
+		<!-- Key references -->
+		<keyref name="connectedPlaceId" refer="tns:placeKey">
+			<selector xpath=".//place"/>
+			<field xpath=".//containerPlaceId"/>
+		</keyref>
+		<keyref name="nestedPlaceId" refer="tns:placeKey">
+			<selector xpath=".//place"/>
+			<field xpath=".//nestedPlaceId"/>
+		</keyref>
+		<keyref name="roadId" refer="tns:roadKeyId">
+			<selector xpath="roadSegment/road"/>
+			<field xpath="roadSegment/road"/>
+		</keyref>
+		<keyref name="materialId" refer="tns:dangerousMaterialKeyId">
+			<selector xpath="dangerousMaterial"/>
+			<field xpath="dangerousMaterial/incompatibleMaterial"/>
+		</keyref>
+	</element>
+	<element name="connection" type="tns:ConnectionReaderType"/>
+	<element name="complexPlace" type="tns:ComplexPlaceReaderType"/>
+	<element name="place" type="tns:SimplePlaceReaderType"/>
+	<element name="parkingArea" type="tns:ParkingAreaReaderType"/>
+	<element name="gate" type="tns:GateReaderType"/>
+	<element name="road" type="tns:RoadReaderType"/>
+	<element name="roadSegment" type="tns:RoadSegmentReaderType"/>
+	<element name="vehicle" type="tns:VehicleReaderType"/>
+	<element name="dangerousMaterial" type="tns:DangerousMaterialType"/>
+	
+	<!-- Collections -->
+	<element name="gates">
+		<complexType>
+			<sequence>
+				<element name="gate" type="tns:GateReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="places">
+		<complexType>
+			<sequence>
+				<element name="place" type="tns:SimplePlaceReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="vehicles">
+		<complexType>
+			<sequence>
+				<element name="vehicle" type="tns:VehicleReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="parkingAreas">
+		<complexType>
+			<sequence>
+				<element name="parkingArea" type="tns:ParkingAreaReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="roads">
+		<complexType>
+			<sequence>
+				<element name="road" type="tns:RoadReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="roadSegments">
+		<complexType>
+			<sequence>
+				<element name="roadSegment" type="tns:RoadSegmentReaderType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="dangerousMaterials">
+		<complexType>
+			<sequence>
+				<element name="dangerousMaterial" type="tns:DangerousMaterialType" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<!-- Complex types -->
+	<complexType name="IdentifiedEntityReaderType">
+		<sequence/>
+		<attribute		name="id"
+						type="ID"/>
+	</complexType>
+	
+	<complexType name="RnsReaderType">
+		<sequence>
+			<element 	name="connection" 
+						type="tns:ConnectionReaderType" 
+						minOccurs="0" maxOccurs="unbounded"/>
+			<element		name="gate"
+						type="tns:GateReaderType"
+						minOccurs="0" maxOccurs="unbounded"/>
+			<element		name="parkingArea"
+						type="tns:ParkingAreaReaderType"
+						minOccurs="0" maxOccurs="unbounded"/>
+			<element		name="place"
+						type="tns:ComplexPlaceReaderType"
+						minOccurs="0" maxOccurs="unbounded"/>
+			<element		name="roadSegment"
+						type="tns:RoadSegmentReaderType"
+						minOccurs="0" maxOccurs="unbounded"/>
+			<element		name="road"	
+						type="tns:RoadReaderType"
+						minOccurs="0" maxOccurs="unbounded"/>
+			<element		name="vehicle"
+						type="tns:VehicleReaderType"
+						minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>	
+	
+	<complexType name="ConnectionReaderType">
+		<complexContent>
+			<extension base="tns:IdentifiedEntityReaderType">
+				<sequence>
+					<element 	name="from" 
+								type="tns:SimplePlaceReaderType" 
+								minOccurs="1" maxOccurs="1"/>
+					<element 	name="to" 
+								type="tns:SimplePlaceReaderType" 
+								minOccurs="1" maxOccurs="1"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="ComplexPlaceReaderType">
+		<complexContent>
+			<extension base="tns:IdentifiedEntityReaderType">
+				<sequence>
+					<element	name="name"
+								type="string"
+								minOccurs="1" maxOccurs="1"/>
+					<element	name="totalCapacity"
+								type="integer"
+								minOccurs="1" maxOccurs="1"/>
+					<element	name="simplePlaceId"
+								type="integer"
+								minOccurs="1" maxOccurs="unbounded"/>
+					<element	name="complexPlaceId"
+								type="tns:ComplexPlaceReaderType"
+								minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="SimplePlaceReaderType">
+		<complexContent>
+			<extension base="tns:IdentifiedEntityReaderType">
+				<sequence>
+					<element	name="name"
+								type="string"
+								minOccurs="1" maxOccurs="1"/>
+					<element	name="capacity"
+								type="integer" 
+								minOccurs="1" maxOccurs="1"/>
+					<element	name="connectedPlaceId"
+								type="string" 
+								minOccurs="0" maxOccurs="unbounded">
+					</element>
+					<element		name="containerPlaceId"
+								type="string"
+								minOccurs="0" maxOccurs="1">
+					</element>
+					<element		name="avgTimeSpent"
+								type="integer"
+								minOccurs="0" maxOccurs="1"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="GateReaderType">
+		<complexContent>
+			<extension base="tns:SimplePlaceReaderType">
+				<sequence>
+					<element		name="type"
+								type="tns:GateType"
+								minOccurs="1" maxOccurs="1"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="ParkingAreaReaderType">
+		<complexContent>
+			<extension base="tns:SimplePlaceReaderType">
+				<sequence>
+					<element 	name="service"
+								type="tns:ServiceType"
+								minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="RoadReaderType">
+		<complexContent>
+			<extension base="tns:IdentifiedEntityReaderType">
+				<sequence>
+					<element		name="roadSegment"
+								type="tns:RoadSegmentReaderType"
+								minOccurs="1" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute 		name="name" type="string"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="RoadSegmentReaderType">
+		<complexContent>
+			<extension base="tns:SimplePlaceReaderType"/>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="VehicleReaderType">
+		<complexContent>
+			<extension base="tns:IdentifiedEntityReaderType">
+				<sequence>
+				<element	name="name"
+								type="string"
+								minOccurs="1" maxOccurs="1"/>
+					<element		name="destination"
+								type="string"
+								minOccurs="1" maxOccurs="1"/>
+					<element		name="origin"
+								type="string"
+								minOccurs="1" maxOccurs="1"/>		
+					<element		name="position"
+								type="string"
+								minOccurs="1" maxOccurs="1"/>
+					<element		name="entryTime"
+								type="dateTime"
+								minOccurs="1" maxOccurs="1"/>
+					<element		name="state"
+								type="tns:VehicleStateType"
+								minOccurs="1" maxOccurs="1"/>
+					<element		name="type"
+								type="tns:VehicleTypeType"
+								minOccurs="1" maxOccurs="1"/>
+					<element		name="material"
+								type="string"
+								minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="DangerousMaterialType">
+		<complexContent>
+			<extension base="tns:IdentifiedEntityReaderType">
+				<sequence>
+					<element		name="incompatibleMaterial"
+								type="string"
+								minOccurs="0" maxOccurs="unbounded">
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="ServiceType">
+		<sequence>
+			<element 	name="name"
+						type="string"
+						minOccurs="1" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+	
+	<!-- Simple types -->
+	<simpleType name="GateType">
+		<restriction base="string">
+			<enumeration value="IN"/>
+			<enumeration value="INOUT"/>
+			<enumeration value="OUT"/>
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="VehicleStateType">
+		<restriction base="string">
+			<enumeration value="IN_TRANSIT"/>
+			<enumeration value="PARKED"/>
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="VehicleTypeType">
+		<restriction base="string">
+			<enumeration value="CAR"/>
+			<enumeration value="CARAVAN"/>
+			<enumeration value="SHUTTLE"/>
+			<enumeration value="TRUCK"/>
+		</restriction>
+	</simpleType>
+</schema>

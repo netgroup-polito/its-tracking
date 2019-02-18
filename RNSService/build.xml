@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." default="start-tomcat" name="rest-service-rns">
+	<description>
+		Script for rest service examples
+	</description>
+
+    <target name="clean" description="clean all except war">
+    	<ant antfile="build-rns.xml" target="clean" />
+    </target>
+
+    <target name="distclean" depends="clean" description="clean all">
+    	<ant antfile="build-rns.xml" target="distclean" />
+    </target>
+	
+    <target name="redeploy" depends="distclean" description="redoes everything">
+    	<ant antfile="build-rns.xml" target="redeployWS" />      
+    </target>
+
+    <target name="undeploy" description="undeploys service">
+    	<ant antfile="build-rns.xml" target="undeployWS" />       
+    </target>
+
+    <target name="start-tomcat" description="starts tomcat">
+    	<ant antfile="tomcat-build.xml" target="start-tomcat" />
+    </target>
+	
+    <target name="stop-tomcat" description="stops tomcat">
+    	<ant antfile="tomcat-build.xml" target="stop-tomcat" />
+    </target>
+
+	<target name="generate-bindings" description="generate classes from schema">
+		<ant antfile="build-rns.xml" target="generate-bindings"/>
+	</target>
+</project>
+

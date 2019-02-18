@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<complexPlace 
+	xmlns="http://www.example.org/RnsInfo"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://www.w3schools.com/RnsInfo RnsInfo.xsd"
+	id="x0">
+	<complexPlaceName>Complex Place 01</complexPlaceName>
+	<totalCapacity>9</totalCapacity>
+	<simplePlaceId>2</simplePlaceId>
+</complexPlace>

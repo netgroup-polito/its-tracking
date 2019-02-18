@@ -1,0 +1,22 @@
+li {
+  margin: 10px 10px 15px;
+  list-style: none;
+}
+
+.src-card {
+  float: left;
+  width: 49%;
+}
+
+.dst-card {
+  float: right;
+  width: 49%;
+}
+
+@media screen and (max-width: 991px) {
+  .src-card, .dst-card {
+    margin-bottom: 10px;
+    float: none;
+    width: 100%;
+  }
+}

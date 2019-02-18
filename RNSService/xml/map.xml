@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<rns 
+	xmlns="http://www.example.org/RnsInfo"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://www.w3schools.com/RnsInfo RnsInfo.xsd"
+	id="x0">
+	
+	<!-- GATES -->
+    <gate id="g01">
+    	<name>Gate01</name>
+    	<capacity>1</capacity>
+    	<connectedPlace>a02-01</connectedPlace>
+    	<avgTimeSpent>1</avgTimeSpent>
+    	<type>IN</type>
+    </gate>
+    <gate id="g02">
+    	<name>Gate02</name>
+    	<capacity>2</capacity>
+    	<connectedPlace>a02-02</connectedPlace>
+    	<avgTimeSpent>1</avgTimeSpent>
+    	<type>INOUT</type>
+    </gate>
+    <gate id="g03">
+    	<name>Gate03</name>
+    	<capacity>1</capacity>
+    	<avgTimeSpent>1</avgTimeSpent>
+    	<type>OUT</type>
+    </gate>
+    <gate id="g04">
+    	<name>Gate04</name>
+    	<capacity>2</capacity>
+    	<connectedPlace>a01-03</connectedPlace>
+    	<connectedPlace>ss02</connectedPlace>
+    	<avgTimeSpent>1</avgTimeSpent>
+    	<type>INOUT</type>
+    </gate>
+    <gate id="g05">
+    	<name>Gate05</name>
+    	<capacity>1</capacity>
+    	<connectedPlace>ss03</connectedPlace>
+    	<avgTimeSpent>1</avgTimeSpent>
+    	<type>IN</type>
+    </gate>
+    
+    <!-- ROADS -->
+    <road id="a01" name="A01">
+    	<roadSegment id="a01-01">
+    		<name>A01-01</name>
+    		<capacity>10</capacity>
+		<connectedPlace>g03</connectedPlace>
+    		<connectedPlace>a01-02</connectedPlace>
+    		<connectedPlace>ss01</connectedPlace>
+    		<containerPlaceId>a01</containerPlaceId>
+    		<avgTimeSpent>1</avgTimeSpent>
+    	</roadSegment>
+    	<roadSegment id="a01-02">
+    		<name>A01-02</name>
+    		<capacity>17</capacity>
+    		<connectedPlace>a01-01</connectedPlace>
+    		<connectedPlace>a01-03</connectedPlace>
+    		<connectedPlace>a02-01</connectedPlace>
+    		<connectedPlace>a02-02</connectedPlace>
+    		<connectedPlace>ss02</connectedPlace>
+    		<connectedPlace>pa03</connectedPlace>
+    		<containerPlaceId>a01</containerPlaceId>
+    		<avgTimeSpent>1</avgTimeSpent>
+    	</roadSegment>
+    	<roadSegment id="a01-03">
+    		<name>A01-03</name>
+    		<capacity>10</capacity>
+		<connectedPlace>g04</connectedPlace>
+    		<connectedPlace>a01-02</connectedPlace>
+    		<containerPlaceId>a01</containerPlaceId>
+    		<avgTimeSpent>4</avgTimeSpent>
+    	</roadSegment>
+    </road>
+    <road id="a02" name="A02">
+    	<roadSegment id="a02-01">
+    		<name>A02-01</name>
+    		<capacity>22</capacity>
+    		<connectedPlace>a01-02</connectedPlace>
+    		<connectedPlace>ss03</connectedPlace>
+    		<containerPlaceId>a02</containerPlaceId>
+    		<avgTimeSpent>1</avgTimeSpent>
+    	</roadSegment>
+    	<roadSegment id="a02-02">
+    		<name>A02-02</name>
+    		<capacity>19</capacity>
+   			<connectedPlace>g02</connectedPlace>
+    		<connectedPlace>a01-02</connectedPlace>
+    		<containerPlaceId>a02</containerPlaceId>
+    		<avgTimeSpent>1</avgTimeSpent>
+    	</roadSegment>
+    </road>
+    
+    <!-- SINGLE ROAD SEGMENTS -->
+    <roadSegment id="ss01">
+   		<name>SS01</name>
+   		<capacity>13</capacity>
+   		<connectedPlace>g03</connectedPlace>
+   		<connectedPlace>a01-01</connectedPlace>
+   		<connectedPlace>pa01</connectedPlace>
+   		<avgTimeSpent>3</avgTimeSpent>
+   	</roadSegment>
+   	<roadSegment id="ss02">
+   		<name>SS02</name>
+   		<capacity>20</capacity>
+   		<connectedPlace>g04</connectedPlace>
+   		<connectedPlace>a01-02</connectedPlace>
+   		<connectedPlace>pa02</connectedPlace>
+   		<avgTimeSpent>1</avgTimeSpent>
+   	</roadSegment>
+   	<roadSegment id="ss03">
+   		<name>SS03</name>
+   		<capacity>10</capacity>
+   		<connectedPlace>pa04</connectedPlace>
+   		<connectedPlace>a02-01</connectedPlace>
+   		<avgTimeSpent>1</avgTimeSpent>
+   	</roadSegment>
+   	
+   	<!-- PARKING AREAS -->
+   	<parkingArea id="pa01">
+   		<name>PA01</name>
+   		<capacity>41</capacity>
+   		<connectedPlace>ss01</connectedPlace>
+   		<service>Bar</service>
+   		<service>Restaurant</service>
+   		<avgTimeSpent>1</avgTimeSpent>
+   	</parkingArea>
+   	<parkingArea id="pa02">
+   		<name>PA02</name>
+   		<capacity>14</capacity>
+   		<connectedPlace>ss02</connectedPlace>
+   		<avgTimeSpent>1</avgTimeSpent>
+   	</parkingArea>
+   	<parkingArea id="pa03">
+   		<name>PA03</name>
+   		<capacity>60</capacity>
+   		<connectedPlace>a01-02</connectedPlace>
+   		<service>Bar</service>
+   		<service>Restaurant</service>
+   		<service>Toilet</service>
+   		<avgTimeSpent>1</avgTimeSpent>
+   	</parkingArea>
+   	<parkingArea id="pa04">
+   		<name>PA04</name>
+   		<capacity>10</capacity>
+   		<connectedPlace>ss03</connectedPlace>
+   		<avgTimeSpent>1</avgTimeSpent>
+   	</parkingArea>
+   	
+   	<!-- DANGEROUS MATERIALS -->
+   	<dangerousMaterial id="dangerousMaterial1">
+   		<incompatibleMaterial>dangerousMaterial3</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial5</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial6</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial7</incompatibleMaterial>
+   	</dangerousMaterial>
+   	<dangerousMaterial id="dangerousMaterial2">
+   		<incompatibleMaterial>dangerousMaterial1</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial3</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial5</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial6</incompatibleMaterial>
+   	</dangerousMaterial>
+   	<dangerousMaterial id="dangerousMaterial3">
+   		<incompatibleMaterial>dangerousMaterial2</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial4</incompatibleMaterial>
+   	</dangerousMaterial>
+   	<dangerousMaterial id="dangerousMaterial4">
+   		<incompatibleMaterial>dangerousMaterial2</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial5</incompatibleMaterial>
+   		<incompatibleMaterial>dangerousMaterial6</incompatibleMaterial>
+   	</dangerousMaterial>
+   	<dangerousMaterial id="dangerousMaterial5"/>
+   	<dangerousMaterial id="dangerousMaterial6"/>
+   	<dangerousMaterial id="dangerousMaterial7"/>
+</rns>

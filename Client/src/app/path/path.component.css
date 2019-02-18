@@ -5,12 +5,38 @@ li {
 
 .src-card {
   float: left;
-  width: 49%;
+  width: 47%;
+  margin-left: 2%;
+  margin-bottom: 2%;
 }
 
 .dst-card {
   float: right;
-  width: 49%;
+  width: 47%;
+  margin-right: 2%;
+  margin-bottom: 2%;
+}
+
+mat-card-title {
+  text-align: center;
+}
+
+.top-card {
+  margin: 2%;
+}
+
+.vehicle{
+  width: 70%;
+  display: inline-block;
+}
+
+.search {
+  width: 30%;
+  display: inline-block;
+}
+
+.button-container {
+  text-align: center;
 }
 
 @media screen and (max-width: 991px) {

@@ -4,7 +4,6 @@ import { NgModule } from '@angular/core';
 import { MaterialModule } from './material.module';
 
 import { AppComponent } from './app.component';
-import { OptionsComponent } from './options/options.component';
 import { RoutesComponent } from './routes/routes.component';
 import { PathComponent } from './path/path.component';
 
@@ -15,7 +14,6 @@ import { HttpClientModule } from '@angular/common/http';
 const appRoutes: Routes = [
   { path: 'home', component: PathComponent },
   { path: 'route', component: RoutesComponent },
-  { path: 'options', component: OptionsComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', component: PathComponent }
 ];
@@ -23,7 +21,6 @@ const appRoutes: Routes = [
 @NgModule({
   declarations: [
     AppComponent,
-    OptionsComponent,
     RoutesComponent,
     PathComponent
   ],

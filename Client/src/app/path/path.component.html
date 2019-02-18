@@ -1,57 +1,119 @@
-<div class="src-card">
-  <mat-card>
+<div>
 
+  <mat-card class="top-card">
     <mat-card-title>
-      Select Source
+      Select Vehicle
     </mat-card-title>
 
-    <div>
-      <mat-accordion>
-        <li *ngFor="let gate of gates">
-          <mat-expansion-panel
-            [expanded]="false"
-            (opened)="panelOpenState2 = true"
-            (closed)="panelOpenState2 = false"
-          >
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <p>Id: {{gate.id}}</p>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <p><span>Name: </span>{{gate.name}}</p>
-            <p><span>Type: </span>{{gate.type}}</p>
-          </mat-expansion-panel>
-        </li>
-      </mat-accordion>
+    <div class="vehicle">
+      <p>Select your vehicle Id from the list if present, or write it in the form</p>
+      <mat-form-field>
+        <mat-select placeholder="Vehicle Id">
+          <mat-option *ngFor="let vehicle of vehicles" [value]="vehicle.id"
+                      (onSelectionChange)="setValueVehicleId(vehicle.id)">
+            {{vehicle.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div  class="search">
+      <p>
+        <button mat-raised-button color="primary"
+                class="fab-button done"
+                matTooltip="Search Path"
+                (click)='searchPath()'>
+          Search Path
+        </button>
+      </p>
     </div>
   </mat-card>
-</div>
 
-<div class="dst-card">
-  <mat-card>
+  <div class="src-card">
+    <mat-card>
 
-    <mat-card-title>
-      Select Destination
-    </mat-card-title>
+      <mat-card-title>
+        Select Source
+      </mat-card-title>
 
-    <div>
-      <mat-accordion>
-        <li *ngFor="let gate of gates">
-          <mat-expansion-panel
-            [expanded]="false"
-            (opened)="panelOpenState2 = true"
-            (closed)="panelOpenState2 = false"
-          >
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <p>Id: {{gate.id}}</p>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <p><span>Name: </span>{{gate.name}}</p>
-            <p><span>Type: </span>{{gate.type}}</p>
-          </mat-expansion-panel>
-        </li>
-      </mat-accordion>
-    </div>
-  </mat-card>
+      <div>
+        <mat-accordion>
+          <li *ngFor="let gate of gates">
+            <mat-expansion-panel
+              [expanded]="false"
+              (opened)="panelOpenState2 = true"
+              (closed)="panelOpenState2 = false"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <p>Id: {{gate.id}}</p>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p><span>Name: </span>{{gate.name}}</p>
+              <p><span>Type: </span>{{gate.type}}</p>
+            </mat-expansion-panel>
+          </li>
+          <li *ngFor="let parking of parkings">
+            <mat-expansion-panel
+              [expanded]="false"
+              (opened)="panelOpenState2 = true"
+              (closed)="panelOpenState2 = false"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <p>Id: {{parking.id}}</p>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p><span>Name: </span>{{parking.name}}</p>
+              <p><span>Capacity: </span>{{parking.capacity}}</p>
+            </mat-expansion-panel>
+          </li>
+        </mat-accordion>
+      </div>
+    </mat-card>
+  </div>
+
+  <div class="dst-card">
+    <mat-card>
+
+      <mat-card-title>
+        Select Destination
+      </mat-card-title>
+
+      <div>
+        <mat-accordion>
+          <li *ngFor="let gate of gates">
+            <mat-expansion-panel
+              [expanded]="false"
+              (opened)="panelOpenState2 = true"
+              (closed)="panelOpenState2 = false"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <p>Id: {{gate.id}}</p>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p><span>Name: </span>{{gate.name}}</p>
+              <p><span>Type: </span>{{gate.type}}</p>
+            </mat-expansion-panel>
+          </li>
+          <li *ngFor="let parking of parkings">
+            <mat-expansion-panel
+              [expanded]="false"
+              (opened)="panelOpenState2 = true"
+              (closed)="panelOpenState2 = false"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <p>Id: {{parking.id}}</p>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p><span>Name: </span>{{parking.name}}</p>
+              <p><span>Capacity: </span>{{parking.capacity}}</p>
+            </mat-expansion-panel>
+          </li>
+        </mat-accordion>
+      </div>
+    </mat-card>
+  </div>
 </div>

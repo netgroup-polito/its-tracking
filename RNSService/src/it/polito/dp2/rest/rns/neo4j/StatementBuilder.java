@@ -263,4 +263,16 @@ public class StatementBuilder {
 				+ "RETURN m.id as id";
 		return query;
 	}
+	
+	/**
+	 * Function to obtain a query for retrieving the average time 
+	 * of a place, given its id.
+	 * @param id = id of the considered place
+	 * @return the corresponding query
+	 */
+	public String getAvarageTimeById(String id) {
+		String query = "MATCH (n) WHERE id(n) = " + id + " "
+				+ "RETURN n.avgTimeSpent";
+		return query;
+	}
 }

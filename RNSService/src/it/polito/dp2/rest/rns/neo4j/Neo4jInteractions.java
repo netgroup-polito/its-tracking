@@ -507,15 +507,6 @@ public class Neo4jInteractions implements AutoCloseable {
 								place.setId((String) r.get(0).asMap().get("id"));
 								place.setCapacity(new BigInteger(Long.toString((Long) r.get(0).asMap().get("capacity"))));
 								place.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(0).asMap().get("avgTimeSpent"))));
-								
-								place1.setName((String) r.get(1).asMap().get("name"));
-								place1.setId((String) r.get(1).asMap().get("id"));
-								place1.setCapacity(new BigInteger(Long.toString((Long) r.get(1).asMap().get("capacity"))));
-								place1.setAvgTimeSpent(new BigInteger(Long.toString((Long) r.get(1).asMap().get("avgTimeSpent"))));
-							
-								if(getActualCapacityOfPlace(place1.getId()) >= 1) {
-									place.getConnectedPlaceId().add(place1.getId());
-								}
 							} else {
 								place1.setName((String) r.get(1).asMap().get("name"));
 								place1.setId((String) r.get(1).asMap().get("id"));
@@ -528,6 +519,10 @@ public class Neo4jInteractions implements AutoCloseable {
 							}
 						}
 					}
+					
+					System.out.println("#########################");
+					System.out.println("Place: " + place.getId());
+					for(String s : place.getConnectedPlaceId()) System.out.println("++++ Connection --> " + s);
 					
 					return place;
                 }

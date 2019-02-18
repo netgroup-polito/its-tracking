@@ -37,7 +37,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 /**
  * This class is responsible to give access to all method necessary to interact 
  * with Neo4j.
- * 
  * @author dp2
  *
  */
@@ -624,10 +623,10 @@ public class Neo4jInteractions implements AutoCloseable {
                 {
                 		List<String> incompatibleMaterials = new ArrayList<>();
 					StatementResult result = tx.run(query);
-
-					for(Record r : result.list())
-						incompatibleMaterials.add(String.valueOf(r.get(0)));
-					
+					if(result != null) {
+						for(Record r : result.list())
+							incompatibleMaterials.add(String.valueOf(r.get(0)));
+                	}				
 					return incompatibleMaterials;
                 }
             } );
@@ -714,5 +713,65 @@ public class Neo4jInteractions implements AutoCloseable {
         }
 		
 		return null;
+	}
+
+	/**
+	 * Function to decrease the capacity of a place in the
+	 * database
+	 * @param idPlace = id of the desired place
+	 */
+	public void decreaseCapacityOfNodeGivenId(String idPlace) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getDecreaseStatementById(
+										IdTranslator.getInstance()
+										.getIdTranslation(idPlace)
+								);
+			session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+					tx.run(query);
+					return true;
+                }
+            } );
+            
+			session.close();
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+	}
+	
+	/**
+	 * Function to increase the capacity of a node in the
+	 * system
+	 * @param idPlace = id of the place in question
+	 */
+	public void increaseCapacityOfNodeGivenId(String idPlace) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getIncreaseStatementById(
+										IdTranslator.getInstance()
+										.getIdTranslation(idPlace)
+								);
+			session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+					tx.run(query);
+					return true;
+                }
+            } );
+            
+			session.close();
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
 	}
 }

@@ -135,17 +135,16 @@ public class Z3Model {
 	 * @param prevId = id of the previous node where we came from
 	 */
 	public void createBooleanExpressions(String source, String materialId, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) {
-		DangerousMaterialImpl material = new DangerousMaterialImpl(
+		DangerousMaterialImpl material = null;
+		if(materialId != null) {
+			material= new DangerousMaterialImpl(
 											materialId, 
 											Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)
 									);
-		//System.out.println("Current place: " + source);
-		SimplePlaceReaderType current = Neo4jInteractions.getInstance().getPlace(source);
-		
-		if(current == null) {
-			//System.out.println("Couldn't retrieve node with id: " + source);
-			return;
 		}
+		
+		SimplePlaceReaderType current = Neo4jInteractions.getInstance().getPlace(source);
+		if(current == null) return;
 		
 		// Retrieve materials and actual capacity
 		int actualCapacity = Neo4jInteractions.getInstance().getActualCapacityOfPlace(current.getId());
@@ -157,13 +156,15 @@ public class Z3Model {
 			return;
 		}
 		
-		for(String mat : materials) {
-			if(!material.isCompatibleWith(mat)) {
-				/*System.out.println(
-						"Node " + current.getId() + 
-						" contains material " + mat + 
-						" that is not compatible with " + materialId);*/
-				return;
+		if(materialId != null && material != null) {
+			for(String mat : materials) {
+				if(!material.isCompatibleWith(mat)) {
+					/*System.out.println(
+							"Node " + current.getId() + 
+							" contains material " + mat + 
+							" that is not compatible with " + materialId);*/
+					return;
+				}
 			}
 		}
 		

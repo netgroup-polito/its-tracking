@@ -98,9 +98,8 @@ public class VehicleResource {
 			MediaType.APPLICATION_XML,
 			MediaType.APPLICATION_JSON
 	})
-    public Response getVehiclePath(@PathParam("id") int vehicleId) {
-    		// TODO: get vehicle path
-    		return null;
+    public Response getVehiclePath(@PathParam("id") String vehicleId) {
+    		return Response.status(Status.OK).entity(RNSCore.getInstance().getVehiclePath(vehicleId)).build();
     }
     
     @POST
@@ -172,8 +171,8 @@ public class VehicleResource {
     		System.out.println((new Date()).toString());
     		System.out.println("UPDATE VEHICLE " + vehicleId + " --- " + vehicle.getValue().getPosition());
     		try {
-			RNSCore.getInstance().updateVehicle(vehicle.getValue());
-			return Response.status(Status.OK).entity(vehicleId).build();
+			Places places = RNSCore.getInstance().updateVehicle(vehicle.getValue());
+			return Response.status(Status.OK).entity(places).build();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();

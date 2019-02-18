@@ -289,4 +289,30 @@ public class StatementBuilder {
 				+ "RETURN labels(n)";
 		return query;
 	}
+
+	/**
+	 * Function to get statement to decrease capacity of node given
+	 * its id
+	 * @param id = id of the node
+	 * @return the corresponding query
+	 */
+	public String getIncreaseStatementById(String id) {
+		String query = "MATCH (n) WHERE id(n) = " + id + " "
+				+ "SET n.capacity = n.capacity + 1 "
+				+ "RETURN n";
+		return query;
+	}
+	
+	/**
+	 * Function to retrieve a statement to decrease the capacity of
+	 * a node given its id
+	 * @param id = id of the node
+	 * @return the corresponding statement
+	 */
+	public String getDecreaseStatementById(String id) {
+		String query = "MATCH (n) WHERE id(n) = " + id + " "
+				+ "SET n.capacity = n.capacity - 1 "
+				+ "RETURN n";
+		return query;
+	}
 }

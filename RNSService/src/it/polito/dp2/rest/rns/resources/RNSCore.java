@@ -1,6 +1,8 @@
 package it.polito.dp2.rest.rns.resources;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
@@ -37,7 +39,7 @@ import it.polito.dp2.rest.rns.z3.Z3;
  */
 public class RNSCore {
 	private static RNSCore instance = null; // Instance of the class
-	//private Graph actualMap;
+	private Map<String, Places> vehiclePath = new HashMap<>();
 	
 	/**
 	 * Private constructor, so that the instance of the object can only be accessed
@@ -83,6 +85,7 @@ public class RNSCore {
 	public Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException {
 		String id = "";
 		System.out.println("***************** ADD VEHICLE *********************");
+		
 		// CURRENT POSITION
 		if(vehicle.getPosition() != null) {
 			// Check presence of the vehicle in the system
@@ -93,7 +96,7 @@ public class RNSCore {
 							.collect(Collectors.toList());
 			if(vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleAlreadyInSystemException("Vehicle " + vehicle.getId() + " has already been added to the system."));
 			
-			Z3 z3 = new Z3(vehicle.getOrigin(), vehicle.getDestination(), vehicle.getMaterial().get(0));
+			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial().get(0));
 			List<String> path = z3.findPath();
 			
 			if(path != null) {
@@ -145,7 +148,14 @@ public class RNSCore {
 					}
 				}
 				
-				return this.orderPlaces(path, vehicle.getDestination(), vehicle.getOrigin());
+				Places places = this.orderPlaces(path, vehicle.getDestination(), vehicle.getPosition());
+				this.vehiclePath.put(vehicle.getId(), places);
+				
+				for(String idPlace : places.getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList())) {
+					Neo4jInteractions.getInstance().decreaseCapacityOfNodeGivenId(idPlace);
+				}
+				
+				return places;
 			} else {
 				throw new UnsatisfiableException("A path couldn't be found.");
 			}
@@ -229,16 +239,24 @@ public class RNSCore {
 	public void deleteVehicle(String vehicleId) {
 		Neo4jInteractions.getInstance().deleteNode(vehicleId, "Vehicle");
 		IdTranslator.getInstance().removeTranslation(vehicleId);
+		for(String id : this.vehiclePath.get(vehicleId).getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList()) ) {
+			Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(id);
+		}
+		this.vehiclePath.remove(vehicleId);
 	}
 
 	/**
 	 * Function to update the informations of a specific vehicle in the
 	 * database
 	 * @param vehicle = vehicle information to be updated
+	 * @return 
 	 * @throws PlaceFullException 
 	 * @throws VehicleNotInSystemException 
+	 * @throws UnsatisfiableException 
+	 * @throws InvalidEntryPlaceException 
+	 * @throws VehicleAlreadyInSystemException 
 	 */
-	public void updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException {
+	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException {
 		// Check presence of the vehicle in the system
 		List<String> vehiclesLoadedIds = 
 				Neo4jInteractions.getInstance().getVehicles()
@@ -247,20 +265,38 @@ public class RNSCore {
 						.collect(Collectors.toList());
 		if(!vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleNotInSystemException("Vehicle " + vehicle.getId() + " is not currently in the system."));
 		
-		// TODO: if the place is in the path of the vehicle OK, otherwise need to recompute
-		// the path
+		long occurrences = this.vehiclePath.get(vehicle.getId())
+										.getPlace()
+										.stream()
+										.filter((place) -> place.getId().equals(vehicle.getPosition()))
+										.count();
 		
-		// Check on the capacity of the place
-		int actualCapacityOfPlace = Neo4jInteractions.getInstance().getActualCapacityOfPlace(vehicle.getPosition());
-		if(actualCapacityOfPlace < 1) throw(new PlaceFullException("Place " + vehicle.getPosition() + " is full. It can't accept any more vehicles."));
-		
-		// Can update
-		System.out.println("*************** UPDATE VEHICLE POSITION ****************");
-		System.out.println("Updating position of vehicle " + vehicle.getId());
-		VehicleReaderType currentVehicle = Neo4jInteractions.getInstance().getVehicle(vehicle.getId());
-		System.out.println("\tFROM: " + currentVehicle.getPosition());
-		System.out.println("\tTO: " + vehicle.getPosition());
-		Neo4jInteractions.getInstance().updatePositionVehicle(vehicle, currentVehicle.getPosition());
+		if(occurrences != 0) { // Still following the path
+			// Check on the capacity of the place
+			/*int actualCapacityOfPlace = Neo4jInteractions.getInstance().getActualCapacityOfPlace(vehicle.getPosition());
+			if(actualCapacityOfPlace < 1) throw(new PlaceFullException("Place " + vehicle.getPosition() + " is full. It can't accept any more vehicles."))*/;
+			
+			// Can update
+			System.out.println("*************** UPDATE VEHICLE POSITION ****************");
+			System.out.println("Updating position of vehicle " + vehicle.getId());
+			VehicleReaderType currentVehicle = Neo4jInteractions.getInstance().getVehicle(vehicle.getId());
+			System.out.println("\tFROM: " + currentVehicle.getPosition());
+			System.out.println("\tTO: " + vehicle.getPosition());
+			Neo4jInteractions.getInstance().updatePositionVehicle(vehicle, currentVehicle.getPosition());
+			Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(currentVehicle.getPosition());
+			
+			Places places = (new ObjectFactory()).createPlaces();
+			places.getPlace().add(Neo4jInteractions.getInstance().getPlace(vehicle.getPosition()));
+			
+			
+			return places;
+			
+		} else { // Need to recompute the path
+			this.deleteVehicle(vehicle.getId());
+			Places places = this.addVehicle(vehicle);
+			
+			return places;
+		}
 	}
 
 	/**
@@ -347,5 +383,14 @@ public class RNSCore {
 		for(RoadSegmentReaderType road : Neo4jInteractions.getInstance().getRoadSegments())
 			if(road.getId().equals(roadSegmentId)) return road;
 		return null;
+	}
+
+	/**
+	 * Function to retrieve the path of a specific vehicle.
+	 * @param vehicleId = id of the vehicle
+	 * @return the assigned path
+	 */
+	public Places getVehiclePath(String vehicleId) {
+		return (this.vehiclePath.containsKey(vehicleId)) ? this.vehiclePath.get(vehicleId) : null;
 	}
 }

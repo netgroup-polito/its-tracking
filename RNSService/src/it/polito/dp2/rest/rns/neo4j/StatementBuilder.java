@@ -120,6 +120,8 @@ public class StatementBuilder {
 		String query = 
 				"MATCH (n: " + type + ")-[:isConnectedTo*0..1]->(connected) "
 				+ "MATCH (n: " + type + " )-[:isContainedInto*0..1]->(container) "
+				+ "WHERE id(n) <> id(connected) AND "
+				+ "id(n) <> id(container) "
 				+ "RETURN properties(n), id(connected), id(container)";
 		return query;
 	}

@@ -289,11 +289,19 @@ public class RNSCore {
 		for(GateReaderType gate : Neo4jInteractions.getInstance().getGates()) rns.getGate().add(gate);
 		for(RoadSegmentReaderType roadSegment : Neo4jInteractions.getInstance().getRoadSegments()) rns.getRoadSegment().add(roadSegment);
 		for(ParkingAreaReaderType parkingArea : Neo4jInteractions.getInstance().getParkingAreas()) rns.getParkingArea().add(parkingArea);
-		for(VehicleReaderType vehicle : Neo4jInteractions.getInstance().getVehicles()) rns.getVehicle().add(vehicle);
+		//for(VehicleReaderType vehicle : Neo4jInteractions.getInstance().getVehicles()) rns.getVehicle().add(vehicle);
 		
 		return rns;
 	}
 	
+	/**
+	 * Function that return the places contained in path in the correct order
+	 * from source to destination
+	 * @param path = list of places id
+	 * @param destinationId = last node
+	 * @param sourceId = source node
+	 * @return an object containing the places in the correct order
+	 */
 	private Places orderPlaces(List<String> path, String destinationId, String sourceId) {
 		// I HAVE TO RETURN IN ORDER THE PLACES
 		Places places = (new ObjectFactory()).createPlaces();
@@ -315,5 +323,29 @@ public class RNSCore {
 		places.getPlace().add(Neo4jInteractions.getInstance().getPlace(currentId));
 		
 		return places;
+	}
+
+	/**
+	 * Function to retrieve a particular parking area.
+	 * @param parkId = id of the parking area
+	 * @return return the corresponding parking area
+	 */
+	public ParkingAreaReaderType getParkingArea(String parkId) {
+		for(ParkingAreaReaderType park : Neo4jInteractions.getInstance().getParkingAreas()) {
+			if(park.getId().equals(parkId)) return park;
+		};
+		return null;
+	}
+
+	/**
+	 * Function to retrieve a specific road segment in the system
+	 * given its id
+	 * @param roadSegmentId = id of the road segment
+	 * @return the corresponding road segment
+	 */
+	public RoadSegmentReaderType getRoadSegment(String roadSegmentId) {
+		for(RoadSegmentReaderType road : Neo4jInteractions.getInstance().getRoadSegments())
+			if(road.getId().equals(roadSegmentId)) return road;
+		return null;
 	}
 }

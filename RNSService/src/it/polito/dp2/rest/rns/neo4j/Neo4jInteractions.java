@@ -323,7 +323,7 @@ public class Neo4jInteractions implements AutoCloseable {
                 @Override
                 public List<RoadSegmentReaderType> execute( Transaction tx )
                 {
-                		Map<String, RoadSegmentReaderType> map = new HashMap<>();
+            		Map<String, RoadSegmentReaderType> map = new HashMap<>();
 					StatementResult result = tx.run(query);
 					
 					for(Record r : result.list()) {
@@ -348,11 +348,21 @@ public class Neo4jInteractions implements AutoCloseable {
 									road
 							);
 						} else {
-							map.get((String) r.get(0).asMap().get("id"))
+							//System.out.println("******************* " + (String) r.get(0).asMap().get("id"));
+							if(!map.get(
+									(String) r.get(0).asMap().get("id"))
 								.getConnectedPlaceId()
-								.add(IdTranslator.getInstance().fromNeo4jId(
-										String.valueOf((int) r.get(1).asInt())
-									));
+								.contains(IdTranslator.getInstance().fromNeo4jId(
+										String.valueOf((int) r.get(1).asInt())))
+								&& !((String) r.get(0).asMap().get("id")).equals(IdTranslator.getInstance().fromNeo4jId(
+										String.valueOf((int) r.get(1).asInt())))
+							){
+								map.get((String) r.get(0).asMap().get("id"))
+									.getConnectedPlaceId()
+									.add(IdTranslator.getInstance().fromNeo4jId(
+											String.valueOf((int) r.get(1).asInt())
+										));
+							}
 						}
 					}
 					

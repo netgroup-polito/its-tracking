@@ -47,6 +47,8 @@ public class Z3Model {
 	private Map<String, BoolExpr> connectionsBool = new HashMap<>();
 	private Map<String, BoolExpr> nodes = new HashMap<>();
 	
+	private String sourceNodeId = "";
+	
 	public Z3Model(String sourceNodeId, String destinationNodeId, String materialId) throws UnsatisfiableException {
 		if(Neo4jInteractions.getInstance().getActualCapacityOfPlace(sourceNodeId) < 1)
 			throw(new UnsatisfiableException("Node " + sourceNodeId + " has no more room for another vehicle"));
@@ -56,6 +58,7 @@ public class Z3Model {
 		this.foundEnd = false;
 		
 		System.out.println("############# INITIALIZATION OF Z3 MODEL #############");
+		this.sourceNodeId = sourceNodeId;
 		this.createBooleanExpressions(sourceNodeId, materialId, destinationNodeId, null, null, null, null);
 		System.out.println("#############  DEFINITION OF CONSTRAINTS #############");
 		this.defineHardConstraints(sourceNodeId, destinationNodeId);
@@ -157,6 +160,15 @@ public class Z3Model {
 			this.connectionsBool.put("z_" + prevId + "_" + current.getId(), ctx.mkAnd(y_prev, y_curr));
 			
 			foundEnd = true;
+			return;
+		}
+		
+		// Check if it is a gate or a parking area, if it's not the end
+		// it can be neither a gate nor a parking area
+		String label = Neo4jInteractions.getInstance().getLabelOfNode(current.getId());
+		System.out.println(current.getId() + ": " + label);
+		if(!current.getId().equals(this.sourceNodeId) && (label.equals("Gate") || label.equals("ParkingArea"))) {
+			System.out.println("Place " + current.getId() + " is not viable as node because it's a " + label + ".");
 			return;
 		}
 		

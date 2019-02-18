@@ -17,14 +17,19 @@ public class Z3 {
 	// TODO: retrieve from the model the path
 	public List<String> findPath() {
 		System.out.println("############# MODEL #############");
-		List<String> result = this.parsModel(this.model.evaluateModel());
+		Model result = this.model.evaluateModel();
+		List<String> resultList = new ArrayList<String>();
 		
-		for(String s : result) System.out.println(s);
+		// If we have found nothing we don't do anything
+		if(model != null)
+		 resultList = this.parseModel(result);
 		
-		return result;
+		for(String s : resultList) System.out.println(s);
+		
+		return resultList;
 	}
 	
-	private List<String> parsModel(Model result) {
+	private List<String> parseModel(Model result) {
 		List<String> list = new ArrayList<String>();
 		String[] s1 = result.toString().replace("(", "").replace(")", "").split("define-fun");
 		for(String s : s1) s.replace("\n", " ");

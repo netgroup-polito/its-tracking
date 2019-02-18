@@ -275,4 +275,10 @@ public class StatementBuilder {
 				+ "RETURN n.avgTimeSpent";
 		return query;
 	}
+
+	public String getLabelOfNodeById(String id) {
+		String query = "MATCH (n) WHERE id(n) = " + id + " "
+				+ "RETURN labels(n)";
+		return query;
+	}
 }

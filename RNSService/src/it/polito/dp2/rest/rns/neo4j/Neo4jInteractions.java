@@ -520,9 +520,9 @@ public class Neo4jInteractions implements AutoCloseable {
 						}
 					}
 					
-					System.out.println("#########################");
+					/*System.out.println("#########################");
 					System.out.println("Place: " + place.getId());
-					for(String s : place.getConnectedPlaceId()) System.out.println("++++ Connection --> " + s);
+					for(String s : place.getConnectedPlaceId()) System.out.println("++++ Connection --> " + s);*/
 					
 					return place;
                 }
@@ -634,6 +634,39 @@ public class Neo4jInteractions implements AutoCloseable {
 						materials.add(String.valueOf(r.get(0)));
 					
 					return materials;
+                }
+            } );
+            
+            return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+		return null;
+	}
+
+	/**
+	 * Function to retrieve the assigned Neo4j label of a specific node
+	 * given its id.
+	 * @param id = the id of the node
+	 * @return the corresponding label
+	 */
+	public String getLabelOfNode(String id) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getLabelOfNodeById(
+										IdTranslator.getInstance()
+										.getIdTranslation(id)
+								);
+			String result = session.writeTransaction( new TransactionWork<String>()
+            {
+                @Override
+                public String execute( Transaction tx )
+                {
+					StatementResult result = tx.run(query);
+					//System.out.println(result.single().get(0).get(0));
+					return String.valueOf(result.single().get(0).get(0)).replace("\"", "");
                 }
             } );
             

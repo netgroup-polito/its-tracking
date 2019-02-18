@@ -43,8 +43,8 @@ public class Z3Model {
 	private Optimize mkOptimize;
 	private Context ctx;
 	
-	private Map<String, List<BoolExpr>> incomingConnections = new HashMap<>();
-	private Map<String, List<BoolExpr>> outgoingConnections = new HashMap<>();
+	private Map<String, List<String>> connections = new HashMap<>();
+	private Map<String, BoolExpr> connectionsBool = new HashMap<>();
 	private Map<String, BoolExpr> nodes = new HashMap<>();
 	
 	public Z3Model(String sourceNodeId, String destinationNodeId, String materialId) throws UnsatisfiableException {
@@ -56,90 +56,43 @@ public class Z3Model {
 		this.foundEnd = false;
 		
 		System.out.println("############# INITIALIZATION OF Z3 MODEL #############");
-		this.createBooleanExpressions(sourceNodeId, materialId, destinationNodeId, null, null);
+		this.createBooleanExpressions(sourceNodeId, materialId, destinationNodeId, null, null, null, null);
 		System.out.println("#############  DEFINITION OF CONSTRAINTS #############");
 		this.defineHardConstraints(sourceNodeId, destinationNodeId);
+		this.defineSoftConstraints();
+	}
+	
+	private void defineSoftConstraints() {
+		for(Entry<String, BoolExpr> node : this.nodes.entrySet()) {
+			SimplePlaceReaderType place = Neo4jInteractions.getInstance().getPlace(node.getKey());
+			mkOptimize.AssertSoft(ctx.mkNot(node.getValue()), place.getAvgTimeSpent().intValue(), "latency");
+		}
 	}
 
 	private void defineHardConstraints(String source, String destination) {
 		for(Entry<String, BoolExpr> node : this.nodes.entrySet()) {
-			System.out.println("\n+ Definition of constraints for node " + node.getKey());
-			if(node.getKey().contentEquals(source)) {
-				System.out.println("++ Source node. Only outgoing connection constraints.");
-				List<BoolExpr> outgoings = this.outgoingConnections.get(node.getKey());
+			if(source.equals(node.getKey())) {
 				
-				mkOptimize.Add(ctx.mkEq(ctx.mkAnd(node.getValue(), ctx.mkBool(true)), ctx.mkBool(true)));
-				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkAtLeast(outgoings.stream().toArray(BoolExpr[]::new), 1)));
-				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkAtMost(outgoings.stream().toArray(BoolExpr[]::new), 1)));
+				mkOptimize.Add(ctx.mkEq(node.getValue(), ctx.mkBool(true)));
 				
-			} else if(node.getKey().contentEquals(destination)) {
-				System.out.println("++ Destination node. Only incoming connection constraints.");
-				List<BoolExpr> incomings = this.incomingConnections.get(node.getKey());
+			} else if(destination.equals(node.getKey())) {
 				
-				mkOptimize.Add(ctx.mkEq(ctx.mkAnd(node.getValue(), ctx.mkBool(true)), ctx.mkBool(true)));
-				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkAtLeast(incomings.stream().toArray(BoolExpr[]::new), 1)));
-				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkAtMost(incomings.stream().toArray(BoolExpr[]::new), 1)));
+				List<BoolExpr> conns = new ArrayList<>();
+				for(String conn : this.connections.get(node.getKey())) {
+					conns.add(this.connectionsBool.get(conn));
+				}
+				
+				mkOptimize.Add(ctx.mkEq(node.getValue(), ctx.mkBool(true)));
+				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkAtLeast(conns.stream().toArray(BoolExpr[]::new), 1)));
+				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkAtMost(conns.stream().toArray(BoolExpr[]::new), 1)));
 				
 			} else {
-				BoolExpr[] incomings = this.incomingConnections.get(node.getKey()).stream().toArray(BoolExpr[]::new);
-				int incomingsSize = this.incomingConnections.get(node.getKey()).size();
-				BoolExpr[] outgoings = this.outgoingConnections.get(node.getKey()).stream().toArray(BoolExpr[]::new);
-				int outgoingsSize = this.outgoingConnections.get(node.getKey()).size();
-				
-				/*
-				 * Incoming connections. I have to declare that:
-				 * 1) if z_incoming = true -> y_curr = true;
-				 * 2) z_incoming_i + ... + z_incoming_n = 1; (so if one connection incoming is taken the others have to be false)
-				 */
-				System.out.println("+++ Incoming relations for node " + node.getKey());
-				int i = 0;
-				for(BoolExpr z : incomings) {
-					List<BoolExpr> tmp = new ArrayList<>();
-					for(int j = 0; j < incomingsSize; j++) {
-						if(j != i) {
-							tmp.add(incomings[j]);
-						}
-					}
-					
-					mkOptimize.Add(ctx.mkImplies(z, ctx.mkEq(ctx.mkOr(tmp.stream().toArray(BoolExpr[]::new)), ctx.mkBool(false))));
-					mkOptimize.Add(ctx.mkImplies(z, node.getValue()));
-					i++;
+				List<BoolExpr> conns = new ArrayList<>();
+				for(String conn : this.connections.get(node.getKey())) {
+					conns.add(this.connectionsBool.get(conn));
 				}
 				
-				/*
-				 * Outgoing connections. I have to declare that:
-				 * 1) z_outgoing_i + ... + z_outgoing_n = 1; (so if one connection outgoing is taken the others have to be false)
-				 */
-				System.out.println("+++ Outgoing relations for node " + node.getKey());
-				i = 0;
-				for(BoolExpr z : outgoings) {
-					List<BoolExpr> tmp = new ArrayList<>();
-					for(int j = 0; j < outgoingsSize; j++) {
-						if(j != i) {
-							tmp.add(outgoings[j]);
-						}
-					}
-					
-					mkOptimize.Add(ctx.mkImplies(z, ctx.mkEq(ctx.mkOr(tmp.stream().toArray(BoolExpr[]::new)), ctx.mkBool(false))));
-					i++;
-				}
-				if(outgoingsSize == 0) {
-					mkOptimize.Add(ctx.mkEq(node.getValue(), ctx.mkBool(false)));
-				} else {
-					//mkOptimize.Add(node.getValue(), ctx.mkAtLeast(outgoings, 1));
-					//mkOptimize.Add(node.getValue(), ctx.mkAtMost(outgoings, 1));
-				}
-				/**
-				 * In this case this is neither source or destination, so if it 
-				 * has an incoming relation it has to have an outgoing relation
-				 * set to true as well
-				 */
-				mkOptimize.Add(ctx.mkImplies(
-						node.getValue(),
-						ctx.mkEq(
-								ctx.mkAnd(ctx.mkOr(incomings), ctx.mkOr(outgoings)), 
-								ctx.mkBool(true))
-						));
+				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkOr(conns.stream().toArray(BoolExpr[]::new))));
 			}
 		}
 	}
@@ -149,7 +102,6 @@ public class Z3Model {
 	 * @param value = value to be converted
 	 * @return corresponding integer expression
 	 */
-	@SuppressWarnings("unused")
 	private IntExpr bool_to_int(BoolExpr value) {
 		IntExpr integer = ctx.mkIntConst("integer_" + value);
 		// value -> (integer == 1)
@@ -159,7 +111,7 @@ public class Z3Model {
 		return integer;
 	}
 	
-	public void createBooleanExpressions(String source, String materialId, String destination, List<String> tabuList, BoolExpr z_prev) {
+	public void createBooleanExpressions(String source, String materialId, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) {
 		DangerousMaterialImpl material = new DangerousMaterialImpl(
 											materialId, 
 											Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)
@@ -198,14 +150,11 @@ public class Z3Model {
 			
 			// Current node
 			BoolExpr y_curr = ctx.mkBoolConst("y_" + current.getId());
+			
 			this.nodes.put(current.getId(), y_curr);
-			
-			// Incoming connections
-			if(!this.incomingConnections.containsKey(current.getId())) {
-				this.incomingConnections.put(current.getId(), new ArrayList<>());
-			}
-			
-			if(z_prev != null) this.incomingConnections.get(current.getId()).add(z_prev);
+			if(!connections.containsKey(current.getId())) this.connections.put(current.getId(), new ArrayList<String>());
+			this.connections.get(current.getId()).add("z_" + prevId + "_" + current.getId());
+			this.connectionsBool.put("z_" + prevId + "_" + current.getId(), ctx.mkAnd(y_prev, y_curr));
 			
 			foundEnd = true;
 			return;
@@ -220,26 +169,19 @@ public class Z3Model {
 		if(!this.nodes.containsKey(current.getId()))
 			this.nodes.put(current.getId(), y_curr);
 		
+		if(prevId != null) {
+			this.nodes.put(current.getId(), y_curr);
+			if(!connections.containsKey(current.getId())) this.connections.put(current.getId(), new ArrayList<String>());
+			this.connections.get(current.getId()).add("z_" + prevId + "_" + current.getId());
+			this.connectionsBool.put("z_" + prevId + "_" + current.getId(), ctx.mkAnd(y_prev, y_curr));
+		}
+		
 		// Outgoing connections
-		List<BoolExpr> connections = new ArrayList<>();
 		for(String id : current.getConnectedPlaceId()) {
 			if(!tabuList.contains(id)) {
-				connections.add(ctx.mkBoolConst("z_" + current.getId() + "_" + id));
+				this.createBooleanExpressions(id, materialId, destination, tabuList, ctx.mkBoolConst("z_" + current.getId() + "_" + id), y_curr, source);
 			}
-		}
-		if(!this.outgoingConnections.containsKey(current.getId()))
-			this.outgoingConnections.put(current.getId(), connections);
-		
-		// Incoming connections
-		if(!this.incomingConnections.containsKey(current.getId())) {
-			this.incomingConnections.put(current.getId(), new ArrayList<>());
-		}
-		if(z_prev != null) this.incomingConnections.get(current.getId()).add(z_prev);
-		
-		// Recur
-		for(String id : current.getConnectedPlaceId())
-			if(!tabuList.contains(id))
-				this.createBooleanExpressions(id, materialId, destination, tabuList, ctx.mkBoolConst("z_" + current.getId() + "_" + id));
+		}		
 	}
 	
 	/**

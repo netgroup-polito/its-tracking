@@ -11,20 +11,20 @@
     	<name>Gate01</name>
     	<capacity>1</capacity>
     	<connectedPlace>a02-01</connectedPlace>
-    	<avgTimeSpent>0</avgTimeSpent>
+    	<avgTimeSpent>1</avgTimeSpent>
     	<type>IN</type>
     </gate>
     <gate id="g02">
     	<name>Gate02</name>
     	<capacity>2</capacity>
     	<connectedPlace>a02-02</connectedPlace>
-    	<avgTimeSpent>0</avgTimeSpent>
+    	<avgTimeSpent>1</avgTimeSpent>
     	<type>INOUT</type>
     </gate>
     <gate id="g03">
     	<name>Gate03</name>
     	<capacity>1</capacity>
-    	<avgTimeSpent>0</avgTimeSpent>
+    	<avgTimeSpent>1</avgTimeSpent>
     	<type>OUT</type>
     </gate>
     <gate id="g04">
@@ -32,14 +32,14 @@
     	<capacity>2</capacity>
     	<connectedPlace>a01-03</connectedPlace>
     	<connectedPlace>ss02</connectedPlace>
-    	<avgTimeSpent>0</avgTimeSpent>
+    	<avgTimeSpent>1</avgTimeSpent>
     	<type>INOUT</type>
     </gate>
     <gate id="g05">
     	<name>Gate05</name>
     	<capacity>1</capacity>
     	<connectedPlace>ss03</connectedPlace>
-    	<avgTimeSpent>0</avgTimeSpent>
+    	<avgTimeSpent>1</avgTimeSpent>
     	<type>IN</type>
     </gate>
     
@@ -52,7 +52,7 @@
     		<connectedPlace>a01-02</connectedPlace>
     		<connectedPlace>ss01</connectedPlace>
     		<containerPlaceId>a01</containerPlaceId>
-    		<avgTimeSpent>0</avgTimeSpent>
+    		<avgTimeSpent>1</avgTimeSpent>
     	</roadSegment>
     	<roadSegment id="a01-02">
     		<name>A01-02</name>
@@ -64,7 +64,7 @@
     		<connectedPlace>ss02</connectedPlace>
     		<connectedPlace>pa03</connectedPlace>
     		<containerPlaceId>a01</containerPlaceId>
-    		<avgTimeSpent>0</avgTimeSpent>
+    		<avgTimeSpent>1</avgTimeSpent>
     	</roadSegment>
     	<roadSegment id="a01-03">
     		<name>A01-03</name>
@@ -72,7 +72,7 @@
 		<connectedPlace>g04</connectedPlace>
     		<connectedPlace>a01-02</connectedPlace>
     		<containerPlaceId>a01</containerPlaceId>
-    		<avgTimeSpent>0</avgTimeSpent>
+    		<avgTimeSpent>1</avgTimeSpent>
     	</roadSegment>
     </road>
     <road id="a02" name="A02">
@@ -82,7 +82,7 @@
     		<connectedPlace>a01-02</connectedPlace>
     		<connectedPlace>ss03</connectedPlace>
     		<containerPlaceId>a02</containerPlaceId>
-    		<avgTimeSpent>0</avgTimeSpent>
+    		<avgTimeSpent>1</avgTimeSpent>
     	</roadSegment>
     	<roadSegment id="a02-02">
     		<name>A02-02</name>
@@ -90,7 +90,7 @@
    			<connectedPlace>g02</connectedPlace>
     		<connectedPlace>a01-02</connectedPlace>
     		<containerPlaceId>a02</containerPlaceId>
-    		<avgTimeSpent>0</avgTimeSpent>
+    		<avgTimeSpent>1</avgTimeSpent>
     	</roadSegment>
     </road>
     
@@ -101,7 +101,7 @@
    		<connectedPlace>g03</connectedPlace>
    		<connectedPlace>a01-01</connectedPlace>
    		<connectedPlace>pa01</connectedPlace>
-   		<avgTimeSpent>0</avgTimeSpent>
+   		<avgTimeSpent>3</avgTimeSpent>
    	</roadSegment>
    	<roadSegment id="ss02">
    		<name>SS02</name>
@@ -109,14 +109,14 @@
    		<connectedPlace>g04</connectedPlace>
    		<connectedPlace>a01-02</connectedPlace>
    		<connectedPlace>pa02</connectedPlace>
-   		<avgTimeSpent>0</avgTimeSpent>
+   		<avgTimeSpent>1</avgTimeSpent>
    	</roadSegment>
    	<roadSegment id="ss03">
    		<name>SS03</name>
    		<capacity>31</capacity>
    		<connectedPlace>pa04</connectedPlace>
    		<connectedPlace>a02-01</connectedPlace>
-   		<avgTimeSpent>0</avgTimeSpent>
+   		<avgTimeSpent>1</avgTimeSpent>
    	</roadSegment>
    	
    	<!-- PARKING AREAS -->
@@ -126,13 +126,13 @@
    		<connectedPlace>ss01</connectedPlace>
    		<service>Bar</service>
    		<service>Restaurant</service>
-   		<avgTimeSpent>0</avgTimeSpent>
+   		<avgTimeSpent>1</avgTimeSpent>
    	</parkingArea>
    	<parkingArea id="pa02">
    		<name>PA02</name>
    		<capacity>14</capacity>
    		<connectedPlace>ss02</connectedPlace>
-   		<avgTimeSpent>0</avgTimeSpent>
+   		<avgTimeSpent>1</avgTimeSpent>
    	</parkingArea>
    	<parkingArea id="pa03">
    		<name>PA03</name>
@@ -141,13 +141,13 @@
    		<service>Bar</service>
    		<service>Restaurant</service>
    		<service>Toilet</service>
-   		<avgTimeSpent>0</avgTimeSpent>
+   		<avgTimeSpent>1</avgTimeSpent>
    	</parkingArea>
    	<parkingArea id="pa04">
    		<name>PA04</name>
    		<capacity>10</capacity>
    		<connectedPlace>ss03</connectedPlace>
-   		<avgTimeSpent>0</avgTimeSpent>
+   		<avgTimeSpent>1</avgTimeSpent>
    	</parkingArea>
    	
    	<!-- DANGEROUS MATERIALS -->

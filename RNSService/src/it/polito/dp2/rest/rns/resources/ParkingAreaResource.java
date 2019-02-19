@@ -17,11 +17,35 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
+import it.polito.dp2.rest.rns.jaxb.ParkingAreas;
 
 @Path("parkingareas")
 @Api(value = "/parkingareas")
 public class ParkingAreaResource {
 
+	@GET
+    @Path("")
+    @ApiOperation(
+			value = "getParkingAreas",
+			notes = "allow to retrieve all information about a specific parking area in the system"
+	)
+	@ApiResponses(
+			value = {
+					@ApiResponse(code = 200, message = "OK"),
+					@ApiResponse(code = 500, message = "Internal Server Error")
+			}
+	)
+	@Produces({
+			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON,
+			MediaType.TEXT_XML
+	})
+	public Response getParkingAreas() {
+		ParkingAreas parks = RNSCore.getInstance().getParkingAreas();
+		
+		return Response.status(Status.OK).entity(parks).build();
+	}
+	
 	@GET
     @Path("/{id}")
     @ApiOperation(

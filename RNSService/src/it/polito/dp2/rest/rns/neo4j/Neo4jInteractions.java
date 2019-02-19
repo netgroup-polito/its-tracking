@@ -15,6 +15,7 @@ import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
+import it.polito.dp2.rest.rns.jaxb.ServiceType;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleStateType;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -409,7 +411,18 @@ public class Neo4jInteractions implements AutoCloseable {
 									IdTranslator.getInstance().fromNeo4jId(
 											String.valueOf((int) r.get(1).asInt())
 										));
-							
+							String[] servicesString = r.get(0).asMap().get("service")
+														.toString()
+														.replace("[", "")
+														.replace("]", "")
+														.replace(",", "")
+														.split(" ");
+							for(String s : servicesString) {
+								ServiceType service = (new ObjectFactory()).createServiceType();
+								service.setName(s);
+								park.getService().add(service);
+							}
+						
 							map.put(
 									park.getId(),
 									park
@@ -774,5 +787,59 @@ public class Neo4jInteractions implements AutoCloseable {
         		e.printStackTrace();
         }
 		
+	}
+
+	/**
+	 * Function to retrieve from the database all dangerous materials
+	 * @return a list of dangerous materials
+	 */
+	public List<it.polito.dp2.rest.rns.jaxb.DangerousMaterialType> getDangerousMaterials() {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getStatementByTypeAndConnection("DangerousMaterial", "isIncompatibleWith");
+			
+			List<it.polito.dp2.rest.rns.jaxb.DangerousMaterialType> result 
+				= session.writeTransaction( new TransactionWork<List<it.polito.dp2.rest.rns.jaxb.DangerousMaterialType>>()
+            {
+                @Override
+                public List<it.polito.dp2.rest.rns.jaxb.DangerousMaterialType> execute( Transaction tx )
+                {
+					StatementResult result = tx.run(query);
+					Map<String, List<String>> materialsMap = new HashMap<>();
+					List<it.polito.dp2.rest.rns.jaxb.DangerousMaterialType> materials = new ArrayList<>();
+					
+					for(Record r : result.list()) {
+						String id = (String) r.get(0).asMap().get("id");
+						String idNeo = String.valueOf(r.get(1).asInt());
+						String idInc = IdTranslator.getInstance().fromNeo4jId(idNeo);
+						
+						if(!materialsMap.containsKey(id)) {
+							materialsMap.put(id, new ArrayList<>());
+						}
+						if(!id.equals(idInc))
+							materialsMap.get(id).add(idInc);
+					}
+					
+					for(Entry<String, List<String>> entry : materialsMap.entrySet()) {
+						it.polito.dp2.rest.rns.jaxb.DangerousMaterialType material = (new ObjectFactory()).createDangerousMaterialType();
+						material.setId(entry.getKey());
+						
+						for(String s : entry.getValue()) material.getIncompatibleMaterial().add(s);
+						
+						materials.add(material);
+					}
+					
+					return materials;
+                }
+            } );
+            
+			session.close();
+			
+			return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		return null;
 	}
 }

@@ -113,6 +113,14 @@
 		</complexType>
 	</element>
 	
+	<element name="vehicleTypes">
+		<complexType>
+			<sequence>
+				<element name="type" type="string" minOccurs="1" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
 	<element name="parkingAreas">
 		<complexType>
 			<sequence>

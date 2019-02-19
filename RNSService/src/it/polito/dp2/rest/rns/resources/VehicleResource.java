@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
 import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
+import it.polito.dp2.rest.rns.exceptions.NonRecognizedMaterial;
 import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.exceptions.VehicleAlreadyInSystemException;
@@ -29,6 +30,8 @@ import it.polito.dp2.rest.rns.exceptions.VehicleNotInSystemException;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.Places;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
+import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
+import it.polito.dp2.rest.rns.jaxb.VehicleTypes;
 import io.swagger.annotations.ApiResponse;
 
 @Path("vehicles")
@@ -52,6 +55,31 @@ public class VehicleResource {
 	})
 	public Response getVehicles() {
 		return Response.status(Status.OK).entity(RNSCore.getInstance().getVehicles()).build();
+	}
+	
+	@GET
+	@Path("/types")
+    @ApiOperation(
+			value = "getVehicles",
+			notes = "allow to retrieve all information about all the vehicles currently in the system"
+	)
+	@ApiResponses(
+			value = {
+					@ApiResponse(code = 200, message = "OK"),
+					@ApiResponse(code = 500, message = "Internal Server Error")
+			}
+	)
+	@Produces({
+		MediaType.APPLICATION_XML,
+		MediaType.APPLICATION_JSON
+	})
+	public Response getVehicleTypes() {
+		VehicleTypeType[] ts = VehicleTypeType.values();
+		VehicleTypes types = (new ObjectFactory()).createVehicleTypes();
+		
+		for(VehicleTypeType v : ts) types.getType().add(v.name());
+		
+		return Response.status(Status.OK).entity(types).build();
 	}
 	
 	@GET
@@ -145,6 +173,9 @@ public class VehicleResource {
 			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (InvalidPathException e) {
+			System.out.println(e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		} catch (NonRecognizedMaterial e) {
 			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}

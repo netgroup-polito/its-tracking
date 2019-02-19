@@ -1,10 +1,13 @@
 package it.polito.dp2.rest.rns.neo4j;
 
+import java.util.List;
+
 import it.polito.dp2.rest.rns.jaxb.DangerousMaterialType;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
+import it.polito.dp2.rest.rns.jaxb.ServiceType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 
 public class StatementBuilder {
@@ -87,7 +90,8 @@ public class StatementBuilder {
 			query += "MERGE (park: ParkingArea {id: '" + park.getId() + "'}) "
 					+ "ON CREATE SET park.capacity = " + park.getCapacity() + ", "
 					+ "park.name = '" + park.getName() + "', "
-					+ "park.avgTimeSpent = " + park.getAvgTimeSpent().intValue()
+					+ "park.avgTimeSpent = " + park.getAvgTimeSpent().intValue() + ", "
+					+ "park.service = " + this.getCorrectStringFromListService(park.getService())
 					+ " RETURN id(park)";
 		} else if (element instanceof DangerousMaterialType) {
 			DangerousMaterialType material = (DangerousMaterialType) element;
@@ -99,6 +103,21 @@ public class StatementBuilder {
 		return query;
 	}
 	
+	private String getCorrectStringFromListService(List<ServiceType> serviceList) {
+		String result = "[";
+		
+		int i = 0;
+		for(ServiceType service : serviceList) {
+			result += "'" + service.getName() + "'";
+			if(i < serviceList.size() - 1) result += ", ";
+			i++;
+		}
+		
+		result += "]";
+		result.trim();
+		return result;
+	}
+
 	/**
 	 * Function to retrieve all the nodes of a certain type
 	 * with all the connections
@@ -107,6 +126,17 @@ public class StatementBuilder {
 	 */
 	public String getStatementByTypeAndConnection(String type) {
 		String query = "MATCH (n: " + type + ")-[:isConnectedTo*1]->(connected) RETURN properties(n), id(connected)";
+		return query;
+	}
+	
+	/**
+	 * Function to retrieve all the nodes of a certain type
+	 * with all the connections
+	 * @param type = type of the nodes to be retrieved
+	 * @return a string corresponding to the desired query
+	 */
+	public String getStatementByTypeAndConnection(String type, String typeConnection) {
+		String query = "MATCH (n: " + type + ")-[:" + typeConnection + "*0..1]->(connected) RETURN properties(n), id(connected)";
 		return query;
 	}
 	

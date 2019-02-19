@@ -7,14 +7,18 @@ import java.util.stream.Collectors;
 
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
 import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
+import it.polito.dp2.rest.rns.exceptions.NonRecognizedMaterial;
 import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.exceptions.VehicleAlreadyInSystemException;
 import it.polito.dp2.rest.rns.exceptions.VehicleNotInSystemException;
+import it.polito.dp2.rest.rns.jaxb.DangerousMaterialType;
+import it.polito.dp2.rest.rns.jaxb.DangerousMaterials;
 import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.Gates;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
+import it.polito.dp2.rest.rns.jaxb.ParkingAreas;
 import it.polito.dp2.rest.rns.jaxb.Places;
 import it.polito.dp2.rest.rns.jaxb.RnsReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
@@ -83,8 +87,9 @@ public class RNSCore {
 	 * @throws InvalidEntryPlaceException --> if the vehicle is trying to access the system from a gate that isn't of type IN or INOUT
 	 * @throws UnsatisfiableException 
 	 * @throws InvalidPathException 
+	 * @throws NonRecognizedMaterial 
 	 */
-	public Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException {
+	public Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial {
 		String id = "";
 		System.out.println("***************** ADD VEHICLE *********************");
 		
@@ -117,6 +122,13 @@ public class RNSCore {
 			if(destination != null) {
 				if(destination.getType().toString().equals("IN"))
 					throw(new InvalidEntryPlaceException("The gate " + vehicle.getDestination() +" you're trying to exit the system from, is not of type OUT, neither INOUT."));
+			}
+			
+			// Check for material id correctness
+			for(String s : vehicle.getMaterial()) {
+				if(!IdTranslator.getInstance().isInTheSystem(s)) {
+					throw new NonRecognizedMaterial("Material id " + s + " non recognized by the system.");
+				}
 			}
 			
 			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial().get(0));
@@ -279,8 +291,9 @@ public class RNSCore {
 	 * @throws InvalidEntryPlaceException 
 	 * @throws VehicleAlreadyInSystemException 
 	 * @throws InvalidPathException 
+	 * @throws NonRecognizedMaterial 
 	 */
-	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException {
+	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial {
 		// Check presence of the vehicle in the system
 		List<String> vehiclesLoadedIds = 
 				Neo4jInteractions.getInstance().getVehicles()
@@ -420,5 +433,33 @@ public class RNSCore {
 	 */
 	public Places getVehiclePath(String vehicleId) {
 		return (this.vehiclePath.containsKey(vehicleId)) ? this.vehiclePath.get(vehicleId) : null;
+	}
+
+	/**
+	 * Function to retrieve all parking areas into the system
+	 * @return the parking areas in an object
+	 */
+	public ParkingAreas getParkingAreas() {
+		List<ParkingAreaReaderType> parksList = Neo4jInteractions.getInstance().getParkingAreas();
+		ParkingAreas parks = (new ObjectFactory()).createParkingAreas();
+		
+		for(ParkingAreaReaderType park : parksList)
+			parks.getParkingArea().add(park);
+		return parks;
+	}
+
+	/**
+	 * Function to retrieve all dangerous materials that we have in
+	 * the database
+	 * @return the dangerous materials object
+	 */
+	public Object getDangerousMaterials() {
+		DangerousMaterials ms = (new ObjectFactory()).createDangerousMaterials();
+		List<DangerousMaterialType> materialsList = Neo4jInteractions.getInstance().getDangerousMaterials();
+		
+		for(DangerousMaterialType material : materialsList) {
+			ms.getDangerousMaterial().add(material);
+		}
+		return ms;
 	}
 }

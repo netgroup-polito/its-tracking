@@ -22,6 +22,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
 import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
+import it.polito.dp2.rest.rns.exceptions.InvalidVehicleStateException;
+import it.polito.dp2.rest.rns.exceptions.InvalidVehicleTypeException;
 import it.polito.dp2.rest.rns.exceptions.NonRecognizedMaterial;
 import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
@@ -176,6 +178,12 @@ public class VehicleResource {
 			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (NonRecognizedMaterial e) {
+			System.out.println(e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		} catch (InvalidVehicleTypeException e) {
+			System.out.println(e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		} catch (InvalidVehicleStateException e) {
 			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}

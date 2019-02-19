@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
 import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
+import it.polito.dp2.rest.rns.exceptions.InvalidVehicleStateException;
+import it.polito.dp2.rest.rns.exceptions.InvalidVehicleTypeException;
 import it.polito.dp2.rest.rns.exceptions.NonRecognizedMaterial;
 import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
@@ -24,6 +26,7 @@ import it.polito.dp2.rest.rns.jaxb.RnsReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
+import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
 import it.polito.dp2.rest.rns.jaxb.Vehicles;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
@@ -88,8 +91,10 @@ public class RNSCore {
 	 * @throws UnsatisfiableException 
 	 * @throws InvalidPathException 
 	 * @throws NonRecognizedMaterial 
+	 * @throws InvalidVehicleTypeException 
+	 * @throws InvalidVehicleStateException 
 	 */
-	public Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial {
+	public synchronized Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException {
 		String id = "";
 		System.out.println("***************** ADD VEHICLE *********************");
 		
@@ -126,9 +131,30 @@ public class RNSCore {
 			
 			// Check for material id correctness
 			for(String s : vehicle.getMaterial()) {
-				if(!IdTranslator.getInstance().isInTheSystem(s)) {
+				if(!IdTranslator.getInstance().isInTheSystem(s) && !s.equals("")) {
 					throw new NonRecognizedMaterial("Material id " + s + " non recognized by the system.");
 				}
+			}
+			
+			// Check if the nodes are in the system
+			if(!IdTranslator.getInstance().isInTheSystem(vehicle.getDestination())) throw new InvalidPathException("Destination " + vehicle.getDestination() + " doesn't exist in the system");
+			if(!IdTranslator.getInstance().isInTheSystem(vehicle.getPosition())) throw new InvalidPathException("Position " + vehicle.getPosition() + " doesn't exist in the system");
+			if(!IdTranslator.getInstance().isInTheSystem(vehicle.getOrigin())) throw new InvalidPathException("Destination " + vehicle.getOrigin() + " doesn't exist in the system");
+			
+			// Check type of the vehicle
+			if(vehicle.getType() == null) {
+				throw new InvalidVehicleTypeException("Wrong value for vehicle type.");
+			}
+			try { 
+				VehicleTypeType.valueOf(vehicle.getType().name()); 
+			}
+			catch(Exception e) {
+				throw new InvalidVehicleTypeException("Vehicle type " + vehicle.getType().name() + " is not acceptable.");
+			}
+			
+			// Check on the state
+			if(vehicle.getState() == null) {
+				throw new InvalidVehicleStateException("Wrong value for vehicle state.");
 			}
 			
 			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial().get(0));
@@ -176,7 +202,6 @@ public class RNSCore {
 				);
 				
 				// MATERIAL TRANSPORTED IF ANY
-				//System.out.println("[RNSCORE] Size materials: " + vehicle.getMaterial().size());
 				if(vehicle.getMaterial() != null && vehicle.getMaterial().size() != 0) {
 					if(vehicle.getMaterial().size() >= 1) {
 						for(String material : vehicle.getMaterial())
@@ -271,9 +296,11 @@ public class RNSCore {
 	 * Function to delete a vehicle from the database
 	 * @param vehicleId = id of the vehicle to be deleted
 	 */
-	public void deleteVehicle(String vehicleId) {
+	public synchronized void deleteVehicle(String vehicleId) {
 		Neo4jInteractions.getInstance().deleteNode(vehicleId, "Vehicle");
 		IdTranslator.getInstance().removeTranslation(vehicleId);
+		
+		// For each place is the old path we need to increase the capacity by 1
 		for(String id : this.vehiclePath.get(vehicleId).getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList()) ) {
 			Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(id);
 		}
@@ -292,8 +319,10 @@ public class RNSCore {
 	 * @throws VehicleAlreadyInSystemException 
 	 * @throws InvalidPathException 
 	 * @throws NonRecognizedMaterial 
+	 * @throws InvalidVehicleTypeException 
+	 * @throws InvalidVehicleStateException 
 	 */
-	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial {
+	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException {
 		// Check presence of the vehicle in the system
 		List<String> vehiclesLoadedIds = 
 				Neo4jInteractions.getInstance().getVehicles()
@@ -325,6 +354,7 @@ public class RNSCore {
 			Places places = (new ObjectFactory()).createPlaces();
 			places.getPlace().add(Neo4jInteractions.getInstance().getPlace(vehicle.getPosition()));
 			
+			// TODO: update of avgTime of the place
 			
 			return places;
 			

@@ -45,6 +45,10 @@ mat-card-title {
   justify-content: center;
 }
 
+button {
+  margin: 0 5px;
+}
+
 @media screen and (max-width: 991px) {
   .src-card, .dst-card, .vehicle, .search {
     margin-bottom: 10px;

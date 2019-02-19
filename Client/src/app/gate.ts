@@ -1,15 +1,10 @@
-export class Gate {
-  id: string = undefined;
-  name: string = undefined;
-  type: string = undefined;
-  capacity: number = undefined;
-  connectedPlaceId: string[] = undefined;
+import {Place} from './place';
 
-  constructor(id: string, name: string, type: string, capacity: number, connectedPlaceId: string[]) {
-    this.id = id;
-    this.name = name;
+export class Gate extends Place {
+  type: string = undefined;
+
+  constructor(id: string, name: string, capacity: number, connectedPlaceId: string[], type: string) {
+    super(id, name, capacity, connectedPlaceId);
     this.type = type;
-    this.capacity = capacity;
-    this.connectedPlaceId = connectedPlaceId;
   }
 }

@@ -1,17 +1,13 @@
-export class RoadSegment {
-  id: string = undefined;
-  name: string = undefined;
-  capacity: number = undefined;
+import {Place} from './place';
+
+export class RoadSegment extends Place {
   avgTimeSpent: number = undefined;
-  connectedPlaceId: string[] = undefined;
   containerPlaceId: string = undefined;
 
-  constructor(id: string, name: string, capacity: number, avgTimeSpent: number, connectedPlaceId: string[], containerPlaceId: string) {
-    this.id = id;
-    this.name = name;
-    this.capacity = capacity;
+
+  constructor(id: string, name: string, capacity: number, connectedPlaceId: string[], avgTimeSpent: number, containerPlaceId: string) {
+    super(id, name, capacity, connectedPlaceId);
     this.avgTimeSpent = avgTimeSpent;
-    this.connectedPlaceId = connectedPlaceId;
     this.containerPlaceId = containerPlaceId;
   }
 }

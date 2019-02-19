@@ -5,6 +5,7 @@ import { ParkingArea } from '../parkingArea';
 import { Rns } from '../rns';
 import { FormControl, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-path',
@@ -19,7 +20,9 @@ export class PathComponent implements OnInit {
   sourceId = new FormControl('', [Validators.required]);
   destinationId = new FormControl('', [Validators.required]);
 
-  constructor(private client: ClientHttpService, public snackBar: MatSnackBar) { }
+  constructor(private client: ClientHttpService,
+              public snackBar: MatSnackBar,
+              private router: Router) { }
 
   ngOnInit() {
     this.getSystem();
@@ -32,14 +35,14 @@ export class PathComponent implements OnInit {
       data => {
         const self = this;
         data.gate.forEach(function (g) {
-          self.gates.push(new Gate(g.id, g.name, g.type, g.capacity, g.connectedPlaceId));
+          self.gates.push(new Gate(g.id, g.name, g.capacity, g.connectedPlaceId, g.type));
         });
         data.parkingArea.forEach(function (p) {
-          self.parkings.push(new ParkingArea(p.id, p.name, p.capacity, p.avgTimeSpent, p.connectedPlaceId));
+          self.parkings.push(new ParkingArea(p.id, p.name, p.capacity, p.connectedPlaceId, p.avgTimeSpent,));
         });
       },
       err => {
-        console.log('ERROR:   ' + err.message);
+        this.openSnackBar(err.message, 'OK');
       }
     );
   }
@@ -53,10 +56,21 @@ export class PathComponent implements OnInit {
     if (this.sourceId.hasError('required')
         || this.destinationId.hasError('required')
         || this.vehicleId.hasError('required')) {
-      this.openSnackBar('You have to fill all fields', 'OK');
+
     } else {
-      // this.client.getSystem().subscribe();
-      this.openSnackBar('Ok', 'OK');
+      this.client.postVehicle(this.sourceId.value,
+        this.destinationId.value,
+        this.vehicleId.value,
+        this.sourceId.value,
+        []).subscribe(
+        data => {
+          console.log(data);
+          // this.router.navigate(['/route']);
+        },
+        err => {
+          this.openSnackBar(err.message, 'OK');
+        }
+      );
     }
   }
 
@@ -76,8 +90,8 @@ export class PathComponent implements OnInit {
   }
 
   reset() {
-    this.sourceId.setValue('');
-    this.destinationId.setValue('');
-    this.vehicleId.setValue('');
+    this.sourceId.reset();
+    this.destinationId.reset();
+    this.vehicleId.reset();
   }
 }

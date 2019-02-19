@@ -1,14 +1,11 @@
-export class ParkingArea {
-  id: string = undefined;
-  name: string = undefined;
-  capacity: number = undefined;
+import {Place} from './place';
+
+export class ParkingArea extends Place {
   avgTimeSpent: number = undefined;
   connectedPlaceId: string[] = undefined;
 
-  constructor(id: string, name: string, capacity: number, avgTimeSpent: number, connectedPlaceId: string[]) {
-    this.id = id;
-    this.name = name;
-    this.capacity = capacity;
+  constructor(id: string, name: string, capacity: number, connectedPlaceId: string[], avgTimeSpent: number) {
+    super(id, name, capacity, connectedPlaceId);
     this.avgTimeSpent = avgTimeSpent;
     this.connectedPlaceId = connectedPlaceId;
   }

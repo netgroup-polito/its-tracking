@@ -71,6 +71,8 @@
               (opened)="panelOpenState2 = true"
               (closed)="panelOpenState2 = false"
               (click)="fillSrcId(gate.id)"
+              *ngIf="gate.type === 'IN' ||
+                     gate.type === 'INOUT'"
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>
@@ -117,6 +119,8 @@
               (opened)="panelOpenState2 = true"
               (closed)="panelOpenState2 = false"
               (click)="fillDstId(gate.id)"
+              *ngIf="gate.type === 'OUT' ||
+                     gate.type === 'INOUT'"
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>

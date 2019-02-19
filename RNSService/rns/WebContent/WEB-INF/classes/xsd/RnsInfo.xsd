@@ -97,6 +97,14 @@
 		</complexType>
 	</element>
 	
+	<element name="ids">
+		<complexType>
+			<sequence>
+				<element name="id" type="string" minOccurs="0" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	
 	<element name="vehicles">
 		<complexType>
 			<sequence>

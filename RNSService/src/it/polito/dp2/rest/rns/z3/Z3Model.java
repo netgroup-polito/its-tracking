@@ -57,6 +57,7 @@ public class Z3Model {
 		mkOptimize = ctx.mkOptimize();
 		this.foundEnd = false;
 		
+		//System.out.println("Source: " + sourceNodeId + " --- Destination: " + destinationNodeId);
 		//System.out.println("############# INITIALIZATION OF Z3 MODEL #############");
 		this.sourceNodeId = sourceNodeId;
 		this.createBooleanExpressions(sourceNodeId, materialId, destinationNodeId, null, null, null, null);
@@ -136,7 +137,7 @@ public class Z3Model {
 	 */
 	public void createBooleanExpressions(String source, String materialId, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) {
 		DangerousMaterialImpl material = null;
-		if(materialId != null) {
+		if(materialId != null && !materialId.equals("")) {
 			material= new DangerousMaterialImpl(
 											materialId, 
 											Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)
@@ -212,6 +213,7 @@ public class Z3Model {
 		// Outgoing connections
 		for(String id : current.getConnectedPlaceId()) {
 			if(!tabuList.contains(id)) {
+				//System.out.println("Visiting next: " + id);
 				this.createBooleanExpressions(id, materialId, destination, tabuList, ctx.mkBoolConst("z_" + current.getId() + "_" + id), y_curr, source);
 			}
 		}		

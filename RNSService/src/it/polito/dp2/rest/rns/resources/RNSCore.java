@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
+import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
 import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.exceptions.VehicleAlreadyInSystemException;
@@ -81,20 +82,28 @@ public class RNSCore {
 	 * @throws VehicleAlreadyInSystemException --> id the vehicle has already been added into the system
 	 * @throws InvalidEntryPlaceException --> if the vehicle is trying to access the system from a gate that isn't of type IN or INOUT
 	 * @throws UnsatisfiableException 
+	 * @throws InvalidPathException 
 	 */
-	public Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException {
+	public Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException {
 		String id = "";
 		System.out.println("***************** ADD VEHICLE *********************");
+		
+		if(vehicle.getDestination().equals(vehicle.getOrigin())) {
+			throw new InvalidPathException("To get a meaningful path detination and origin has to be different.");
+		}
 		
 		// CURRENT POSITION
 		if(vehicle.getPosition() != null) {
 			// Check presence of the vehicle in the system
-			List<String> vehiclesLoadedIds = 
-					Neo4jInteractions.getInstance().getVehicles()
-							.stream()
-							.map(VehicleReaderType::getId)
-							.collect(Collectors.toList());
-			if(vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleAlreadyInSystemException("Vehicle " + vehicle.getId() + " has already been added to the system."));
+			List<VehicleReaderType> vehicles = Neo4jInteractions.getInstance().getVehicles();
+			
+			if(vehicles != null && vehicles.size() > 0 && !vehicles.isEmpty()) {
+				List<String> vehiclesLoadedIds = vehicles.stream()
+						.map(VehicleReaderType::getId)
+						.collect(Collectors.toList());
+						
+				if(vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleAlreadyInSystemException("Vehicle " + vehicle.getId() + " has already been added to the system."));
+			}
 			
 			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial().get(0));
 			List<String> path = z3.findPath();
@@ -137,14 +146,17 @@ public class RNSCore {
 				);
 				
 				// MATERIAL TRANSPORTED IF ANY
-				if(vehicle.getMaterial() != null) {
+				System.out.println("[RNSCORE] Size materials: " + vehicle.getMaterial().size());
+				if(vehicle.getMaterial() != null && vehicle.getMaterial().size() != 0) {
 					if(vehicle.getMaterial().size() >= 1) {
 						for(String material : vehicle.getMaterial())
-							Neo4jInteractions.getInstance().connectNodes(
-									vehicle.getId(), 
-									material, 
-									"transports"
-							);
+							if(!material.equals("") && material != null) {
+								Neo4jInteractions.getInstance().connectNodes(
+										vehicle.getId(), 
+										material, 
+										"transports"
+								);
+							}
 					}
 				}
 				
@@ -255,8 +267,9 @@ public class RNSCore {
 	 * @throws UnsatisfiableException 
 	 * @throws InvalidEntryPlaceException 
 	 * @throws VehicleAlreadyInSystemException 
+	 * @throws InvalidPathException 
 	 */
-	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException {
+	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException {
 		// Check presence of the vehicle in the system
 		List<String> vehiclesLoadedIds = 
 				Neo4jInteractions.getInstance().getVehicles()
@@ -337,8 +350,12 @@ public class RNSCore {
 	 * @param destinationId = last node
 	 * @param sourceId = source node
 	 * @return an object containing the places in the correct order
+	 * @throws InvalidPathException 
 	 */
-	private Places orderPlaces(List<String> path, String destinationId, String sourceId) {
+	private Places orderPlaces(List<String> path, String destinationId, String sourceId) throws InvalidPathException {
+		if(path.size() == 0 || path == null)
+			throw new InvalidPathException("Couldn't find a correct path.");
+		
 		// I HAVE TO RETURN IN ORDER THE PLACES
 		Places places = (new ObjectFactory()).createPlaces();
 		String currentId = path.stream().filter((place) -> place.equals(sourceId)).findFirst().get();

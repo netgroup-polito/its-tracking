@@ -265,7 +265,7 @@
 			<extension base="tns:SimplePlaceReaderType">
 				<sequence>
 					<element 	name="service"
-								type="tns:ServiceType"
+								type="string"
 								minOccurs="0" maxOccurs="unbounded"/>
 				</sequence>
 			</extension>

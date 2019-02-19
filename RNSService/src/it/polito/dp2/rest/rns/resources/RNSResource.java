@@ -46,7 +46,7 @@ public class RNSResource {
 			MediaType.TEXT_PLAIN
 	})
 	public Response getSystemState(@Context HttpHeaders headers) {
-		RnsReaderType rns = RNSCore.getInstance().getSystem();
+		RnsReaderType rns = RNSCore.getInstance().getSystem(false);
 		JAXBElement<RnsReaderType> rnsJaxb = (new ObjectFactory()).createRns(rns);
 		return 
 			(headers.getAcceptableMediaTypes().get(0).toString().equals(MediaType.APPLICATION_XML.toString()))

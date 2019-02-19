@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
+import it.polito.dp2.rest.rns.exceptions.InvalidEntryTimeException;
 import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
 import it.polito.dp2.rest.rns.exceptions.InvalidVehicleStateException;
 import it.polito.dp2.rest.rns.exceptions.InvalidVehicleTypeException;
@@ -29,6 +32,8 @@ import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
 import it.polito.dp2.rest.rns.jaxb.Vehicles;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
+import it.polito.dp2.rest.rns.utility.Constants;
+import it.polito.dp2.rest.rns.utility.DateConverter;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
 import it.polito.dp2.rest.rns.utility.MapLoader;
 import it.polito.dp2.rest.rns.z3.Z3;
@@ -93,8 +98,9 @@ public class RNSCore {
 	 * @throws NonRecognizedMaterial 
 	 * @throws InvalidVehicleTypeException 
 	 * @throws InvalidVehicleStateException 
+	 * @throws InvalidEntryTimeException 
 	 */
-	public synchronized Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException {
+	public synchronized Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException {
 		String id = "";
 		System.out.println("***************** ADD VEHICLE *********************");
 		
@@ -157,6 +163,11 @@ public class RNSCore {
 				throw new InvalidVehicleStateException("Wrong value for vehicle state.");
 			}
 			
+			// Check that the entry time isn't null or empty
+			if(vehicle.getEntryTime() == null || vehicle.getEntryTime().toString().equals("")) {
+				throw new InvalidEntryTimeException("Vehicle must have entry time specified");
+			}
+			
 			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial().get(0));
 			List<String> path = z3.findPath();
 			
@@ -214,6 +225,10 @@ public class RNSCore {
 							}
 					}
 				}
+				
+				// UPDATE THE COUNTER OF VEHICLE THAT HAS BEEN IN THAT PLACE (POSITION OF THE VEHICLE)
+				int prev = Constants.countVehiclePlace.get(vehicle.getPosition());
+				Constants.countVehiclePlace.put(vehicle.getPosition(), prev + 1);
 				
 				return places;
 			} else {
@@ -297,14 +312,17 @@ public class RNSCore {
 	 * @param vehicleId = id of the vehicle to be deleted
 	 */
 	public synchronized void deleteVehicle(String vehicleId) {
+		System.out.println("Deleting vehicle " + vehicleId);
 		Neo4jInteractions.getInstance().deleteNode(vehicleId, "Vehicle");
 		IdTranslator.getInstance().removeTranslation(vehicleId);
 		
-		// For each place is the old path we need to increase the capacity by 1
-		for(String id : this.vehiclePath.get(vehicleId).getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList()) ) {
-			Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(id);
+		if(this.vehiclePath.containsKey(vehicleId)) {
+			// For each place is the old path we need to increase the capacity by 1
+			for(String id : this.vehiclePath.get(vehicleId).getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList()) ) {
+				Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(id);
+			}
+			this.vehiclePath.remove(vehicleId);
 		}
-		this.vehiclePath.remove(vehicleId);
 	}
 
 	/**
@@ -321,8 +339,9 @@ public class RNSCore {
 	 * @throws NonRecognizedMaterial 
 	 * @throws InvalidVehicleTypeException 
 	 * @throws InvalidVehicleStateException 
+	 * @throws InvalidEntryTimeException 
 	 */
-	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException {
+	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException {
 		// Check presence of the vehicle in the system
 		List<String> vehiclesLoadedIds = 
 				Neo4jInteractions.getInstance().getVehicles()
@@ -331,11 +350,15 @@ public class RNSCore {
 						.collect(Collectors.toList());
 		if(!vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleNotInSystemException("Vehicle " + vehicle.getId() + " is not currently in the system."));
 		
-		long occurrences = this.vehiclePath.get(vehicle.getId())
-										.getPlace()
-										.stream()
-										.filter((place) -> place.getId().equals(vehicle.getPosition()))
-										.count();
+		long occurrences = 0;
+		if(this.vehiclePath.containsKey(vehicle.getId()))
+			occurrences = this.vehiclePath.get(vehicle.getId())
+											.getPlace()
+											.stream()
+											.filter((place) -> place.getId().equals(vehicle.getPosition()))
+											.count();
+		
+		VehicleReaderType currentVehicle = Neo4jInteractions.getInstance().getVehicle(vehicle.getId());
 		
 		if(occurrences != 0) { // Still following the path
 			// Check on the capacity of the place
@@ -345,7 +368,7 @@ public class RNSCore {
 			// Can update
 			System.out.println("*************** UPDATE VEHICLE POSITION ****************");
 			System.out.println("Updating position of vehicle " + vehicle.getId());
-			VehicleReaderType currentVehicle = Neo4jInteractions.getInstance().getVehicle(vehicle.getId());
+			
 			System.out.println("\tFROM: " + currentVehicle.getPosition());
 			System.out.println("\tTO: " + vehicle.getPosition());
 			Neo4jInteractions.getInstance().updatePositionVehicle(vehicle, currentVehicle.getPosition());
@@ -354,16 +377,34 @@ public class RNSCore {
 			Places places = (new ObjectFactory()).createPlaces();
 			places.getPlace().add(Neo4jInteractions.getInstance().getPlace(vehicle.getPosition()));
 			
-			// TODO: update of avgTime of the place
+			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
 			
 			return places;
 			
 		} else { // Need to recompute the path
+			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
+			
 			this.deleteVehicle(vehicle.getId());
 			Places places = this.addVehicle(vehicle);
 			
 			return places;
 		}
+	}
+
+	/**
+	 * Function to update the avg time of a place
+	 * @param placeId = id of the place
+	 * @param entryTime = entry time 
+	 * @param exitTime = exit time
+	 */
+	private void updateAvgTimePlace(String placeId, XMLGregorianCalendar entryTime, XMLGregorianCalendar exitTime) {
+		int counter = Constants.countVehiclePlace.get(placeId);
+		long duration = DateConverter.getDurationFromXMLGregorianCalendar(entryTime, exitTime);
+		System.out.println("Duration: " + duration + " -- Old counter: " + counter);
+		counter++;
+		
+		Neo4jInteractions.getInstance().updateAvgTimeSpentPlace(placeId, duration, counter);
+		
 	}
 
 	/**
@@ -386,15 +427,26 @@ public class RNSCore {
 	 * in the database.
 	 * @return an object containing such information
 	 */
-	public RnsReaderType getSystem() {
+	public RnsReaderType getSystem(Boolean withVehicles) {
 		RnsReaderType rns = (new ObjectFactory()).createRnsReaderType();
-		
+
 		for(GateReaderType gate : Neo4jInteractions.getInstance().getGates()) rns.getGate().add(gate);
 		for(RoadSegmentReaderType roadSegment : Neo4jInteractions.getInstance().getRoadSegments()) rns.getRoadSegment().add(roadSegment);
 		for(ParkingAreaReaderType parkingArea : Neo4jInteractions.getInstance().getParkingAreas()) rns.getParkingArea().add(parkingArea);
-		//for(VehicleReaderType vehicle : Neo4jInteractions.getInstance().getVehicles()) rns.getVehicle().add(vehicle);
+		
+		if(withVehicles)
+			for(VehicleReaderType vehicle : Neo4jInteractions.getInstance().getVehicles()) rns.getVehicle().add(vehicle);
 		
 		return rns;
+	}
+	
+	/**
+	 * Function to retrieve all informations currently stored 
+	 * in the database.
+	 * @return an object containing such information
+	 */
+	public RnsReaderType getSystemTot() {
+		return this.getSystem(true);
 	}
 	
 	/**

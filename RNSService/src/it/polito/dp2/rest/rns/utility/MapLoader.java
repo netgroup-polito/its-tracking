@@ -12,9 +12,7 @@ import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
-import it.polito.dp2.rest.rns.jaxb.ServiceType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
@@ -166,10 +164,8 @@ public class MapLoader {
 					if(node.getNodeName().equals("name")) park.setName(node.getTextContent());
 					if(node.getNodeName().equals("capacity")) park.setCapacity(new BigInteger(node.getTextContent()));
 					if(node.getNodeName().equals("connectedPlace")) park.getConnectedPlaceId().add(node.getTextContent());
-					if(node.getNodeName().equals("service")) { 
-						ServiceType service = (new ObjectFactory()).createServiceType();
-						service.setName(node.getTextContent());
-						park.getService().add(service);
+					if(node.getNodeName().equals("service")) {
+						park.getService().add(node.getTextContent());
 					}
 					if(node.getNodeName().equals("avgTimeSpent")) { 
 						//System.err.println("Node: " + eElement.getAttribute("id") + " avgTimeSpent: " + node.getTextContent());
@@ -181,6 +177,7 @@ public class MapLoader {
 				String parkId = neo4j.createNode(park);
 				id2neo4j.addIdTranslation(park.getId(), parkId);
 				parkings.add(park);
+				Constants.countVehiclePlace.put(park.getId(), 0);
 			}
 		}
 	}
@@ -216,6 +213,7 @@ public class MapLoader {
 				String roadSegmentId = neo4j.createNode(roadSegment);
 				id2neo4j.addIdTranslation(roadSegment.getId(), roadSegmentId);
 				roadSegments.add(roadSegment);
+				Constants.countVehiclePlace.put(roadSegment.getId(), 0);
 			}
 		}
 		
@@ -275,6 +273,7 @@ public class MapLoader {
 				String gateId = neo4j.createNode(gate);
 				id2neo4j.addIdTranslation(gate.getId(), gateId);
 				gates.add(gate);
+				Constants.countVehiclePlace.put(gate.getId(), 0);
 			}
 		}
 	}

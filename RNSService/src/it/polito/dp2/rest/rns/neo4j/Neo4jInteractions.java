@@ -15,7 +15,6 @@ import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
-import it.polito.dp2.rest.rns.jaxb.ServiceType;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleStateType;
@@ -140,7 +139,7 @@ public class Neo4jInteractions implements AutoCloseable {
 		String query = StatementBuilder.getInstance().deleteByTypeAndIdStatement(
 				IdTranslator.getInstance().getIdTranslation(nodeId),  
 				type);
-		
+
 		try ( Session session = driver.session() )
         {
             session.writeTransaction( new TransactionWork<String>()
@@ -216,6 +215,7 @@ public class Neo4jInteractions implements AutoCloseable {
 							gate.getConnectedPlaceId().add(IdTranslator.getInstance().fromNeo4jId(
 									String.valueOf((int) r.get(1).asInt())
 								));
+							gate.setAvgTimeSpent((new BigInteger(Long.toString((Long) r.get(0).asMap().get("avgTimeSpent")))));
 							
 							map.put(
 								gate.getId(),
@@ -411,6 +411,7 @@ public class Neo4jInteractions implements AutoCloseable {
 									IdTranslator.getInstance().fromNeo4jId(
 											String.valueOf((int) r.get(1).asInt())
 										));
+							//System.out.println("Services for " + park.getId() + " " + r.get(0).asMap().get("service"));
 							String[] servicesString = r.get(0).asMap().get("service")
 														.toString()
 														.replace("[", "")
@@ -418,9 +419,9 @@ public class Neo4jInteractions implements AutoCloseable {
 														.replace(",", "")
 														.split(" ");
 							for(String s : servicesString) {
-								ServiceType service = (new ObjectFactory()).createServiceType();
-								service.setName(s);
-								park.getService().add(service);
+								if(!s.equals("")) {
+									park.getService().add(s);
+								}
 							}
 						
 							map.put(
@@ -841,5 +842,38 @@ public class Neo4jInteractions implements AutoCloseable {
         		e.printStackTrace();
         }
 		return null;
+	}
+
+	/**
+	 * Function to update the average time spent in a place
+	 * @param duration = duration to be added
+	 * @param counter = counter by which divide
+	 */
+	public void updateAvgTimeSpentPlace(String id, long duration, int counter) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getUpdateAvgTimeStatementById(
+										IdTranslator.getInstance().getIdTranslation(id),
+										duration,
+										counter
+								);
+			
+			session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+                	tx.run(query);
+					
+					return true;
+                }
+            } );
+            
+			session.close();
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
 	}
 }

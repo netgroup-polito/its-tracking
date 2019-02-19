@@ -7,7 +7,6 @@ import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
-import it.polito.dp2.rest.rns.jaxb.ServiceType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 
 public class StatementBuilder {
@@ -103,12 +102,12 @@ public class StatementBuilder {
 		return query;
 	}
 	
-	private String getCorrectStringFromListService(List<ServiceType> serviceList) {
+	private String getCorrectStringFromListService(List<String> serviceList) {
 		String result = "[";
 		
 		int i = 0;
-		for(ServiceType service : serviceList) {
-			result += "'" + service.getName() + "'";
+		for(String service : serviceList) {
+			result += "'" + service + "'";
 			if(i < serviceList.size() - 1) result += ", ";
 			i++;
 		}
@@ -342,6 +341,21 @@ public class StatementBuilder {
 	public String getDecreaseStatementById(String id) {
 		String query = "MATCH (n) WHERE id(n) = " + id + " "
 				+ "SET n.capacity = n.capacity - 1 "
+				+ "RETURN n";
+		return query;
+	}
+
+	/**
+	 * Function to obtain the query that updates the avgTime of
+	 * a place
+	 * @param id = id of the place
+	 * @param duration = duration to be added
+	 * @param counter = counter to which divide
+	 * @return the corresponding query
+	 */
+	public String getUpdateAvgTimeStatementById(String id, long duration, int counter) {
+		String query = "MATCH(n) WHERE id(n) = " + id + " "
+				+ "SET n.avgTimeSpent = (n.avgTimeSpent + " + duration + ") / " + counter + " "
 				+ "RETURN n";
 		return query;
 	}

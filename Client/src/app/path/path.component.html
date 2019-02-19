@@ -2,30 +2,57 @@
 
   <mat-card class="top-card">
     <mat-card-title>
-      Select Vehicle
+      Search Path
     </mat-card-title>
 
     <div class="vehicle">
-      <p>Select your vehicle Id from the list if present, or write it in the form</p>
-      <mat-form-field>
-        <mat-select placeholder="Vehicle Id">
-          <mat-option *ngFor="let vehicle of vehicles" [value]="vehicle.id"
-                      (onSelectionChange)="setValueVehicleId(vehicle.id)">
-            {{vehicle.name}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+      <div class="search-container">
+        <mat-form-field>
+          <input matInput
+                 placeholder="Enter your Vehicle Id"
+                 matTooltip="Enter your Vehicle Id"
+                 [formControl]="vehicleId"
+                 (keyup.enter)="searchPath()"
+                 required>
+          <mat-error *ngIf="vehicleId.invalid">{{getErrorMessage()}}</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput
+                 placeholder="Select source from list"
+                 matTooltip="Select source from list"
+                 [formControl]="sourceId"
+                 (keyup.enter)="searchPath()"
+                 required>
+          <mat-error *ngIf="sourceId.invalid">{{getErrorMessage()}}</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput
+                 placeholder="Select destination from list"
+                 matTooltip="Select destination from list"
+                 [formControl]="destinationId"
+                 (keyup.enter)="searchPath()"
+                 required>
+          <mat-error *ngIf="destinationId.invalid">{{getErrorMessage()}}</mat-error>
+        </mat-form-field>
+      </div>
     </div>
 
     <div  class="search">
-      <p>
-        <button mat-raised-button color="primary"
+      <div class="button-container">
+        <button mat-fab color="primary"
                 class="fab-button done"
                 matTooltip="Search Path"
                 (click)='searchPath()'>
-          Search Path
+          <mat-icon>done</mat-icon>
         </button>
-      </p>
+
+        <button mat-fab
+                matTooltip="Reset"
+                (click)='reset()'>
+          <mat-icon>delete</mat-icon>
+        </button>
+
+      </div>
     </div>
   </mat-card>
 
@@ -43,13 +70,14 @@
               [expanded]="false"
               (opened)="panelOpenState2 = true"
               (closed)="panelOpenState2 = false"
+              (click)="fillSrcId(gate.id)"
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  <p>Id: {{gate.id}}</p>
+                  <p>{{gate.name}}</p>
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <p><span>Name: </span>{{gate.name}}</p>
+              <p><span>Id: </span>{{gate.id}}</p>
               <p><span>Type: </span>{{gate.type}}</p>
             </mat-expansion-panel>
           </li>
@@ -58,13 +86,14 @@
               [expanded]="false"
               (opened)="panelOpenState2 = true"
               (closed)="panelOpenState2 = false"
+              (click)="fillSrcId(parking.id)"
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  <p>Id: {{parking.id}}</p>
+                  <p>{{parking.name}}</p>
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <p><span>Name: </span>{{parking.name}}</p>
+              <p><span>Id: </span>{{parking.id}}</p>
               <p><span>Capacity: </span>{{parking.capacity}}</p>
             </mat-expansion-panel>
           </li>
@@ -87,13 +116,14 @@
               [expanded]="false"
               (opened)="panelOpenState2 = true"
               (closed)="panelOpenState2 = false"
+              (click)="fillDstId(gate.id)"
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  <p>Id: {{gate.id}}</p>
+                  <p>{{gate.name}}</p>
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <p><span>Name: </span>{{gate.name}}</p>
+              <p><span>Id: </span>{{gate.id}}</p>
               <p><span>Type: </span>{{gate.type}}</p>
             </mat-expansion-panel>
           </li>
@@ -102,13 +132,14 @@
               [expanded]="false"
               (opened)="panelOpenState2 = true"
               (closed)="panelOpenState2 = false"
+              (click)="fillDstId(parking.id)"
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  <p>Id: {{parking.id}}</p>
+                  <p>{{parking.name}}</p>
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <p><span>Name: </span>{{parking.name}}</p>
+              <p><span>Id: </span>{{parking.id}}</p>
               <p><span>Capacity: </span>{{parking.capacity}}</p>
             </mat-expansion-panel>
           </li>

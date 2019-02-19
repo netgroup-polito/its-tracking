@@ -3,6 +3,10 @@ li {
   list-style: none;
 }
 
+mat-form-field {
+  margin: 0 5px;
+}
+
 .src-card {
   float: left;
   width: 47%;
@@ -26,21 +30,23 @@ mat-card-title {
 }
 
 .vehicle{
-  width: 70%;
+  width: 80%;
   display: inline-block;
 }
 
 .search {
-  width: 30%;
+  width: 20%;
   display: inline-block;
 }
 
-.button-container {
-  text-align: center;
+.button-container, .search-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media screen and (max-width: 991px) {
-  .src-card, .dst-card {
+  .src-card, .dst-card, .vehicle, .search {
     margin-bottom: 10px;
     float: none;
     width: 100%;

@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ClientHttpService } from '../client-http.service';
 import { Gate } from '../gate';
 import { ParkingArea } from '../parkingArea';
-import {Rns} from '../rns';
-import {Vehicle} from '../vehicle';
+import { Rns } from '../rns';
+import { FormControl, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'app-path',
@@ -14,10 +15,11 @@ export class PathComponent implements OnInit {
   rns: Rns;
   gates: Gate[];
   parkings: ParkingArea[];
-  vehicles: Vehicle[];
-  vehicleId: string;
+  vehicleId = new FormControl('', [Validators.required]);
+  sourceId = new FormControl('', [Validators.required]);
+  destinationId = new FormControl('', [Validators.required]);
 
-  constructor(private client: ClientHttpService) { }
+  constructor(private client: ClientHttpService, public snackBar: MatSnackBar) { }
 
   ngOnInit() {
     this.getSystem();
@@ -26,7 +28,6 @@ export class PathComponent implements OnInit {
   getSystem() {
     this.gates = [];
     this.parkings = [];
-    this.vehicles = [];
     this.client.getSystem().subscribe(
       data => {
         const self = this;
@@ -36,11 +37,6 @@ export class PathComponent implements OnInit {
         data.parkingArea.forEach(function (p) {
           self.parkings.push(new ParkingArea(p.id, p.name, p.capacity, p.avgTimeSpent, p.connectedPlaceId));
         });
-        data.vehicle.forEach(function (v) {
-          self.vehicles.push(
-            new Vehicle(v.id, v.name, v.destination, v.origin, v.position, v.entrytime, v.state, v.type)
-          );
-        });
       },
       err => {
         console.log('ERROR:   ' + err.message);
@@ -48,11 +44,40 @@ export class PathComponent implements OnInit {
     );
   }
 
-  setValueVehicleId(id: string) {
-    this.vehicleId = id;
+  getErrorMessage() {
+    return this.vehicleId.hasError('required') ? 'You must enter a value' :
+        '';
   }
 
   searchPath() {
-    return null;
+    if (this.sourceId.hasError('required')
+        || this.destinationId.hasError('required')
+        || this.vehicleId.hasError('required')) {
+      this.openSnackBar('You have to fill all fields', 'OK');
+    } else {
+      // this.client.getSystem().subscribe();
+      this.openSnackBar('Ok', 'OK');
+    }
+  }
+
+  fillSrcId(id: string) {
+    this.sourceId.setValue(id);
+  }
+
+  fillDstId(id: string) {
+    this.destinationId.setValue(id);
+
+  }
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 2000,
+    });
+  }
+
+  reset() {
+    this.sourceId.setValue('');
+    this.destinationId.setValue('');
+    this.vehicleId.setValue('');
   }
 }

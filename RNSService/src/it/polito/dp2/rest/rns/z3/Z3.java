@@ -20,7 +20,7 @@ public class Z3 {
 	 * @return the list of ids included in the path or an empty list otherwise
 	 */
 	public List<String> findPath() {
-		System.out.println("############# MODEL #############");
+		//System.out.println("############# MODEL #############");
 		Model result = this.model.evaluateModel();
 		List<String> resultList = new ArrayList<String>();
 		

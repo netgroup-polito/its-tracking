@@ -278,7 +278,7 @@ public class Neo4jInteractions implements AutoCloseable {
 						VehicleReaderType vehicle = (new ObjectFactory()).createVehicleReaderType();
 						
 						for( Value entry : r.values()) {
-							System.out.println("[NEO4J] " + (String) entry.asMap().get("type"));
+							//System.out.println("[NEO4J] " + (String) entry.asMap().get("type"));
 							vehicle.setName((String) entry.asMap().get("name"));
 							vehicle.setId((String) entry.asMap().get("id"));
 							vehicle.setType(VehicleTypeType.fromValue((String) entry.asMap().get("type")));
@@ -464,7 +464,7 @@ public class Neo4jInteractions implements AutoCloseable {
 					);
 			//System.out.println("Query delete: " + queryDelete);
 			//System.out.println("Query connect: " + queryConnect);
-			System.out.println("Query update: " + queryUpdate);
+			//System.out.println("Query update: " + queryUpdate);
             session.writeTransaction( new TransactionWork<Boolean>()
             {
                 @Override

@@ -213,7 +213,7 @@ public class Z3Model {
 		// Outgoing connections
 		for(String id : current.getConnectedPlaceId()) {
 			if(!tabuList.contains(id)) {
-				//System.out.println("Visiting next: " + id);
+				//System.out.println("+++++ Visiting next: " + id);
 				this.createBooleanExpressions(id, materialId, destination, tabuList, ctx.mkBoolConst("z_" + current.getId() + "_" + id), y_curr, source);
 			}
 		}		

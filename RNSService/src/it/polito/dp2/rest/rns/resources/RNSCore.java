@@ -105,16 +105,34 @@ public class RNSCore {
 				if(vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleAlreadyInSystemException("Vehicle " + vehicle.getId() + " has already been added to the system."));
 			}
 			
+			// Check if the ORIGIN if it is a gate of type IN or INOUT
+			GateReaderType origin = this.getGate(vehicle.getOrigin());
+			if(origin != null) {
+				if(origin.getType().toString().equals("OUT"))
+					throw(new InvalidEntryPlaceException("The gate " + vehicle.getOrigin() +" you're trying to enter the system from, is not of type IN, neither INOUT."));
+			}
+			
+			// Check if the DESTINATION if it is a gate of type OUT
+			GateReaderType destination = this.getGate(vehicle.getDestination());
+			if(destination != null) {
+				if(destination.getType().toString().equals("IN"))
+					throw(new InvalidEntryPlaceException("The gate " + vehicle.getDestination() +" you're trying to exit the system from, is not of type OUT, neither INOUT."));
+			}
+			
 			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial().get(0));
 			List<String> path = z3.findPath();
 			
 			if(path != null) {
-				// Check if the ORIGIN is a gate of type IN or INOUT
-				GateReaderType origin = this.getGate(vehicle.getOrigin());
-				if(origin != null) {
-					if(origin.getType().toString().equals("OUT"))
-						throw(new InvalidEntryPlaceException("The gate " + vehicle.getOrigin() +" you're trying to enter the system from, is not of type IN, neither INOUT."));
+				
+				// So that if we throw an exception because we couldn't find a path
+				// we don't add anything
+				Places places = this.orderPlaces(path, vehicle.getDestination(), vehicle.getPosition());
+				this.vehiclePath.put(vehicle.getId(), places);
+				
+				for(String idPlace : places.getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList())) {
+					Neo4jInteractions.getInstance().decreaseCapacityOfNodeGivenId(idPlace);
 				}
+				
 				id = Neo4jInteractions.getInstance().createNode(vehicle);
 				//System.out.println("Added new VEHICLE: "+ id);
 				IdTranslator.getInstance().addIdTranslation(vehicle.getId(), id);
@@ -146,7 +164,7 @@ public class RNSCore {
 				);
 				
 				// MATERIAL TRANSPORTED IF ANY
-				System.out.println("[RNSCORE] Size materials: " + vehicle.getMaterial().size());
+				//System.out.println("[RNSCORE] Size materials: " + vehicle.getMaterial().size());
 				if(vehicle.getMaterial() != null && vehicle.getMaterial().size() != 0) {
 					if(vehicle.getMaterial().size() >= 1) {
 						for(String material : vehicle.getMaterial())
@@ -158,13 +176,6 @@ public class RNSCore {
 								);
 							}
 					}
-				}
-				
-				Places places = this.orderPlaces(path, vehicle.getDestination(), vehicle.getPosition());
-				this.vehiclePath.put(vehicle.getId(), places);
-				
-				for(String idPlace : places.getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList())) {
-					Neo4jInteractions.getInstance().decreaseCapacityOfNodeGivenId(idPlace);
 				}
 				
 				return places;

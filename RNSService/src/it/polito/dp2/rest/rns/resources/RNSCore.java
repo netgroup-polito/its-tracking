@@ -366,6 +366,11 @@ public class RNSCore {
 			Neo4jInteractions.getInstance().updatePositionVehicle(vehicle, currentVehicle.getPosition());
 			Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(currentVehicle.getPosition());
 			
+			// Delete the current place from the vehicle path
+			Places path = this.vehiclePath.get(currentVehicle.getId());
+			path.getPlace().removeIf((place) -> place.getId().equals(currentVehicle.getPosition()));
+			
+			// Return the current position
 			Places places = (new ObjectFactory()).createPlaces();
 			places.getPlace().add(Neo4jInteractions.getInstance().getPlace(vehicle.getPosition()));
 			

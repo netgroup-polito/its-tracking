@@ -148,7 +148,7 @@
 	<element name="dangerousMaterials">
 		<complexType>
 			<sequence>
-				<element name="dangerousMaterial" type="tns:DangerousMaterialType" minOccurs="1" maxOccurs="unbounded"/>
+				<element name="dangerousMaterial" type="string" minOccurs="1" maxOccurs="unbounded"/>
 			</sequence>
 		</complexType>
 	</element>

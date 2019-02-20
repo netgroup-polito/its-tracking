@@ -541,13 +541,28 @@ public class RNSCore {
 	 * the database
 	 * @return the dangerous materials object
 	 */
-	public Object getDangerousMaterials() {
+	public DangerousMaterials getDangerousMaterials() {
 		DangerousMaterials ms = (new ObjectFactory()).createDangerousMaterials();
 		List<DangerousMaterialType> materialsList = Neo4jInteractions.getInstance().getDangerousMaterials();
 		
 		for(DangerousMaterialType material : materialsList) {
-			ms.getDangerousMaterial().add(material);
+			ms.getDangerousMaterial().add(material.getId());
 		}
 		return ms;
+	}
+	
+	/**
+	 * Function to retrieve a specific dangerous material from the database
+	 * @param id = the id of the desired material
+	 * @return the dangerous material object
+	 */
+	public DangerousMaterialType getDangerousMaterial(String id) {
+		List<DangerousMaterialType> materialsList = Neo4jInteractions.getInstance().getDangerousMaterials();
+		
+		for(DangerousMaterialType material : materialsList) {
+			if(material.getId().equals(id)) return material;
+		}
+		
+		return null;
 	}
 }

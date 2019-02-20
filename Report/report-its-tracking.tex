@@ -1,0 +1,57 @@
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{titlesec}
+\usepackage{comment}
+\usepackage{listings, xcolor}
+ 
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt
+]{biblatex}
+\addbibresource{literatur.bib}
+
+\usepackage{graphicx}
+\graphicspath{{images/}}   % where are the images
+
+\author{Eugenio\ Gallea (s241876) \\ Stefano\ Roagna (s241845)}
+\title{"It's tracking"\ Term Report \\ Distributed Programming 2}
+\date{February 2018}
+
+\titleformat{\chapter}
+  {\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+\lstset{
+tabsize = 4, %% Sets tab space width.
+showstringspaces = false, %% Prevents space marking in strings, string is defined as the text that is generally printed directly to the console.
+numbers = left, %% Displays line numbers on the left.
+commentstyle = \color{green}, %% Sets comment color.
+keywordstyle = \color{blue}, %% Sets  keyword color.
+stringstyle = \color{red}, %% Sets  string color.
+rulecolor = \color{black}, %% Sets frame color to avoid being affected by text color.
+basicstyle = \small \ttfamily , %% Sets listing font and size.
+breaklines = true, %% Enables line breaking.
+numberstyle = \tiny,
+}
+
+%%%----------------------------------------------------------
+\begin{document}
+%%%----------------------------------------------------------
+\maketitle
+\tableofcontents
+%%%----------------------------------------------------------
+\include{summary}
+%%%----------------------------------------------------------
+\include{architecture}
+%%%----------------------------------------------------------
+\include{implementation}
+%%%----------------------------------------------------------
+\include{neo4j}
+%%%----------------------------------------------------------
+\include{z3}
+%%%----------------------------------------------------------
+\include{references}
+
+\end{document}

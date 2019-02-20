@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import {Place} from './place';
+import {Path} from './path';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PathService {
-  path: Place[];
+  path: Path;
   constructor() { }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {Place} from '../place';
+import {Path} from '../path';
 import {PathService} from '../path.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-routes',
@@ -8,13 +9,16 @@ import {PathService} from '../path.service';
   styleUrls: ['./routes.component.css']
 })
 export class RoutesComponent implements OnInit {
-  path: Place[];
+  path: Path;
 
-  constructor(public pathService: PathService) { }
+  constructor(public pathService: PathService, private router: Router) { }
 
   ngOnInit() {
-    this.path = this.pathService.path;
-    console.log(this.path);
+    if (this.pathService.path !== undefined) {
+      this.path = this.pathService.path;
+    } else {
+      this.router.navigate(['/home']);
+    }
   }
 
 }

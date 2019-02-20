@@ -40,7 +40,7 @@ export class PathComponent implements OnInit {
           self.gates.push(new Gate(g.id, g.name, g.capacity, g.connectedPlaceId, g.type));
         });
         data.parkingArea.forEach(function (p) {
-          self.parkings.push(new ParkingArea(p.id, p.name, p.capacity, p.connectedPlaceId, p.avgTimeSpent,));
+          self.parkings.push(new ParkingArea(p.id, p.name, p.capacity, p.connectedPlaceId, p.avgTimeSpent));
         });
       },
       err => {

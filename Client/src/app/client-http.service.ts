@@ -3,6 +3,7 @@ import {  HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Rns } from './rns';
 import { Place } from './place';
+import {Path} from './path';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,6 @@ export class ClientHttpService {
       material: ''
     };
 
-    return this.http.post<Place[]>(this.path + 'vehicles', json, {});
+    return this.http.post<Path>(this.path + 'vehicles', json, {});
   }
 }

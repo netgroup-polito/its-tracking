@@ -1,0 +1,12 @@
+li {
+  margin: 10px 10px 15px;
+  list-style: none;
+}
+
+mat-form-field {
+  margin: 0 5px;
+}
+
+mat-card-title {
+  text-align: center;
+}

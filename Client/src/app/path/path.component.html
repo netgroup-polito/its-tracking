@@ -13,7 +13,7 @@
                  [formControl]="vehicleId"
                  (keyup.enter)="searchPath()"
                  required>
-          <mat-error *ngIf="vehicleId.invalid">{{getErrorMessage()}}</mat-error>
+          <mat-error *ngIf="vehicleId.hasError('required')">{{getErrorMessage(vehicleId)}}</mat-error>
         </mat-form-field>
         <mat-form-field>
           <input matInput
@@ -22,7 +22,7 @@
                  [formControl]="sourceId"
                  (keyup.enter)="searchPath()"
                  required>
-          <mat-error *ngIf="sourceId.invalid">{{getErrorMessage()}}</mat-error>
+          <mat-error *ngIf="sourceId.hasError('required')">{{getErrorMessage(sourceId)}}</mat-error>
         </mat-form-field>
         <mat-form-field>
           <input matInput
@@ -31,7 +31,15 @@
                  [formControl]="destinationId"
                  (keyup.enter)="searchPath()"
                  required>
-          <mat-error *ngIf="destinationId.invalid">{{getErrorMessage()}}</mat-error>
+          <mat-error *ngIf="destinationId.hasError('required')">{{getErrorMessage(destinationId)}}</mat-error>
+        </mat-form-field>
+        <mat-form-field *ngIf="types !== undefined">
+          <mat-select [formControl]="typeId" placeholder="Vehicle type">
+            <mat-option *ngFor="let type of types.type" [value]="type">
+              {{type}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="typeId.hasError('required')">{{getErrorMessage(typeId)}}</mat-error>
         </mat-form-field>
       </div>
     </div>
@@ -54,6 +62,32 @@
       </div>
     </div>
   </mat-card>
+
+
+  <mat-card class="top-card">
+    <mat-card-title>
+      Select Dangerous Materials
+    </mat-card-title>
+
+    <div>
+      <mat-selection-list *ngIf="materials !== undefined"
+                          [(ngModel)]="selectedMaterials">
+        <mat-list-option *ngFor="let material of materials.dangerousMaterial"
+                          [value]="material" (click)="checkMaterials(material)">
+          {{material}}
+        </mat-list-option>
+      </mat-selection-list>
+    </div>
+
+    <div *ngIf="selectedMaterials.length !== 0">
+      <h5>Selected materials:</h5>
+      <mat-accordion *ngFor="let mat of selectedMaterials">
+        <li class="mat-list"> {{ mat }}</li>
+      </mat-accordion>
+    </div>
+
+  </mat-card>
+
 
   <div class="src-card">
     <mat-card>

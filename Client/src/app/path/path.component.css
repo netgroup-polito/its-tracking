@@ -49,6 +49,14 @@ button {
   margin: 0 5px;
 }
 
+h5 {
+  text-align: center;
+}
+li.mat-list {
+  display: inline;
+  margin: 0 2px;
+}
+
 @media screen and (max-width: 991px) {
   .src-card, .dst-card, .vehicle, .search {
     margin-bottom: 10px;

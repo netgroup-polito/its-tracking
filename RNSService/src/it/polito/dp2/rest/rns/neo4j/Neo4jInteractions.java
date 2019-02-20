@@ -76,7 +76,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @param element = the new element to be loaded
 	 * @return the corresponding id
 	 */
-	public String createNode(Object element) {
+	public synchronized String createNode(Object element) {
 		try ( Session session = driver.session() )
         {
 			final String query = StatementBuilder.getInstance().createStatement(element);
@@ -104,7 +104,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @param label = label of the relation
 	 * @return a string representing the id of the newly created relation
 	 */
-	public String connectNodes(String node1, String node2, String label) {
+	public synchronized String connectNodes(String node1, String node2, String label) {
 		String query = StatementBuilder.getInstance().connectStatement(
 				IdTranslator.getInstance().getIdTranslation(node1), 
 				IdTranslator.getInstance().getIdTranslation(node2), 
@@ -135,7 +135,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @param nodeId = id of the node to be deleted
 	 * @param type = type of the node to be deleted
 	 */
-	public void deleteNode(String nodeId, String type) {
+	public synchronized void deleteNode(String nodeId, String type) {
 		String query = StatementBuilder.getInstance().deleteByTypeAndIdStatement(
 				IdTranslator.getInstance().getIdTranslation(nodeId),  
 				type);

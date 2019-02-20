@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.microsoft.z3.ArithExpr;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
 import com.microsoft.z3.IntExpr;
@@ -46,6 +47,7 @@ public class Z3Model {
 	private Map<String, List<String>> connections = new HashMap<>();
 	private Map<String, BoolExpr> connectionsBool = new HashMap<>();
 	private Map<String, BoolExpr> nodes = new HashMap<>();
+	private Map<String, ArithExpr> nodesCapacity = new HashMap<>();
 	
 	private String sourceNodeId = "";
 	
@@ -84,6 +86,9 @@ public class Z3Model {
 	 */
 	private void defineHardConstraints(String source, String destination) {
 		for(Entry<String, BoolExpr> node : this.nodes.entrySet()) {
+			ArithExpr capacity = this.nodesCapacity.get(node.getKey());
+			mkOptimize.Add(ctx.mkImplies(ctx.mkLt(capacity, ctx.mkInt(0)), ctx.mkNot(node.getValue())));
+			
 			if(source.equals(node.getKey())) {
 				
 				mkOptimize.Add(ctx.mkEq(node.getValue(), ctx.mkBool(true)));
@@ -100,12 +105,14 @@ public class Z3Model {
 				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkAtMost(conns.stream().toArray(BoolExpr[]::new), 1)));
 				
 			} else {
+				
 				List<BoolExpr> conns = new ArrayList<>();
 				for(String conn : this.connections.get(node.getKey())) {
 					conns.add(this.connectionsBool.get(conn));
 				}
 				
 				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkOr(conns.stream().toArray(BoolExpr[]::new))));
+				
 			}
 		}
 	}
@@ -151,11 +158,14 @@ public class Z3Model {
 		int actualCapacity = Neo4jInteractions.getInstance().getActualCapacityOfPlace(current.getId());
 		List<String> materials = Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(current.getId());
 		
+		ArithExpr leftSide = ctx.mkSub(ctx.mkInt(actualCapacity), ctx.mkInt(1));
+		this.nodesCapacity.put(current.getId(), leftSide);
+		
 		// Check on capacity and materials
-		if(actualCapacity < 1) {
+		/*if(actualCapacity < 1) {
 			//System.out.println("Place " + current.getId() + " has no more room.");
 			return;
-		}
+		}*/
 		
 		if(materialId != null && material != null) {
 			for(String mat : materials) {

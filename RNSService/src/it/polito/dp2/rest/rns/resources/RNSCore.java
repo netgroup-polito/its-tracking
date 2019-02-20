@@ -105,6 +105,7 @@ public class RNSCore {
 		
 		// CURRENT POSITION
 		if(vehicle.getPosition() != null) {
+			
 			// Check presence of the vehicle in the system
 			List<VehicleReaderType> vehicles = Neo4jInteractions.getInstance().getVehicles();
 			
@@ -116,65 +117,8 @@ public class RNSCore {
 				if(vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleAlreadyInSystemException("Vehicle " + vehicle.getId() + " has already been added to the system."));
 			}
 			
-			// Check if the ORIGIN if it is a gate of type IN or INOUT
-			GateReaderType origin = this.getGate(vehicle.getOrigin());
-			if(origin != null) {
-				if(origin.getType().toString().equals("OUT"))
-					throw(new InvalidEntryPlaceException("The gate " + vehicle.getOrigin() +" you're trying to enter the system from, is not of type IN, neither INOUT."));
-			}
-			
-			// Check if the DESTINATION if it is a gate of type OUT
-			GateReaderType destination = this.getGate(vehicle.getDestination());
-			if(destination != null) {
-				if(destination.getType().toString().equals("IN"))
-					throw(new InvalidEntryPlaceException("The gate " + vehicle.getDestination() +" you're trying to exit the system from, is not of type OUT, neither INOUT."));
-			}
-			
-			// Check for material id correctness
-			for(String s : vehicle.getMaterial()) {
-				if(!IdTranslator.getInstance().isInTheSystem(s) && !s.equals("")) {
-					throw new NonRecognizedMaterial("Material id " + s + " non recognized by the system.");
-				}
-			}
-			
-			// Check if the nodes are in the system
-			if(!IdTranslator.getInstance().isInTheSystem(vehicle.getDestination())) throw new InvalidPathException("Destination " + vehicle.getDestination() + " doesn't exist in the system");
-			if(!IdTranslator.getInstance().isInTheSystem(vehicle.getPosition())) throw new InvalidPathException("Position " + vehicle.getPosition() + " doesn't exist in the system");
-			if(!IdTranslator.getInstance().isInTheSystem(vehicle.getOrigin())) throw new InvalidPathException("Destination " + vehicle.getOrigin() + " doesn't exist in the system");
-			
-			// Check type of the vehicle
-			if(vehicle.getType() == null) {
-				throw new InvalidVehicleTypeException("Wrong value for vehicle type.");
-			}
-			try { 
-				VehicleTypeType.valueOf(vehicle.getType().name()); 
-			}
-			catch(Exception e) {
-				throw new InvalidVehicleTypeException("Vehicle type " + vehicle.getType().name() + " is not acceptable.");
-			}
-			
-			// Check on the state
-			if(vehicle.getState() == null) {
-				throw new InvalidVehicleStateException("Wrong value for vehicle state.");
-			}
-			
-			// Check that the entry time isn't null or empty
-			if(vehicle.getEntryTime() == null || vehicle.getEntryTime().toString().equals("")) {
-				throw new InvalidEntryTimeException("Vehicle must have entry time specified");
-			}
-			
-			// Check on incompatible materials 
-			if(vehicle.getMaterial() != null && vehicle.getMaterial().size() != 0) {
-				for(String mat1 :  vehicle.getMaterial()) {
-					DangerousMaterialImpl material = new DangerousMaterialImpl(mat1, Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(mat1));
-					for(String mat2 : vehicle.getMaterial()) {
-						if(!mat1.equals(mat2)) {
-							if(!material.isCompatibleWith(mat2))
-								throw new IncompatibleMaterialsCarriedException("Vehicle can't carry " + mat1 + " " + mat2 + " at the same time. They're not compatible");
-						}
-					}
-				}
-			}
+			// Check correctness of fields
+			this.checkVehicle(vehicle);
 			
 			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial().get(0));
 			List<String> path = z3.findPath();
@@ -247,6 +191,70 @@ public class RNSCore {
 		}
 	}
 	
+	private void checkVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException {
+		
+		// Check if the ORIGIN if it is a gate of type IN or INOUT
+		GateReaderType origin = this.getGate(vehicle.getOrigin());
+		if(origin != null) {
+			if(origin.getType().toString().equals("OUT"))
+				throw(new InvalidEntryPlaceException("The gate " + vehicle.getOrigin() +" you're trying to enter the system from, is not of type IN, neither INOUT."));
+		}
+		
+		// Check if the DESTINATION if it is a gate of type OUT
+		GateReaderType destination = this.getGate(vehicle.getDestination());
+		if(destination != null) {
+			if(destination.getType().toString().equals("IN"))
+				throw(new InvalidEntryPlaceException("The gate " + vehicle.getDestination() +" you're trying to exit the system from, is not of type OUT, neither INOUT."));
+		}
+		
+		// Check for material id correctness
+		for(String s : vehicle.getMaterial()) {
+			if(!IdTranslator.getInstance().isInTheSystem(s) && !s.equals("")) {
+				throw new NonRecognizedMaterial("Material id " + s + " non recognized by the system.");
+			}
+		}
+		
+		// Check if the nodes are in the system
+		if(!IdTranslator.getInstance().isInTheSystem(vehicle.getDestination())) throw new InvalidPathException("Destination " + vehicle.getDestination() + " doesn't exist in the system");
+		if(!IdTranslator.getInstance().isInTheSystem(vehicle.getPosition())) throw new InvalidPathException("Position " + vehicle.getPosition() + " doesn't exist in the system");
+		if(!IdTranslator.getInstance().isInTheSystem(vehicle.getOrigin())) throw new InvalidPathException("Destination " + vehicle.getOrigin() + " doesn't exist in the system");
+		
+		// Check type of the vehicle
+		if(vehicle.getType() == null) {
+			throw new InvalidVehicleTypeException("Wrong value for vehicle type.");
+		}
+		try { 
+			VehicleTypeType.valueOf(vehicle.getType().name()); 
+		}
+		catch(Exception e) {
+			throw new InvalidVehicleTypeException("Vehicle type " + vehicle.getType().name() + " is not acceptable.");
+		}
+		
+		// Check on the state
+		if(vehicle.getState() == null) {
+			throw new InvalidVehicleStateException("Wrong value for vehicle state.");
+		}
+		
+		// Check that the entry time isn't null or empty
+		if(vehicle.getEntryTime() == null || vehicle.getEntryTime().toString().equals("")) {
+			throw new InvalidEntryTimeException("Vehicle must have entry time specified");
+		}
+		
+		// Check on incompatible materials 
+		if(vehicle.getMaterial() != null && vehicle.getMaterial().size() != 0) {
+			for(String mat1 :  vehicle.getMaterial()) {
+				DangerousMaterialImpl material = new DangerousMaterialImpl(mat1, Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(mat1));
+				for(String mat2 : vehicle.getMaterial()) {
+					if(!mat1.equals(mat2)) {
+						if(!material.isCompatibleWith(mat2))
+							throw new IncompatibleMaterialsCarriedException("Vehicle can't carry " + mat1 + " " + mat2 + " at the same time. They're not compatible");
+					}
+				}
+			}
+		}
+		
+	}
+
 	/**
 	 * Function to get a vehicle
 	 * @param id
@@ -351,6 +359,8 @@ public class RNSCore {
 	 * @throws IncompatibleMaterialsCarriedException 
 	 */
 	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException {
+		this.checkVehicle(vehicle);
+		
 		// Check presence of the vehicle in the system
 		List<String> vehiclesLoadedIds = 
 				Neo4jInteractions.getInstance().getVehicles()

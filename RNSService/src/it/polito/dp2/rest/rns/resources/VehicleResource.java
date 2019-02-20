@@ -245,8 +245,8 @@ public class VehicleResource {
 	})
     public Response deleteVehicle(@PathParam("id") String vehicleId) {
     		try {
-    			RNSCore.getInstance().deleteVehicle(String.valueOf(vehicleId));
-    			return Response.status(Status.OK).entity("deleted").build();
+    			RNSCore.getInstance().deleteVehicle(String.valueOf(vehicleId), false);
+    			return Response.status(Status.OK).entity("Vehicle " + vehicleId + " has been corretly deleted from the system.").build();
     		} catch (Exception e) {
     			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
     		}

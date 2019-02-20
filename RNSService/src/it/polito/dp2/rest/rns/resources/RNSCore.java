@@ -303,12 +303,12 @@ public class RNSCore {
 	 * Function to delete a vehicle from the database
 	 * @param vehicleId = id of the vehicle to be deleted
 	 */
-	public synchronized void deleteVehicle(String vehicleId) {
+	public synchronized void deleteVehicle(String vehicleId, boolean update) {
 		System.out.println("Deleting vehicle " + vehicleId);
 		Neo4jInteractions.getInstance().deleteNode(vehicleId, "Vehicle");
 		IdTranslator.getInstance().removeTranslation(vehicleId);
 		
-		if(this.vehiclePath.containsKey(vehicleId)) {
+		if(this.vehiclePath.containsKey(vehicleId) && !update) {
 			// For each place is the old path we need to increase the capacity by 1
 			for(String id : this.vehiclePath.get(vehicleId).getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList()) ) {
 				Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(id);
@@ -376,8 +376,17 @@ public class RNSCore {
 		} else { // Need to recompute the path
 			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
 			
-			this.deleteVehicle(vehicle.getId());
-			Places places = this.addVehicle(vehicle);
+			this.deleteVehicle(vehicle.getId(), true);
+			Places places;
+			try {
+				places = this.addVehicle(vehicle);
+			} catch(UnsatisfiableException | InvalidPathException e) {
+				// If a path couldn't be found, return the old one
+				if(e.getMessage().equals("A path couldn't be found.") || e.getMessage().equals("Couldn't find a correct path.")) {
+					return this.vehiclePath.get(vehicle.getId());
+				} else 
+					throw e;
+			}
 			
 			return places;
 		}

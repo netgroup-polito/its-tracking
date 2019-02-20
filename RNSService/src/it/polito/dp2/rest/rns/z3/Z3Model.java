@@ -168,7 +168,8 @@ public class Z3Model {
 		}*/
 		
 		if(materialId != null && material != null) {
-			for(String mat : materials) {
+			for(String m : materials) {
+				String mat = m.replace("\"", "");
 				if(!material.isCompatibleWith(mat)) {
 					/*System.out.println(
 							"Node " + current.getId() + 

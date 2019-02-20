@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import it.polito.dp2.rest.rns.exceptions.IncompatibleMaterialsCarriedException;
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryTimeException;
 import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
@@ -33,6 +34,7 @@ import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
 import it.polito.dp2.rest.rns.jaxb.Vehicles;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
 import it.polito.dp2.rest.rns.utility.Constants;
+import it.polito.dp2.rest.rns.utility.DangerousMaterialImpl;
 import it.polito.dp2.rest.rns.utility.DateConverter;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
 import it.polito.dp2.rest.rns.utility.MapLoader;
@@ -91,8 +93,9 @@ public class RNSCore {
 	 * @throws InvalidVehicleTypeException 
 	 * @throws InvalidVehicleStateException 
 	 * @throws InvalidEntryTimeException 
+	 * @throws IncompatibleMaterialsCarriedException 
 	 */
-	public synchronized Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException {
+	public synchronized Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException {
 		String id = "";
 		System.out.println("***************** ADD VEHICLE *********************");
 		
@@ -158,6 +161,19 @@ public class RNSCore {
 			// Check that the entry time isn't null or empty
 			if(vehicle.getEntryTime() == null || vehicle.getEntryTime().toString().equals("")) {
 				throw new InvalidEntryTimeException("Vehicle must have entry time specified");
+			}
+			
+			// Check on incompatible materials 
+			if(vehicle.getMaterial() != null && vehicle.getMaterial().size() != 0) {
+				for(String mat1 :  vehicle.getMaterial()) {
+					DangerousMaterialImpl material = new DangerousMaterialImpl(mat1, Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(mat1));
+					for(String mat2 : vehicle.getMaterial()) {
+						if(!mat1.equals(mat2)) {
+							if(!material.isCompatibleWith(mat2))
+								throw new IncompatibleMaterialsCarriedException("Vehicle can't carry " + mat1 + " " + mat2 + " at the same time. They're not compatible");
+						}
+					}
+				}
 			}
 			
 			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial().get(0));
@@ -332,8 +348,9 @@ public class RNSCore {
 	 * @throws InvalidVehicleTypeException 
 	 * @throws InvalidVehicleStateException 
 	 * @throws InvalidEntryTimeException 
+	 * @throws IncompatibleMaterialsCarriedException 
 	 */
-	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException {
+	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException {
 		// Check presence of the vehicle in the system
 		List<String> vehiclesLoadedIds = 
 				Neo4jInteractions.getInstance().getVehicles()

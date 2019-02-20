@@ -20,6 +20,7 @@ import javax.xml.bind.JAXBElement;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
+import it.polito.dp2.rest.rns.exceptions.IncompatibleMaterialsCarriedException;
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryTimeException;
 import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
@@ -188,6 +189,9 @@ public class VehicleResource {
 			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (InvalidEntryTimeException e) {
+			System.out.println(e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		} catch (IncompatibleMaterialsCarriedException e) {
 			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}

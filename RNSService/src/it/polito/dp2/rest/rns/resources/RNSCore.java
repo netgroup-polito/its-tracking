@@ -33,7 +33,7 @@ import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
 import it.polito.dp2.rest.rns.jaxb.Vehicles;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
-import it.polito.dp2.rest.rns.utility.Constants;
+import it.polito.dp2.rest.rns.utility.Counter;
 import it.polito.dp2.rest.rns.utility.DangerousMaterialImpl;
 import it.polito.dp2.rest.rns.utility.DateConverter;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
@@ -178,9 +178,9 @@ public class RNSCore {
 					}
 				}
 				
-				// UPDATE THE COUNTER OF VEHICLE THAT HAS BEEN IN THAT PLACE (POSITION OF THE VEHICLE)
+				/*// UPDATE THE COUNTER OF VEHICLE THAT HAS BEEN IN THAT PLACE (POSITION OF THE VEHICLE)
 				int prev = Constants.countVehiclePlace.get(vehicle.getPosition());
-				Constants.countVehiclePlace.put(vehicle.getPosition(), prev + 1);
+				Constants.countVehiclePlace.put(vehicle.getPosition(), prev + 1);*/
 				
 				return places;
 			} else {
@@ -431,13 +431,12 @@ public class RNSCore {
 	 * @param exitTime = exit time
 	 */
 	private void updateAvgTimePlace(String placeId, XMLGregorianCalendar entryTime, XMLGregorianCalendar exitTime) {
-		int counter = Constants.countVehiclePlace.get(placeId);
 		long duration = DateConverter.getDurationFromXMLGregorianCalendar(entryTime, exitTime);
-		System.out.println("Duration: " + duration + " -- Old counter: " + counter);
-		counter++;
+		Counter counter = Neo4jInteractions.getInstance().getCounterGivenPlaceId(placeId);
+		System.out.println("Duration: " + duration + " -- " + counter.getName() + ": " + counter.getCounter());
 		
-		Neo4jInteractions.getInstance().updateAvgTimeSpentPlace(placeId, duration, counter);
-		
+		Neo4jInteractions.getInstance().updateAvgTimeSpentPlace(placeId, duration, counter.getCounter() + 1);
+		Neo4jInteractions.getInstance().updateCounterValueOfPlace(placeId, 1, true);
 	}
 
 	/**

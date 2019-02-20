@@ -20,6 +20,7 @@ import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleStateType;
 import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
 import it.polito.dp2.rest.rns.utility.Constants;
+import it.polito.dp2.rest.rns.utility.Counter;
 import it.polito.dp2.rest.rns.utility.DateConverter;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
 
@@ -847,16 +848,16 @@ public class Neo4jInteractions implements AutoCloseable {
 	/**
 	 * Function to update the average time spent in a place
 	 * @param duration = duration to be added
-	 * @param counter = counter by which divide
+	 * @param l = counter by which divide
 	 */
-	public void updateAvgTimeSpentPlace(String id, long duration, int counter) {
+	public void updateAvgTimeSpentPlace(String id, long duration, long l) {
 		try ( Session session = driver.session() )
         {
 			final String query = StatementBuilder.getInstance()
 								.getUpdateAvgTimeStatementById(
 										IdTranslator.getInstance().getIdTranslation(id),
 										duration,
-										counter
+										l
 								);
 			
 			session.writeTransaction( new TransactionWork<Boolean>()
@@ -875,5 +876,75 @@ public class Neo4jInteractions implements AutoCloseable {
         		e.printStackTrace();
         }
 		
+	}
+	
+	/**
+	 * Function to update the value of the counter of a given place
+	 * @param placeId = id of the place whose counter needs an update
+	 * @param amount = amount to which increase or decrease
+	 * @param increase = true if we want to increase, false otherwise
+	 */
+	public void updateCounterValueOfPlace(String placeId, int amount, boolean increase) {
+		try ( Session session = driver.session() )
+        {
+			final String query = (increase) 
+							? StatementBuilder.getInstance().getIncreaseCounterStatementGivenNodeId(
+											IdTranslator.getInstance().getIdTranslation(placeId), amount)
+							: StatementBuilder.getInstance().getDecreaseCounterStatementGivenNodeId(
+									IdTranslator.getInstance().getIdTranslation(placeId), amount);
+			
+			session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+                	tx.run(query);
+					
+					return true;
+                }
+            } );
+            
+			session.close();
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+	}
+	
+	/**
+	 * Function to retrieve the counter of a place given 
+	 * its id
+	 * @param placeId = id of the place
+	 * @return the counter for that place
+	 */
+	public Counter getCounterGivenPlaceId(String placeId) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getCounterStatementByPlaceId(IdTranslator.getInstance().getIdTranslation(placeId));
+			
+			Counter result = session.writeTransaction( new TransactionWork<Counter>()
+            {
+                @Override
+                public Counter execute( Transaction tx )
+                {
+					StatementResult result = tx.run(query);
+					Counter counter = null;
+					
+					Value r = result.single().get(0);
+					
+					System.out.println("[NEO4J]" + r.asMap());
+					counter = new Counter((String) r.asMap().get("name"), (long) r.asMap().get("counter"));
+					
+					return counter;
+                }
+            } );
+            
+			session.close();
+			
+			return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		return null;
 	}
 }

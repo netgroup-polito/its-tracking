@@ -8,6 +8,7 @@ import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
+import it.polito.dp2.rest.rns.utility.Counter;
 
 public class StatementBuilder {
 	private static StatementBuilder instance = null;
@@ -97,6 +98,12 @@ public class StatementBuilder {
 			
 			query += "MERGE (material: DangerousMaterial {id: '" + material.getId() + "'}) "
 					+ " RETURN id(material)";
+		} else if (element instanceof Counter) {
+			Counter counter = (Counter) element;
+			
+			query += "MERGE (counter: Counter {name: '" + counter.getName() + "'}) "
+					+ "ON CREATE SET counter.counter = " + counter.getCounter() + " "
+					+ "RETURN id(counter)";
 		}
 		
 		return query;
@@ -350,13 +357,58 @@ public class StatementBuilder {
 	 * a place
 	 * @param id = id of the place
 	 * @param duration = duration to be added
-	 * @param counter = counter to which divide
+	 * @param l = counter to which divide
 	 * @return the corresponding query
 	 */
-	public String getUpdateAvgTimeStatementById(String id, long duration, int counter) {
+	public String getUpdateAvgTimeStatementById(String id, long duration, long l) {
 		String query = "MATCH(n) WHERE id(n) = " + id + " "
-				+ "SET n.avgTimeSpent = (n.avgTimeSpent + " + duration + ") / " + counter + " "
+				+ "SET n.avgTimeSpent = (n.avgTimeSpent + " + duration + ") / " + l + " "
 				+ "RETURN n";
 		return query;
+	}
+	
+	/**
+	 * Function to obtain the query to decrease the counter of a certain node
+	 * whose id is given, of a certain amount
+	 * @param id = id of the node, whose counter we have to decrease
+	 * @param amount = amount to be subtracted
+	 * @return the corresponding query
+	 */
+	public String getDecreaseCounterStatementGivenNodeId(String id, int amount) {
+		String query = "MATCH(n)<-[:countedVehicles]-(m) " + 
+					"WHERE id(m) = " + id + " " +
+					"AND n.counter - " + amount + " > 0 " +
+					"SET n.counter = n.counter - " + amount;
+		
+		return query;
+	}
+	
+	/**
+	 * Function to obtain the query to increase the counter of a certain node
+	 * whose id is given, of a certain amount
+	 * @param id = id of the node, whose counter we have to increase
+	 * @param amount = amount to be added
+	 * @return the corresponding query
+	 */
+	public String getIncreaseCounterStatementGivenNodeId(String id, int amount) {
+		String query = "MATCH(n)<-[:countedVehicles]-(m) " + 
+					"WHERE id(m) = " + id + " " +
+					"SET n.counter = n.counter + " + amount;
+		
+		return query;
+	}
+	
+	/**
+	 * Function to obtain the query to retrieve a counter, given
+	 * the connected node id
+	 * @param id = id of the node, whose counter we want to be retrieved
+	 * @return the corresponding query
+	 */
+	public String getCounterStatementByPlaceId(String id) {
+		String query = "MATCH(n)<-[:countedVehicles]-(m) " + 
+				"WHERE id(m) = " + id + " " +
+				"RETURN n";
+	
+	return query;
 	}
 }

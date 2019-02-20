@@ -33,7 +33,7 @@ public class MapLoader {
 	private static List<ParkingAreaReaderType> parkings = new ArrayList<>();
 	private static List<DangerousMaterialType> dangerousMaterials = new ArrayList<>();
 	
-	public static void loadMap() {
+	public synchronized static void loadMap() {
 		try {
 
 			File fXmlFile = new File(Constants.MapXMLPath);

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ClientHttpService } from '../client-http.service';
+import { PathService } from '../path.service';
 import { Gate } from '../gate';
 import { ParkingArea } from '../parkingArea';
 import { Rns } from '../rns';
@@ -21,7 +22,8 @@ export class PathComponent implements OnInit {
   destinationId = new FormControl('', [Validators.required]);
 
   constructor(private client: ClientHttpService,
-              public snackBar: MatSnackBar,
+              private snackBar: MatSnackBar,
+              private pathService: PathService,
               private router: Router) { }
 
   ngOnInit() {
@@ -64,8 +66,8 @@ export class PathComponent implements OnInit {
         this.sourceId.value,
         []).subscribe(
         data => {
-          console.log(data);
-          // this.router.navigate(['/route']);
+          this.pathService.path = data;
+          this.router.navigate(['/route']);
         },
         err => {
           this.openSnackBar(err.message, 'OK');

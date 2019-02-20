@@ -243,7 +243,7 @@ public class VehicleResource {
 			MediaType.APPLICATION_XML,
 			MediaType.APPLICATION_JSON
 	})
-    public Response deleteVehicle(@PathParam("id") int vehicleId) {
+    public Response deleteVehicle(@PathParam("id") String vehicleId) {
     		try {
     			RNSCore.getInstance().deleteVehicle(String.valueOf(vehicleId));
     			return Response.status(Status.OK).entity("deleted").build();

@@ -78,14 +78,6 @@ public class RNSCore {
 	}
 
 	/**
-	 * Hello world function. Just for debug purposes.
-	 * @return string of a newly created hello world node in neo4j
-	 */
-	public String helloWorld() {
-		return "Hello world!";
-	}
-	
-	/**
 	 * Function to add a vehicle as a node, both in the local map
 	 * database and in Neo4j
 	 * @param value = the vehicle to be added

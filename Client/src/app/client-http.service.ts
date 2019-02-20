@@ -17,16 +17,18 @@ export class ClientHttpService {
   }
 
   postVehicle(sourceId: string, destinationId: string, vehicleId: string, type: string, dangerousMaterial: string[]) {
+    // @ts-ignore
     const json = {
       id: vehicleId,
       destination: destinationId,
       origin: sourceId,
       position: sourceId,
-      entryTime: '',
+      entryTime: new Date().toJSON(),
       state: {value: this.state},
       type: {value: 'CAR'},
-      material: dangerousMaterial
+      material: ''
     };
-    return this.http.post<Place>(this.path + 'vehicles', json, {});
+
+    return this.http.post<Place[]>(this.path + 'vehicles', json, {});
   }
 }

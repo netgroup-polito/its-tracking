@@ -8,24 +8,32 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {3}Implementation}{4}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3.1}Communication between components}{5}
+\contentsline {section}{\numberline {3.1}Used technologies}{4}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {4}Neo4j}{6}
+\contentsline {section}{\numberline {3.2}Communication between components}{5}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {5}Z3}{7}
+\contentsline {chapter}{\numberline {4}Server application}{6}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5.1}What is Z3}{7}
+\contentsline {chapter}{\numberline {5}Neo4j}{7}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5.2}Setup of Z3 in machine running Ubuntu}{7}
+\contentsline {chapter}{\numberline {6}Z3}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5.3}Model}{10}
+\contentsline {section}{\numberline {6.1}What is Z3}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.3.1}Pruning of nodes from the map}{10}
+\contentsline {section}{\numberline {6.2}Setup of Z3 in machine running Ubuntu}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.3.2}Definition of boolean variables}{10}
+\contentsline {section}{\numberline {6.3}Model}{11}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.3.3}Definition of hard constraints}{11}
+\contentsline {subsection}{\numberline {6.3.1}Pruning of nodes from the map}{11}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.3.4}Definition of soft constraints}{13}
+\contentsline {subsection}{\numberline {6.3.2}Definition of boolean variables}{12}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.3.5}Final result}{13}
+\contentsline {subsection}{\numberline {6.3.3}Definition of hard constraints}{13}
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {6.3.4}Definition of soft constraints}{14}
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {6.3.5}Final result}{15}
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {7}Client}{16}
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {8}Project setup}{17}

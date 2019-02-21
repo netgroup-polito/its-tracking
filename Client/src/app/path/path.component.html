@@ -104,6 +104,7 @@
               (opened)="panelOpenState2 = true"
               (closed)="panelOpenState2 = false"
               (click)="fillSrcId(gate.id)"
+              [ngClass]="{'selected' : gate.id == sourceId.value}"
               *ngIf="gate.type === 'IN' ||
                      gate.type === 'INOUT'"
             >
@@ -114,6 +115,7 @@
               </mat-expansion-panel-header>
               <p><span>Id: </span>{{gate.id}}</p>
               <p><span>Type: </span>{{gate.type}}</p>
+              <p>Gate selected as source</p>
             </mat-expansion-panel>
           </li>
           <li *ngFor="let parking of parkings">
@@ -122,6 +124,7 @@
               (opened)="panelOpenState2 = true"
               (closed)="panelOpenState2 = false"
               (click)="fillSrcId(parking.id)"
+              [ngClass]="{'selected' : parking.id == sourceId.value}"
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>
@@ -130,6 +133,7 @@
               </mat-expansion-panel-header>
               <p><span>Id: </span>{{parking.id}}</p>
               <p><span>Capacity: </span>{{parking.capacity}}</p>
+              <p>Parking selected as source</p>
             </mat-expansion-panel>
           </li>
         </mat-accordion>
@@ -152,6 +156,7 @@
               (opened)="panelOpenState2 = true"
               (closed)="panelOpenState2 = false"
               (click)="fillDstId(gate.id)"
+              [ngClass]="{'selected' : gate.id == destinationId.value}"
               *ngIf="gate.type === 'OUT' ||
                      gate.type === 'INOUT'"
             >
@@ -162,6 +167,7 @@
               </mat-expansion-panel-header>
               <p><span>Id: </span>{{gate.id}}</p>
               <p><span>Type: </span>{{gate.type}}</p>
+              <p>Gate selected as destination</p>
             </mat-expansion-panel>
           </li>
           <li *ngFor="let parking of parkings">
@@ -170,6 +176,7 @@
               (opened)="panelOpenState2 = true"
               (closed)="panelOpenState2 = false"
               (click)="fillDstId(parking.id)"
+              [ngClass]="{'selected' : parking.id == destinationId.value}"
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>
@@ -178,6 +185,7 @@
               </mat-expansion-panel-header>
               <p><span>Id: </span>{{parking.id}}</p>
               <p><span>Capacity: </span>{{parking.capacity}}</p>
+              <p>Parking selected as destination</p>
             </mat-expansion-panel>
           </li>
         </mat-accordion>

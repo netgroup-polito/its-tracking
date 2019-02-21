@@ -25,7 +25,11 @@ mat-card-title {
   text-align: center;
 }
 
-.top-card {
+mat-expansion-panel.selected {
+  background-color: lavender;
+}
+
+.top-card, .material-card {
   margin: 2%;
 }
 
@@ -52,6 +56,7 @@ button {
 h5 {
   text-align: center;
 }
+
 li.mat-list {
   display: inline;
   margin: 0 2px;

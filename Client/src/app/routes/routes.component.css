@@ -10,3 +10,11 @@ mat-form-field {
 mat-card-title {
   text-align: center;
 }
+
+.visited mat-expansion-panel {
+  background-color: lavender;
+}
+
+.current mat-expansion-panel {
+  background-color: greenyellow;
+}

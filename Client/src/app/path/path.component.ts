@@ -35,8 +35,12 @@ export class PathComponent implements OnInit {
 
   ngOnInit() {
     const vId = localStorage.getItem('vehicleId');
+    const tId = localStorage.getItem('typeId');
     if (vId !== null) {
       this.vehicleId.setValue(vId);
+    }
+    if (tId !== null) {
+      this.typeId.setValue(tId);
     }
     this.getSystem();
     this.getTypes();
@@ -54,14 +58,14 @@ export class PathComponent implements OnInit {
       data => {
         const self = this;
         data.gate.forEach(function (g) {
-          self.gates.push(new Gate(g.id, g.name, g.capacity, g.connectedPlaceId, g.type));
+          self.gates.push(new Gate(g.id, g.name, g.capacity, g.connectedPlaceId, g.type, g.avgTimeSpent));
         });
         data.parkingArea.forEach(function (p) {
           self.parkings.push(new ParkingArea(p.id, p.name, p.capacity, p.connectedPlaceId, p.avgTimeSpent));
         });
       },
       err => {
-        this.openSnackBar(err.message, 'OK');
+        this.openSnackBar(err.error, 'OK');
       }
     );
   }
@@ -75,7 +79,7 @@ export class PathComponent implements OnInit {
         this.types = data;
       },
       err => {
-        this.openSnackBar(err.message, 'OK');
+        this.openSnackBar(err.error, 'OK');
       }
     );
   }
@@ -89,7 +93,7 @@ export class PathComponent implements OnInit {
         this.materials = data;
       },
       err => {
-        this.openSnackBar(err.message, 'OK');
+        this.openSnackBar(err.error, 'OK');
       }
     );
   }
@@ -116,11 +120,12 @@ export class PathComponent implements OnInit {
         this.selectedMaterials).subscribe(
         data => {
           localStorage.setItem('vehicleId', this.vehicleId.value);
+          localStorage.setItem('typeId', this.typeId.value);
           this.pathService.path = data;
           this.router.navigate(['/route']);
         },
         err => {
-          this.openSnackBar(err.message, 'OK');
+          this.openSnackBar(err.error, 'OK');
         }
       );
     }
@@ -132,7 +137,6 @@ export class PathComponent implements OnInit {
 
   fillDstId(id: string) {
     this.destinationId.setValue(id);
-
   }
 
   openSnackBar(message: string, action: string) {
@@ -184,9 +188,12 @@ export class PathComponent implements OnInit {
             }
           },
           err => {
-          this.openSnackBar(err.message, 'OK');
+          this.openSnackBar(err.error, 'OK');
         }
       );
+  }
 
+  selectedForm(el) {
+    console.log(el)
   }
 }

@@ -6,8 +6,7 @@ export class RoadSegment extends Place {
 
 
   constructor(id: string, name: string, capacity: number, connectedPlaceId: string[], avgTimeSpent: number, containerPlaceId: string) {
-    super(id, name, capacity, connectedPlaceId);
-    this.avgTimeSpent = avgTimeSpent;
+    super(id, name, capacity, connectedPlaceId, avgTimeSpent);
     this.containerPlaceId = containerPlaceId;
   }
 }

@@ -4,7 +4,8 @@
   </mat-card-title>
   <div>
     <mat-accordion *ngIf="path !== undefined">
-      <li *ngFor="let place of path.place">
+      <li *ngFor="let place of path.place" 
+        [ngClass]="{'visited' : place.visited == 1, 'current' : place.visited == 0 }">
         <mat-expansion-panel
           [expanded]="false"
           (opened)="panelOpenState2 = true"
@@ -12,7 +13,7 @@
         >
           <mat-expansion-panel-header>
             <mat-panel-title>
-              <p>{{place.name}}</p>
+              <p>{{place.name}}<span *ngIf="place.visited == 1"> - Visited</span></p>
             </mat-panel-title>
           </mat-expansion-panel-header>
           <p><span>Id: </span>{{place.id}}</p>

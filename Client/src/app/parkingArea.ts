@@ -5,8 +5,7 @@ export class ParkingArea extends Place {
   connectedPlaceId: string[] = undefined;
 
   constructor(id: string, name: string, capacity: number, connectedPlaceId: string[], avgTimeSpent: number) {
-    super(id, name, capacity, connectedPlaceId);
-    this.avgTimeSpent = avgTimeSpent;
+    super(id, name, capacity, connectedPlaceId, avgTimeSpent);
     this.connectedPlaceId = connectedPlaceId;
   }
 }

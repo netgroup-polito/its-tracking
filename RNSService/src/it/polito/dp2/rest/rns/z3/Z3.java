@@ -10,7 +10,7 @@ import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 public class Z3 {
 	private Z3Model model;
 	
-	public Z3(String sourceNodeId, String destinationNodeId, String materialId) throws UnsatisfiableException {
+	public Z3(String sourceNodeId, String destinationNodeId, List<String> materialId) throws UnsatisfiableException {
 		this.model = new Z3Model(sourceNodeId, destinationNodeId, materialId);
 	}
 	

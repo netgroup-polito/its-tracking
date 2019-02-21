@@ -120,7 +120,7 @@ public class RNSCore {
 			// Check correctness of fields
 			this.checkVehicle(vehicle);
 			
-			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial().get(0));
+			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial());
 			List<String> path = z3.findPath();
 			
 			if(path != null) {

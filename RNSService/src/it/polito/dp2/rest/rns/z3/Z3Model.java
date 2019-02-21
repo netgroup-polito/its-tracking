@@ -51,7 +51,7 @@ public class Z3Model {
 	
 	private String sourceNodeId = "";
 	
-	public Z3Model(String sourceNodeId, String destinationNodeId, String materialId) throws UnsatisfiableException {
+	public Z3Model(String sourceNodeId, String destinationNodeId, List<String> materialId) throws UnsatisfiableException {
 		if(Neo4jInteractions.getInstance().getActualCapacityOfPlace(sourceNodeId) < 1)
 			throw(new UnsatisfiableException("Node " + sourceNodeId + " has no more room for another vehicle"));
 		
@@ -142,13 +142,15 @@ public class Z3Model {
 	 * @param y_prev = previous node where we were
 	 * @param prevId = id of the previous node where we came from
 	 */
-	public void createBooleanExpressions(String source, String materialId, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) {
-		DangerousMaterialImpl material = null;
-		if(materialId != null && !materialId.equals("")) {
-			material= new DangerousMaterialImpl(
-											materialId, 
-											Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)
-									);
+	public void createBooleanExpressions(String source, List<String> materialIds, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) {
+		ArrayList<DangerousMaterialImpl> materialsTtransported = new ArrayList<>();
+		for(String materialId : materialIds) {		
+			if(materialId != null && !materialId.equals("")) {
+				materialsTtransported.add(new DangerousMaterialImpl(
+												materialId, 
+												Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)
+										));
+			}
 		}
 		
 		SimplePlaceReaderType current = Neo4jInteractions.getInstance().getPlace(source);
@@ -167,15 +169,17 @@ public class Z3Model {
 			return;
 		}*/
 		
-		if(materialId != null && material != null) {
-			for(String m : materials) {
-				String mat = m.replace("\"", "");
-				if(!material.isCompatibleWith(mat)) {
-					/*System.out.println(
-							"Node " + current.getId() + 
-							" contains material " + mat + 
-							" that is not compatible with " + materialId);*/
-					return;
+		if( !materialsTtransported.isEmpty() && materials != null) {
+			for( DangerousMaterialImpl material : materialsTtransported) {
+				for(String m : materials) {
+					String mat = m.replace("\"", "");
+					if(!material.isCompatibleWith(mat)) {
+						/*System.out.println(
+								"Node " + current.getId() + 
+								" contains material " + mat + 
+								" that is not compatible with " + materialId);*/
+						return;
+					}
 				}
 			}
 		}
@@ -225,7 +229,7 @@ public class Z3Model {
 		for(String id : current.getConnectedPlaceId()) {
 			if(!tabuList.contains(id)) {
 				//System.out.println("+++++ Visiting next: " + id);
-				this.createBooleanExpressions(id, materialId, destination, tabuList, ctx.mkBoolConst("z_" + current.getId() + "_" + id), y_curr, source);
+				this.createBooleanExpressions(id, materialIds, destination, tabuList, ctx.mkBoolConst("z_" + current.getId() + "_" + id), y_curr, source);
 			}
 		}		
 	}

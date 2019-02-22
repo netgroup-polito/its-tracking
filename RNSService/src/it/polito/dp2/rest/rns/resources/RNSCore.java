@@ -30,6 +30,7 @@ import it.polito.dp2.rest.rns.jaxb.RnsReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
+import it.polito.dp2.rest.rns.jaxb.VehicleStateType;
 import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
 import it.polito.dp2.rest.rns.jaxb.Vehicles;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
@@ -614,6 +615,16 @@ public class RNSCore {
 	public void updateVehicleState(String vehicleId, String newState) {
 		
 		Neo4jInteractions.getInstance().updateVehicleState(vehicleId, newState);
+		
+		if(newState.equals(VehicleStateType.PARKED.toString())) {
+			if(this.vehiclePath.containsKey(vehicleId)) {
+				for(SimplePlaceReaderType place : this.vehiclePath.get(vehicleId).getPlace()) {
+					Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(place.getId());
+				}
+				
+				this.vehiclePath.remove(vehicleId);
+			}
+		}
 		
 	}
 }

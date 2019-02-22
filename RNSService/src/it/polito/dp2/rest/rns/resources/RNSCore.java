@@ -380,17 +380,18 @@ public class RNSCore {
 											.filter((place) -> place.getId().equals(vehicle.getPosition()))
 											.count();
 		
-		String nextPlaceId = "";
-		
-		if(this.vehiclePath.containsKey(vehicle.getId()))
-		 nextPlaceId = this.vehiclePath.get(vehicle.getId()).getPlace().get(1).getId();
-		
-		if(!nextPlaceId.equals(vehicle.getPosition()) && !nextPlaceId.equals("")) 
-			throw new InvalidPathException("You skipped place " + nextPlaceId);
-		
 		VehicleReaderType currentVehicle = Neo4jInteractions.getInstance().getVehicle(vehicle.getId());
 		
 		if(occurrences != 0) { // Still following the path
+			// Check on the correct sequence of places
+			String nextPlaceId = "";
+			
+			if(this.vehiclePath.containsKey(vehicle.getId()))
+			 nextPlaceId = this.vehiclePath.get(vehicle.getId()).getPlace().get(1).getId();
+			
+			if(!nextPlaceId.equals(vehicle.getPosition()) && !nextPlaceId.equals("")) 
+				throw new InvalidPathException("You skipped place " + nextPlaceId);
+			
 			// Check on the capacity of the place
 			/*int actualCapacityOfPlace = Neo4jInteractions.getInstance().getActualCapacityOfPlace(vehicle.getPosition());
 			if(actualCapacityOfPlace < 1) throw(new PlaceFullException("Place " + vehicle.getPosition() + " is full. It can't accept any more vehicles."))*/;

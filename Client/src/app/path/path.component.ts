@@ -38,6 +38,10 @@ export class PathComponent implements OnInit {
     const tId = localStorage.getItem('typeId');
     if (vId !== null) {
       this.vehicleId.setValue(vId);
+      this.client.deleteVehicle(vId).subscribe(
+        data => {},
+        err => {}
+      );
     }
     if (tId !== null) {
       this.typeId.setValue(tId);
@@ -141,7 +145,7 @@ export class PathComponent implements OnInit {
 
   openSnackBar(message: string, action: string) {
     this.snackBar.open(message, action, {
-      duration: 2000,
+      duration: 4000,
     });
   }
 
@@ -191,9 +195,5 @@ export class PathComponent implements OnInit {
           this.openSnackBar(err.error, 'OK');
         }
       );
-  }
-
-  selectedForm(el) {
-    console.log(el)
   }
 }

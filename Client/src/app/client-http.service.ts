@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {  HttpClient } from '@angular/common/http';
+import {  HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Rns } from './rns';
 import { Path } from './path';
@@ -13,15 +13,22 @@ import { DangerousMaterial } from './dangerousMaterial';
 export class ClientHttpService {
   private path = 'http://localhost:8080/rns/webapi/';
   state = 'IN_TRANSIT';
+  json;
+
   constructor(private http: HttpClient) {}
 
   getSystem(): Observable<Rns> {
     return this.http.get<Rns>(this.path + 'rns');
   }
 
-  postVehicle(sourceId: string, destinationId: string, vehicleId: string, type: string, dangerousMaterial: string[]) {
+  postVehicle(
+    sourceId: string,
+    destinationId: string,
+    vehicleId: string,
+    type: string,
+    dangerousMaterial: string[]): Observable<Path> {
     // @ts-ignore
-    const json = {
+    this.json = {
       id: vehicleId,
       destination: destinationId,
       origin: sourceId,
@@ -32,7 +39,12 @@ export class ClientHttpService {
       material: dangerousMaterial
     };
 
-    return this.http.post<Path>(this.path + 'vehicles', json, {});
+    return this.http.post<Path>(this.path + 'vehicles', this.json, {});
+  }
+
+  putVehicle(positionId: string): Observable<Path> {
+    this.json.position = positionId;
+    return this.http.put<Path>(this.path + 'vehicles/' + this.json.id, this.json, {});
   }
 
   getTypes(): Observable<Types> {
@@ -45,5 +57,14 @@ export class ClientHttpService {
 
   checkMaterial(materialId: string) {
     return this.http.get<DangerousMaterial>(this.path + 'dangerousmaterials/' + materialId);
+  }
+
+  deleteVehicle(vId: string): any {
+    return this.http.delete(this.path + 'vehicles/' + vId);
+  }
+
+  changeState(): Observable<HttpResponse<string>> {
+    const state = 'PARKED';
+    return this.http.put<HttpResponse<string>>(this.path + 'vehicles/' + this.json.id + '/state', state, {});
   }
 }

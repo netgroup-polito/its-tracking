@@ -3,6 +3,8 @@ import {Path} from '../path';
 import {PathService} from '../path.service';
 import {Router} from '@angular/router';
 import { Place } from '../place';
+import { ClientHttpService } from '../client-http.service';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'app-routes',
@@ -12,15 +14,16 @@ import { Place } from '../place';
 export class RoutesComponent implements OnInit {
   path: Path;
   intervals;
+  parked: boolean;
 
-  constructor(public pathService: PathService, private router: Router) { }
+  constructor(private client: ClientHttpService,
+              private snackBar: MatSnackBar,
+              public pathService: PathService,
+              private router: Router) { }
 
   ngOnInit() {
-    const p1 = new Place('p1', 'place1', 2, ['p2'], 3);
-    const p2 = new Place('p2', 'place2', 25, ['p1', 'p3'], 4);
-    const p3 = new Place('p3', 'place3', 12, ['p2'], 5);
+    this.parked = false;
     this.intervals = [];
-    this.pathService.path = new Path([p1, p2, p3]);
     if (this.pathService.path !== undefined) {
       this.path = this.pathService.path;
       this.drive();
@@ -30,23 +33,49 @@ export class RoutesComponent implements OnInit {
   }
 
   drive(): any {
-    const randomTime = this.getRandomInt(this.path.place[0].avgTimeSpent - 2,
-                              this.path.place[0].avgTimeSpent + 2);
-    this.visitPlace(0, 2);
+    const randomTime = this.getRandomInt(0, 5);
+    this.path.place[0].visited = 0;
+    this.visitPlace(0, randomTime);
   }
 
   visitPlace(index: number, time: number) {
     const self = this;
     let timer = 0;
     this.intervals[index] = setInterval( function() {
-      if (timer === time) {
+      if (self.parked) {
+        timer--;
+      }
+      if (timer >= time) {
         clearInterval(self.intervals[index]);
         self.path.place[index].visited = 1;
-        index++;
+        const currentIndex = index++;
         if (index < self.path.place.length) {
-          const randomTime = self.getRandomInt(self.path.place[index].avgTimeSpent - 2,
-          self.path.place[index].avgTimeSpent + 2);
-          self.visitPlace(index, 2);
+          const randomTime = self.getRandomInt(0, 5);
+          const randomRoad = self.getRandomInt(0, 100);
+          if (randomRoad <= 90 || self.path.place[currentIndex].connectedPlaceId.length === 1) { // right road
+            self.path.place[index].visited = 0;
+            self.client.putVehicle(self.path.place[index].id).subscribe(
+              () => self.visitPlace(index, randomTime),
+              err => self.openSnackBar(err.error, 'OK')
+            );
+          } else { // wrong road
+            // remove next place in the right path from connected places and then choose another
+            const nextRightPlace = self.path.place[index].id;
+            const indexNextRightPlace = self.path.place[currentIndex].connectedPlaceId.indexOf(nextRightPlace);
+            self.path.place[currentIndex].connectedPlaceId.splice(indexNextRightPlace, 1);
+            const randomChoice = self.getRandomInt(0, self.path.place[currentIndex].connectedPlaceId.length - 1);
+            self.client.putVehicle(self.path.place[currentIndex].connectedPlaceId[randomChoice]).subscribe(
+              (data) => {
+                self.openSnackBar('Wrong road: path updated.', 'OK');
+                self.path.place.length = index;
+                self.path.place.push.apply(self.path.place, data.place);
+                self.path.place[index].visited = 0;
+                const randomTimeNew = self.getRandomInt(0, 5);
+                self.visitPlace(index, randomTimeNew);
+              },
+              err => self.openSnackBar(err.error, 'OK')
+            );
+          }
         }
       } else {
         timer++;
@@ -57,7 +86,34 @@ export class RoutesComponent implements OnInit {
   getRandomInt(min: number, max: number) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    return 5;
+    // return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 4000,
+    });
+  }
+
+  park() {
+    this.parked = true;
+    this.client.changeState().subscribe(
+      data => this.openSnackBar('Parked', 'OK'),
+      err => this.openSnackBar(err.error, 'OK')
+    );
+  }
+
+  exitSystem() {
+    const vId = localStorage.getItem('vehicleId');
+    this.client.deleteVehicle(vId).subscribe(
+      () => this.goHome(),
+      () => this.goHome()
+    );
+  }
+
+  goHome() {
+    this.router.navigate(['/home']);
   }
 
 }

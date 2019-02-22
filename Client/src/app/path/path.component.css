@@ -3,22 +3,12 @@ li {
   list-style: none;
 }
 
+.row {
+  text-align: center;
+}
+
 mat-form-field {
   margin: 0 5px;
-}
-
-.src-card {
-  float: left;
-  width: 47%;
-  margin-left: 2%;
-  margin-bottom: 2%;
-}
-
-.dst-card {
-  float: right;
-  width: 47%;
-  margin-right: 2%;
-  margin-bottom: 2%;
 }
 
 mat-card-title {
@@ -29,7 +19,7 @@ mat-expansion-panel.selected {
   background-color: lavender;
 }
 
-.top-card, .material-card {
+mat-card {
   margin: 2%;
 }
 
@@ -63,7 +53,7 @@ li.mat-list {
 }
 
 @media screen and (max-width: 991px) {
-  .src-card, .dst-card, .vehicle, .search {
+  .vehicle, .search {
     margin-bottom: 10px;
     float: none;
     width: 100%;

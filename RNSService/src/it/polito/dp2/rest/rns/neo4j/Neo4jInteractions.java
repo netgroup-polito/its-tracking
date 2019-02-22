@@ -259,6 +259,40 @@ public class Neo4jInteractions implements AutoCloseable {
 		
 		return null;
 	}
+	
+	/**
+	 * Function to retrieve all the nodes that are of type vehicle
+	 * stored in neo4j database
+	 * @return the list of vehicles in the system
+	 */
+	public Map<String, String> getMapVehiclesIdN4JId() {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance().getStatementWithIdByTypeNoConnection("Vehicle");
+			Map<String, String> result = session.writeTransaction( new TransactionWork<Map<String, String>>()
+            {
+                @Override
+                public Map<String, String> execute( Transaction tx )
+                {
+                	Map<String, String> list = new HashMap<>();
+					StatementResult result = tx.run(query);
+					
+					for(Record r : result.list()) {
+						list.put((String) r.get(1).asMap().get("id"), String.valueOf(r.get(0)) );
+					}
+					return list;
+                }
+            } );
+            
+            session.close();
+            
+            return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+		return null;
+	}
 
 	/**
 	 * Function to retrieve all the nodes that are of type vehicle

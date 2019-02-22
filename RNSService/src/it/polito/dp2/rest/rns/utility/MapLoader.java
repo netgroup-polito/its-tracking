@@ -72,6 +72,9 @@ public class MapLoader {
 			connectRoadSegments(roadSegments);
 			connectParkingAreas(parkings);
 			connectDangerousMaterials(dangerousMaterials);
+			
+			// set Translations for vehicles present in the DB
+			loadVehicles();
 		} catch (Exception e) {
 			e.printStackTrace();
 	    }
@@ -356,4 +359,13 @@ public class MapLoader {
 		
 		return dangerousMaterials.get(index).getIncompatibleMaterial().contains(material2);
 	}
+	
+
+	private static void loadVehicles() {
+		Map<String, String> map = Neo4jInteractions.getInstance().getMapVehiclesIdN4JId();
+		map.forEach((k, v) -> {
+			id2neo4j.addIdTranslation(k, v);
+		});
+	}
+
 }

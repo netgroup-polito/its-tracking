@@ -173,6 +173,16 @@ public class StatementBuilder {
 	}
 	
 	/**
+	 * Function to retrieve all the nodes of a certain type and the neo4j id
+	 * @param type = type of the nodes to be retrieved
+	 * @return a string corresponding to the desired query
+	 */
+	public String getStatementWithIdByTypeNoConnection(String type) {
+		String query = "MATCH (n: " + type + ") RETURN id(n), properties(n)";
+		return query;
+	}
+	
+	/**
 	 * Function to retrieve the node of a certain type and with a certain id
 	 * @param type = type of the node to be retrieved
 	 * @param id = id of the node to be retrieved

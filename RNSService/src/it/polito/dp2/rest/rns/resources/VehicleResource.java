@@ -226,7 +226,7 @@ public class VehicleResource {
 			return Response.status(Status.OK).entity(places).build();
 		} catch (Exception e) {
 			//e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
     }
     
@@ -252,7 +252,7 @@ public class VehicleResource {
     			RNSCore.getInstance().deleteVehicle(String.valueOf(vehicleId), false);
     			return Response.status(Status.OK).entity("Vehicle " + vehicleId + " has been corretly deleted from the system.").build();
     		} catch (Exception e) {
-    			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+    			return Response.status(Status.BAD_REQUEST).build();
     		}
     }
 }

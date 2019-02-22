@@ -100,7 +100,7 @@ public class RNSCore {
 		System.out.println("***************** ADD VEHICLE *********************");
 		
 		if(vehicle.getDestination().equals(vehicle.getOrigin())) {
-			throw new InvalidPathException("To get a meaningful path detination and origin has to be different.");
+			throw new InvalidPathException("To get a meaningful path, destination and origin has to be different.");
 		}
 		
 		// CURRENT POSITION
@@ -328,16 +328,18 @@ public class RNSCore {
 	 * @param vehicleId = id of the vehicle to be deleted
 	 */
 	public synchronized void deleteVehicle(String vehicleId, boolean update) {
-		System.out.println("Deleting vehicle " + vehicleId);
-		Neo4jInteractions.getInstance().deleteNode(vehicleId, "Vehicle");
-		IdTranslator.getInstance().removeTranslation(vehicleId);
-		
-		if(this.vehiclePath.containsKey(vehicleId) && !update) {
-			// For each place is the old path we need to increase the capacity by 1
-			for(String id : this.vehiclePath.get(vehicleId).getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList()) ) {
-				Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(id);
+		System.out.println(IdTranslator.getInstance().getIdTranslation(vehicleId));
+		if (IdTranslator.getInstance().getIdTranslation(vehicleId) != null) {
+			Neo4jInteractions.getInstance().deleteNode(vehicleId, "Vehicle");
+			IdTranslator.getInstance().removeTranslation(vehicleId);
+			
+			if(this.vehiclePath.containsKey(vehicleId) && !update) {
+				// For each place is the old path we need to increase the capacity by 1
+				for(String id : this.vehiclePath.get(vehicleId).getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList()) ) {
+					Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(id);
+				}
+				this.vehiclePath.remove(vehicleId);
 			}
-			this.vehiclePath.remove(vehicleId);
 		}
 	}
 

@@ -383,6 +383,9 @@ public class RNSCore {
 		
 		VehicleReaderType currentVehicle = Neo4jInteractions.getInstance().getVehicle(vehicle.getId());
 		
+		if(vehicle.getPosition().equals(currentVehicle.getPosition())) 
+			throw new InvalidPathException("Vehicle " + vehicle.getId() + " didn't change position. Still located in " + vehicle.getPosition() + ". State: " + vehicle.getState().toString());
+		
 		if(occurrences != 0) { // Still following the path
 			// Check on the correct sequence of places
 			String nextPlaceId = "";

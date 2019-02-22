@@ -614,8 +614,15 @@ public class RNSCore {
 	 * Function to update the state of a vehicle
 	 * @param vehicleId = id of the vehicle
 	 * @param newState = new state the vehicle is in
+	 * @throws InvalidVehicleStateException 
 	 */
-	public void updateVehicleState(String vehicleId, String newState) {
+	public void updateVehicleState(String vehicleId, String newState) throws InvalidVehicleStateException {
+		
+		try {
+			VehicleStateType.valueOf(newState);
+		} catch(IllegalArgumentException e) {
+			throw new InvalidVehicleStateException("Invalid value for vehicle state.");
+		}
 		
 		Neo4jInteractions.getInstance().updateVehicleState(vehicleId, newState);
 		

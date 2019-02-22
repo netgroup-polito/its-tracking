@@ -255,9 +255,15 @@ public class VehicleResource {
     })
     public Response updateVehicleState(@PathParam("id") String vehicleId, String newState) {
     		
-		RNSCore.getInstance().updateVehicleState(vehicleId, newState);
+		try {
+			RNSCore.getInstance().updateVehicleState(vehicleId, newState);
+			return Response.status(Status.CREATED).entity("Updated state of vehicle " + vehicleId + " to " + newState).build();
+		} catch (InvalidVehicleStateException e) {
+			System.out.println(e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
     		
-		return Response.status(Status.CREATED).entity("Updated state of vehicle " + vehicleId + " to " + newState).build();
+		
     }
     
     @DELETE

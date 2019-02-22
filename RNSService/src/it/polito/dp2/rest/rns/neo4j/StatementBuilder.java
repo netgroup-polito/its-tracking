@@ -421,4 +421,17 @@ public class StatementBuilder {
 	
 	return query;
 	}
+
+	/**
+	 * Function to retrieve the cypher query to update the state of 
+	 * a vehicle in the database
+	 * @param id = id of the vehicle
+	 * @param newState = new state of the vehicle
+	 * @return the corresponding query
+	 */
+	public String getUpdateStateStatementByVehicleId(String id, String newState) {
+		String query = "MATCH(n: Vehicle) WHERE id(n) = " + id + " "
+				+ "SET n.state = '" + newState + "' RETURN n";
+		return query;
+	}
 }

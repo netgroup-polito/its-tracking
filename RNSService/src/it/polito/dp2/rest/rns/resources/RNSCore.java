@@ -131,6 +131,7 @@ public class RNSCore {
 				this.vehiclePath.put(vehicle.getId(), places);
 				
 				for(String idPlace : places.getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList())) {
+					//System.out.println("Decreasing node: " + idPlace);
 					Neo4jInteractions.getInstance().decreaseCapacityOfNodeGivenId(idPlace);
 				}
 				
@@ -252,7 +253,6 @@ public class RNSCore {
 				}
 			}
 		}
-		
 	}
 
 	/**
@@ -328,7 +328,7 @@ public class RNSCore {
 	 * @param vehicleId = id of the vehicle to be deleted
 	 */
 	public synchronized void deleteVehicle(String vehicleId, boolean update) {
-		System.out.println(IdTranslator.getInstance().getIdTranslation(vehicleId));
+		System.out.println("Deletion of vehicle " + vehicleId + " " + update);
 		if (IdTranslator.getInstance().getIdTranslation(vehicleId) != null) {
 			Neo4jInteractions.getInstance().deleteNode(vehicleId, "Vehicle");
 			IdTranslator.getInstance().removeTranslation(vehicleId);
@@ -336,6 +336,7 @@ public class RNSCore {
 			if(this.vehiclePath.containsKey(vehicleId) && !update) {
 				// For each place is the old path we need to increase the capacity by 1
 				for(String id : this.vehiclePath.get(vehicleId).getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList()) ) {
+					//System.out.println("Increasing capacity of node: " + id);
 					Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(id);
 				}
 				this.vehiclePath.remove(vehicleId);
@@ -379,6 +380,14 @@ public class RNSCore {
 											.filter((place) -> place.getId().equals(vehicle.getPosition()))
 											.count();
 		
+		String nextPlaceId = "";
+		
+		if(this.vehiclePath.containsKey(vehicle.getId()))
+		 nextPlaceId = this.vehiclePath.get(vehicle.getId()).getPlace().get(1).getId();
+		
+		if(!nextPlaceId.equals(vehicle.getPosition()) && !nextPlaceId.equals("")) 
+			throw new InvalidPathException("You skipped place " + nextPlaceId);
+		
 		VehicleReaderType currentVehicle = Neo4jInteractions.getInstance().getVehicle(vehicle.getId());
 		
 		if(occurrences != 0) { // Still following the path
@@ -399,6 +408,8 @@ public class RNSCore {
 			Places path = this.vehiclePath.get(currentVehicle.getId());
 			path.getPlace().removeIf((place) -> place.getId().equals(currentVehicle.getPosition()));
 			
+			//System.out.println("Next place to be visited: " + path.getPlace().get(1).getId());
+			
 			// Return the current position
 			Places places = (new ObjectFactory()).createPlaces();
 			places.getPlace().add(Neo4jInteractions.getInstance().getPlace(vehicle.getPosition()));
@@ -410,7 +421,7 @@ public class RNSCore {
 		} else { // Need to recompute the path
 			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
 			
-			this.deleteVehicle(vehicle.getId(), true);
+			this.deleteVehicle(vehicle.getId(), false);
 			Places places;
 			try {
 				places = this.addVehicle(vehicle);
@@ -435,7 +446,7 @@ public class RNSCore {
 	private void updateAvgTimePlace(String placeId, XMLGregorianCalendar entryTime, XMLGregorianCalendar exitTime) {
 		long duration = DateConverter.getDurationFromXMLGregorianCalendar(entryTime, exitTime);
 		Counter counter = Neo4jInteractions.getInstance().getCounterGivenPlaceId(placeId);
-		System.out.println("Duration: " + duration + " -- " + counter.getName() + ": " + counter.getCounter());
+		//System.out.println("Duration: " + duration + " -- " + counter.getName() + ": " + counter.getCounter());
 		
 		Neo4jInteractions.getInstance().updateAvgTimeSpentPlace(placeId, duration, counter.getCounter() + 1);
 		Neo4jInteractions.getInstance().updateCounterValueOfPlace(placeId, 1, true);
@@ -592,5 +603,16 @@ public class RNSCore {
 		}
 		
 		return null;
+	}
+
+	/**
+	 * Function to update the state of a vehicle
+	 * @param vehicleId = id of the vehicle
+	 * @param newState = new state the vehicle is in
+	 */
+	public void updateVehicleState(String vehicleId, String newState) {
+		
+		Neo4jInteractions.getInstance().updateVehicleState(vehicleId, newState);
+		
 	}
 }

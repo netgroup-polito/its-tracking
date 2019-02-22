@@ -813,6 +813,7 @@ public class Neo4jInteractions implements AutoCloseable {
                 @Override
                 public Boolean execute( Transaction tx )
                 {
+                	System.out.println(query);
 					tx.run(query);
 					return true;
                 }
@@ -980,5 +981,37 @@ public class Neo4jInteractions implements AutoCloseable {
         		e.printStackTrace();
         }
 		return null;
+	}
+
+	/**
+	 * Function to update in neo4j the state of a vehicle
+	 * @param vehicleId = id of the vehicle
+	 * @param newState = new state of the vehicle
+	 */
+	public void updateVehicleState(String vehicleId, String newState) {
+		
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getUpdateStateStatementByVehicleId(
+										IdTranslator.getInstance().getIdTranslation(vehicleId), 
+										newState);
+			
+			session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+					tx.run(query);
+					
+					return true;
+                }
+            } );
+            
+			session.close();
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
 	}
 }

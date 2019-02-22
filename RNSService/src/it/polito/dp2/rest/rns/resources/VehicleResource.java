@@ -206,6 +206,7 @@ public class VehicleResource {
 	@ApiResponses(
 			value = {
 					@ApiResponse(code = 201, message = "Created"),
+					@ApiResponse(code = 400, message = "Bad Request"),
 					@ApiResponse(code = 500, message = "Internal Server Error")
 			}
 	)
@@ -228,6 +229,35 @@ public class VehicleResource {
 			//e.printStackTrace();
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
+    }
+    
+    @PUT
+    @Path("/{id}/state")
+    @ApiOperation(
+			value = "updateVehicle",
+			notes = "allow to update information about a specific vehicle"
+	)
+	@ApiResponses(
+			value = {
+					@ApiResponse(code = 201, message = "Created"),
+					@ApiResponse(code = 400, message = "Bad Request"),
+					@ApiResponse(code = 500, message = "Internal Server Error")
+			}
+	)
+	@Produces({
+			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON
+	})
+    @Consumes({
+		    	MediaType.APPLICATION_XML,
+		    	MediaType.APPLICATION_JSON,
+		    	MediaType.TEXT_PLAIN
+    })
+    public Response updateVehicleState(@PathParam("id") String vehicleId, String newState) {
+    		
+		RNSCore.getInstance().updateVehicleState(vehicleId, newState);
+    		
+		return Response.status(Status.CREATED).entity("Updated state of vehicle " + vehicleId + " to " + newState).build();
     }
     
     @DELETE

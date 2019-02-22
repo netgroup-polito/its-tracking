@@ -72,7 +72,7 @@ public class RNSCore {
 	 * 
 	 * @return RNSCore instance
 	 */
-	public static RNSCore getInstance(){
+	public synchronized static RNSCore getInstance(){
 		if(instance == null){
 			instance = new RNSCore();
 		}

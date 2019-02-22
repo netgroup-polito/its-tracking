@@ -13,12 +13,41 @@
         >
           <mat-expansion-panel-header>
             <mat-panel-title>
-              <p>{{place.name}}<span *ngIf="place.visited == 1"> - Visited</span></p>
+              <p>{{place.name}}
+                <span *ngIf="place.visited == 1"> - Visited</span>
+                <span *ngIf="place.visited == 0"> - You are here</span>
+              </p>
             </mat-panel-title>
           </mat-expansion-panel-header>
           <p><span>Id: </span>{{place.id}}</p>
         </mat-expansion-panel>
       </li>
     </mat-accordion>
+  </div>
+
+  <div class="button-container">
+    <button mat-fab color="basic"
+            class="tooltip" data-tip="Homepage"
+            (click)='goHome()'>
+      <mat-icon>home</mat-icon>
+    </button>
+    <button mat-fab color="primary"
+            *ngIf="!this.parked"
+            class="tooltip" data-tip="Park here"
+            class="fab-button done"
+            (click)='park()'>
+      <mat-icon>local_parking</mat-icon>
+    </button>
+    <button *ngIf="this.parked" mat-fab color="primary"
+            class="tooltip" data-tip="Restart"
+            class="fab-button done"
+            (click)='this.parked = false'>
+      <mat-icon>directions_car</mat-icon>
+    </button>
+    <button mat-fab
+            class="tooltip" data-tip="Exit from the system" 
+            color="warn" (click)='exitSystem()'>
+      <mat-icon>exit_to_app</mat-icon>
+    </button>
   </div>
 </mat-card>

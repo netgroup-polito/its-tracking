@@ -1,37 +1,36 @@
-<div>
-  <mat-card class="top-card">
-    <mat-card-title>
-      Search Path
-    </mat-card-title>
+<mat-card>
+  <mat-card-title>
+    Search Path
+  </mat-card-title>
 
-    <div class="vehicle">
-      <div class="search-container">
+  <div class="vehicle">
+    <div class="search-container">
+      <div class="row">
         <mat-form-field>
           <input matInput
-                 placeholder="Enter your Vehicle Id"
-                 matTooltip="Enter your Vehicle Id"
-                 [formControl]="vehicleId"
-                 (keyup.enter)="searchPath()"
-                 required>
-          <mat-error *ngIf="vehicleId.hasError('required')">{{getErrorMessage(vehicleId)}}</mat-error>
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput
-                 placeholder="Select source from list"
-                 matTooltip="Select source from list"
-                 [formControl]="sourceId"
-                 (keyup.enter)="searchPath()"
-                 required>
+                  placeholder="Select source from list"
+                  [formControl]="sourceId"
+                  (keyup.enter)="searchPath()"
+                  required>
           <mat-error *ngIf="sourceId.hasError('required')">{{getErrorMessage(sourceId)}}</mat-error>
         </mat-form-field>
         <mat-form-field>
           <input matInput
-                 placeholder="Select destination from list"
-                 matTooltip="Select destination from list"
-                 [formControl]="destinationId"
-                 (keyup.enter)="searchPath()"
-                 required>
+                  placeholder="Select destination from list"
+                  [formControl]="destinationId"
+                  (keyup.enter)="searchPath()"
+                  required>
           <mat-error *ngIf="destinationId.hasError('required')">{{getErrorMessage(destinationId)}}</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="row">
+        <mat-form-field>
+          <input matInput
+                  placeholder="Enter your Vehicle Id"
+                  [formControl]="vehicleId"
+                  (keyup.enter)="searchPath()"
+                  required>
+          <mat-error *ngIf="vehicleId.hasError('required')">{{getErrorMessage(vehicleId)}}</mat-error>
         </mat-form-field>
         <mat-form-field *ngIf="types !== undefined">
           <mat-select [formControl]="typeId" placeholder="Vehicle type">
@@ -43,28 +42,124 @@
         </mat-form-field>
       </div>
     </div>
+  </div>
 
-    <div  class="search">
-      <div class="button-container">
-        <button mat-fab color="primary"
-                class="fab-button done"
-                matTooltip="Search Path"
-                (click)='searchPath()'>
-          <mat-icon>done</mat-icon>
-        </button>
+  <div  class="search">
+    <div class="button-container">
+      <button mat-fab color="primary"
+              class="fab-button done"
+              (click)='searchPath()'>
+        <mat-icon>done</mat-icon>
+      </button>
 
-        <button mat-fab
-                matTooltip="Reset"
-                (click)='reset()'>
-          <mat-icon>delete</mat-icon>
-        </button>
+      <button mat-fab
+              (click)='reset()'>
+        <mat-icon>delete</mat-icon>
+      </button>
 
-      </div>
     </div>
-  </mat-card>
+  </div>
+</mat-card>
 
+<mat-card>
+  <mat-card-title>
+    Select Source
+  </mat-card-title>
 
-  <mat-card class="top-card">
+  <div>
+    <mat-accordion>
+      <li *ngFor="let gate of gates">
+        <mat-expansion-panel
+          [expanded]="false"
+          (opened)="panelOpenState2 = true"
+          (closed)="panelOpenState2 = false"
+          (click)="fillSrcId(gate.id)"
+          [ngClass]="{'selected' : gate.id == sourceId.value}"
+          *ngIf="gate.type === 'IN' ||
+                  gate.type === 'INOUT'"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <p>{{gate.name}}</p>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <p><span>Id: </span>{{gate.id}}</p>
+          <p><span>Type: </span>{{gate.type}}</p>
+          <p>Gate selected as source</p>
+        </mat-expansion-panel>
+      </li>
+      <li *ngFor="let parking of parkings">
+        <mat-expansion-panel
+          [expanded]="false"
+          (opened)="panelOpenState2 = true"
+          (closed)="panelOpenState2 = false"
+          (click)="fillSrcId(parking.id)"
+          [ngClass]="{'selected' : parking.id == sourceId.value}"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <p>{{parking.name}}</p>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <p><span>Id: </span>{{parking.id}}</p>
+          <p><span>Capacity: </span>{{parking.capacity}}</p>
+          <p>Parking selected as source</p>
+        </mat-expansion-panel>
+      </li>
+    </mat-accordion>
+  </div>
+</mat-card>
+
+<mat-card>
+  <mat-card-title>
+    Select Destination
+  </mat-card-title>
+
+  <div>
+    <mat-accordion>
+      <li *ngFor="let gate of gates">
+        <mat-expansion-panel
+          [expanded]="false"
+          (opened)="panelOpenState2 = true"
+          (closed)="panelOpenState2 = false"
+          (click)="fillDstId(gate.id)"
+          [ngClass]="{'selected' : gate.id == destinationId.value}"
+          *ngIf="gate.type === 'OUT' ||
+                  gate.type === 'INOUT'"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <p>{{gate.name}}</p>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <p><span>Id: </span>{{gate.id}}</p>
+          <p><span>Type: </span>{{gate.type}}</p>
+          <p>Gate selected as destination</p>
+        </mat-expansion-panel>
+      </li>
+      <li *ngFor="let parking of parkings">
+        <mat-expansion-panel
+          [expanded]="false"
+          (opened)="panelOpenState2 = true"
+          (closed)="panelOpenState2 = false"
+          (click)="fillDstId(parking.id)"
+          [ngClass]="{'selected' : parking.id == destinationId.value}"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <p>{{parking.name}}</p>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <p><span>Id: </span>{{parking.id}}</p>
+          <p><span>Capacity: </span>{{parking.capacity}}</p>
+          <p>Parking selected as destination</p>
+        </mat-expansion-panel>
+      </li>
+    </mat-accordion>
+  </div>
+</mat-card>
+
+<mat-card>
     <mat-card-title>
       Select Dangerous Materials
     </mat-card-title>
@@ -85,111 +180,4 @@
         <li class="mat-list"> {{ mat }}</li>
       </mat-accordion>
     </div>
-
-  </mat-card>
-
-
-  <div class="src-card">
-    <mat-card>
-
-      <mat-card-title>
-        Select Source
-      </mat-card-title>
-
-      <div>
-        <mat-accordion>
-          <li *ngFor="let gate of gates">
-            <mat-expansion-panel
-              [expanded]="false"
-              (opened)="panelOpenState2 = true"
-              (closed)="panelOpenState2 = false"
-              (click)="fillSrcId(gate.id)"
-              [ngClass]="{'selected' : gate.id == sourceId.value}"
-              *ngIf="gate.type === 'IN' ||
-                     gate.type === 'INOUT'"
-            >
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <p>{{gate.name}}</p>
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <p><span>Id: </span>{{gate.id}}</p>
-              <p><span>Type: </span>{{gate.type}}</p>
-              <p>Gate selected as source</p>
-            </mat-expansion-panel>
-          </li>
-          <li *ngFor="let parking of parkings">
-            <mat-expansion-panel
-              [expanded]="false"
-              (opened)="panelOpenState2 = true"
-              (closed)="panelOpenState2 = false"
-              (click)="fillSrcId(parking.id)"
-              [ngClass]="{'selected' : parking.id == sourceId.value}"
-            >
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <p>{{parking.name}}</p>
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <p><span>Id: </span>{{parking.id}}</p>
-              <p><span>Capacity: </span>{{parking.capacity}}</p>
-              <p>Parking selected as source</p>
-            </mat-expansion-panel>
-          </li>
-        </mat-accordion>
-      </div>
-    </mat-card>
-  </div>
-
-  <div class="dst-card">
-    <mat-card>
-
-      <mat-card-title>
-        Select Destination
-      </mat-card-title>
-
-      <div>
-        <mat-accordion>
-          <li *ngFor="let gate of gates">
-            <mat-expansion-panel
-              [expanded]="false"
-              (opened)="panelOpenState2 = true"
-              (closed)="panelOpenState2 = false"
-              (click)="fillDstId(gate.id)"
-              [ngClass]="{'selected' : gate.id == destinationId.value}"
-              *ngIf="gate.type === 'OUT' ||
-                     gate.type === 'INOUT'"
-            >
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <p>{{gate.name}}</p>
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <p><span>Id: </span>{{gate.id}}</p>
-              <p><span>Type: </span>{{gate.type}}</p>
-              <p>Gate selected as destination</p>
-            </mat-expansion-panel>
-          </li>
-          <li *ngFor="let parking of parkings">
-            <mat-expansion-panel
-              [expanded]="false"
-              (opened)="panelOpenState2 = true"
-              (closed)="panelOpenState2 = false"
-              (click)="fillDstId(parking.id)"
-              [ngClass]="{'selected' : parking.id == destinationId.value}"
-            >
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <p>{{parking.name}}</p>
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <p><span>Id: </span>{{parking.id}}</p>
-              <p><span>Capacity: </span>{{parking.capacity}}</p>
-              <p>Parking selected as destination</p>
-            </mat-expansion-panel>
-          </li>
-        </mat-accordion>
-      </div>
-    </mat-card>
-  </div>
-</div>
+</mat-card>

@@ -3,7 +3,7 @@ mat-toolbar {
   z-index: 2;
 }
 
-mat-toolbar .row {
+.container {
   height: 100%;
   width: 100%;
   display: -webkit-box;
@@ -11,33 +11,8 @@ mat-toolbar .row {
   display: -ms-flexbox;
   display: -webkit-flex;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-}
-
-mat-toolbar .flex-item {
-  width: 30%;
-}
-
-p {
-  text-align: center;
-}
-
-.mat-icon-button {
-  float: right;
-}
-.container {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.menu-button {
-  float: left;
 }
 
 .is-mobile .toolbar {
@@ -46,7 +21,7 @@ p {
   z-index: 2;
 }
 
-h1.app-name {
+h1 {
   text-align: center;
 }
 
@@ -60,12 +35,4 @@ h1.app-name {
   /* When the sidenav is fixed, don't constrain the height of the sidenav container. This allows the
      `<body>` to be our scrolling element for mobile layouts. */
   flex: 1 0 auto;
-}
-
-mat-sidenav {
-  background: #3f51b5;
-}
-
-mat-sidenav mat-nav-list a {
-  color: white;
 }

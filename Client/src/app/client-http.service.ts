@@ -60,11 +60,11 @@ export class ClientHttpService {
   }
 
   deleteVehicle(vId: string): any {
-    return this.http.delete(this.path + 'vehicles/' + vId);
+    return this.http.delete(this.path + 'vehicles/' + vId, {responseType: 'text'});
   }
 
-  changeState(): Observable<HttpResponse<string>> {
+  changeState(): any {
     const state = 'PARKED';
-    return this.http.put<HttpResponse<string>>(this.path + 'vehicles/' + this.json.id + '/state', state, {});
+    return this.http.put(this.path + 'vehicles/' + this.json.id + '/state', state, {responseType: 'text'});
   }
 }

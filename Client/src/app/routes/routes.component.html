@@ -27,25 +27,25 @@
 
   <div class="button-container">
     <button mat-fab color="basic"
-            class="tooltip" data-tip="Homepage"
+            tooltip="Homepage" [options]="tooltipOptions"
             (click)='goHome()'>
       <mat-icon>home</mat-icon>
     </button>
     <button mat-fab color="primary"
             *ngIf="!this.parked"
-            class="tooltip" data-tip="Park here"
+            tooltip="Park here" [options]="tooltipOptions"
             class="fab-button done"
             (click)='park()'>
       <mat-icon>local_parking</mat-icon>
     </button>
     <button *ngIf="this.parked" mat-fab color="primary"
-            class="tooltip" data-tip="Restart"
+            tooltip="Restart driving" [options]="tooltipOptions"
             class="fab-button done"
             (click)='this.parked = false'>
       <mat-icon>directions_car</mat-icon>
     </button>
     <button mat-fab
-            class="tooltip" data-tip="Exit from the system" 
+            tooltip="Exit system and go to homepage" [options]="tooltipOptions"
             color="warn" (click)='exitSystem()'>
       <mat-icon>exit_to_app</mat-icon>
     </button>

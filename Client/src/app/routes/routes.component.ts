@@ -15,6 +15,11 @@ export class RoutesComponent implements OnInit {
   path: Path;
   intervals;
   parked: boolean;
+  tooltipOptions = {
+    'placement': 'bottom',
+    'show-delay': 50,
+    'hide-delay': 0
+  };
 
   constructor(private client: ClientHttpService,
               private snackBar: MatSnackBar,
@@ -99,8 +104,8 @@ export class RoutesComponent implements OnInit {
   park() {
     this.parked = true;
     this.client.changeState().subscribe(
-      data => this.openSnackBar('Parked', 'OK'),
-      err => this.openSnackBar(err.error, 'OK')
+      data => this.openSnackBar(data, 'OK'),
+      err => this.openSnackBar(err.message, 'OK')
     );
   }
 

@@ -27,6 +27,11 @@ export class PathComponent implements OnInit {
   typeId = new FormControl('', [Validators.required]);
   selectedMaterials: string[] = [];
   dangerousMaterialsDependencies;
+  tooltipOptions = {
+    'placement': 'bottom',
+    'show-delay': 50,
+    'hide-delay': 50
+  };
 
   constructor(private client: ClientHttpService,
               private snackBar: MatSnackBar,
@@ -137,10 +142,12 @@ export class PathComponent implements OnInit {
 
   fillSrcId(id: string) {
     this.sourceId.setValue(id);
+    this.openSnackBar('Source selected: ' + id, 'OK');
   }
 
   fillDstId(id: string) {
     this.destinationId.setValue(id);
+    this.openSnackBar('Destination selected: ' + id, 'OK');
   }
 
   openSnackBar(message: string, action: string) {

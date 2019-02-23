@@ -250,7 +250,8 @@ public class VehicleResource {
 	})
     @Consumes({
 		    	MediaType.APPLICATION_XML,
-		    	MediaType.APPLICATION_JSON
+		    	MediaType.APPLICATION_JSON,
+		    	MediaType.TEXT_PLAIN
     })
     public Response updateVehicleState(@PathParam("id") String vehicleId, String newState) {
     		

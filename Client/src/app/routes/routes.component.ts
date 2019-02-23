@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import {Path} from '../path';
 import {PathService} from '../path.service';
 import {Router} from '@angular/router';
-import { Place } from '../place';
 import { ClientHttpService } from '../client-http.service';
 import { MatSnackBar } from '@angular/material';
 
@@ -58,9 +57,12 @@ export class RoutesComponent implements OnInit {
           const randomTime = self.getRandomInt(0, 5);
           const randomRoad = self.getRandomInt(0, 100);
           if (randomRoad <= 90 || self.path.place[currentIndex].connectedPlaceId.length === 1) { // right road
-            self.path.place[index].visited = 0;
             self.client.putVehicle(self.path.place[index].id).subscribe(
-              () => self.visitPlace(index, randomTime),
+              () => {
+                self.path.place[index].visited = 0;
+                localStorage.setItem('sourceId', self.path.place[index].id);
+                self.visitPlace(index, randomTime);
+              },
               err => self.openSnackBar(err.error, 'OK')
             );
           } else { // wrong road
@@ -75,6 +77,7 @@ export class RoutesComponent implements OnInit {
                 self.path.place.length = index;
                 self.path.place.push.apply(self.path.place, data.place);
                 self.path.place[index].visited = 0;
+                localStorage.setItem('sourceId', self.path.place[index].id);
                 const randomTimeNew = self.getRandomInt(0, 5);
                 self.visitPlace(index, randomTimeNew);
               },
@@ -112,9 +115,14 @@ export class RoutesComponent implements OnInit {
   exitSystem() {
     const vId = localStorage.getItem('vehicleId');
     this.client.deleteVehicle(vId).subscribe(
-      () => this.goHome(),
-      () => this.goHome()
-    );
+      data => {
+        this.openSnackBar(data, 'OK');
+        this.goHome();
+      },
+      err => {
+        this.openSnackBar(err.message, 'OK');
+        this.goHome();
+      });
   }
 
   goHome() {

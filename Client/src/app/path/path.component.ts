@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material';
 import { Router } from '@angular/router';
 import { Types } from '../types';
 import { Materials } from '../materials';
+import { Place } from '../place';
 
 @Component({
   selector: 'app-path',
@@ -27,6 +28,7 @@ export class PathComponent implements OnInit {
   typeId = new FormControl('', [Validators.required]);
   selectedMaterials: string[] = [];
   dangerousMaterialsDependencies;
+  currentPosition: Place;
   tooltipOptions = {
     'placement': 'bottom',
     'show-delay': 50,
@@ -40,12 +42,15 @@ export class PathComponent implements OnInit {
 
   ngOnInit() {
     const vId = localStorage.getItem('vehicleId');
+    const sId = localStorage.getItem('sourceId');
     const tId = localStorage.getItem('typeId');
     if (vId !== null) {
       this.vehicleId.setValue(vId);
-      this.client.deleteVehicle(vId).subscribe(
-        data => {},
-        err => {}
+    }
+    if (sId !== null) {
+      this.sourceId.setValue(sId);
+      this.client.getPlace(sId).subscribe(
+        data => this.currentPosition = data
       );
     }
     if (tId !== null) {
@@ -120,13 +125,14 @@ export class PathComponent implements OnInit {
     if (this.sourceId.hasError('required')
         || this.destinationId.hasError('required')
         || this.vehicleId.hasError('required')) {
-
+          this.openSnackBar('Please fill all the information', 'OK');
     } else {
-      this.client.postVehicle(this.sourceId.value,
+      this.pathService.fillInfo(this.sourceId.value,
         this.destinationId.value,
         this.vehicleId.value,
         this.typeId.value,
-        this.selectedMaterials).subscribe(
+        this.selectedMaterials);
+      this.client.putVehicle().subscribe(
         data => {
           localStorage.setItem('vehicleId', this.vehicleId.value);
           localStorage.setItem('typeId', this.typeId.value);

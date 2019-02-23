@@ -371,8 +371,10 @@ public class RNSCore {
 						.stream()
 						.map(VehicleReaderType::getId)
 						.collect(Collectors.toList());
-		if(!vehiclesLoadedIds.contains(vehicle.getId())) throw(new VehicleNotInSystemException("Vehicle " + vehicle.getId() + " is not currently in the system."));
-		
+		if(!vehiclesLoadedIds.contains(vehicle.getId())) 
+			//throw(new VehicleNotInSystemException("Vehicle " + vehicle.getId() + " is not currently in the system."));
+			return this.addVehicle(vehicle);
+			
 		long occurrences = 0;
 		if(this.vehiclePath.containsKey(vehicle.getId()))
 			occurrences = this.vehiclePath.get(vehicle.getId())

@@ -1,0 +1,7 @@
+clean
+distclean
+generate-bindings
+redeploy
+start-tomcat
+stop-tomcat
+undeploy

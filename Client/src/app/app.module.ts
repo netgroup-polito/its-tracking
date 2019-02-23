@@ -11,7 +11,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatTooltipModule } from '@angular/material';
+import { TooltipModule } from 'ng2-tooltip-directive';
 
 const appRoutes: Routes = [
   { path: 'home', component: PathComponent },
@@ -34,7 +34,7 @@ const appRoutes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    MatTooltipModule
+    TooltipModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -250,8 +250,7 @@ public class VehicleResource {
 	})
     @Consumes({
 		    	MediaType.APPLICATION_XML,
-		    	MediaType.APPLICATION_JSON,
-		    	MediaType.TEXT_PLAIN
+		    	MediaType.APPLICATION_JSON
     })
     public Response updateVehicleState(@PathParam("id") String vehicleId, String newState) {
     		
@@ -260,7 +259,7 @@ public class VehicleResource {
 			return Response.status(Status.CREATED).entity("Updated state of vehicle " + vehicleId + " to " + newState).build();
 		} catch (InvalidVehicleStateException e) {
 			System.out.println(e.getMessage());
-			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+			return Response.status(Status.OK).entity(e.getMessage()).build();
 		}
     		
 		

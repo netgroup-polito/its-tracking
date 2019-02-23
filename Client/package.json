@@ -24,6 +24,7 @@
     "@angular/platform-browser-dynamic": "^6.0.2",
     "@angular/router": "^6.0.2",
     "core-js": "^2.6.5",
+    "ng2-tooltip-directive": "^2.1.8",
     "parsejson": "0.0.3",
     "rxjs": "6.3.3",
     "xml-js": "^1.6.11",

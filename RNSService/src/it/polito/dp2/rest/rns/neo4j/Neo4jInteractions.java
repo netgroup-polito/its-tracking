@@ -253,7 +253,9 @@ public class Neo4jInteractions implements AutoCloseable {
 	public synchronized VehicleReaderType getVehicle(String vehicleId) {
 		List<VehicleReaderType> vehicles = this.getVehicles();
 		
+		System.out.println("Vehicle id to look for: " + vehicleId);
 		for(VehicleReaderType vehicle : vehicles) {
+			System.out.println("Vehicle " + vehicle.getId() + " is in the system!");
 			if(vehicle.getId().equals(vehicleId)) return vehicle;
 		}
 		
@@ -303,6 +305,7 @@ public class Neo4jInteractions implements AutoCloseable {
 		try ( Session session = driver.session() )
         {
 			final String query = StatementBuilder.getInstance().getVehicleStatement("transports");
+			System.out.println(query);
             List<VehicleReaderType> result = session.writeTransaction( new TransactionWork<List<VehicleReaderType>>()
             {
                 @Override
@@ -315,7 +318,7 @@ public class Neo4jInteractions implements AutoCloseable {
 					
 					for(Record r : result.list()) {
 						
-						System.out.println("[NEO] " + r);
+						//System.out.println("[NEO] " + r);
 						
 						if(vehicle != null) {
 							if(!vehicle.getId().equals((String) r.get(0).asMap().get("id"))) vehicle = null;
@@ -339,11 +342,16 @@ public class Neo4jInteractions implements AutoCloseable {
 								e.printStackTrace();
 							}
 							
-							vehicle.getMaterial().add((String) IdTranslator.getInstance().fromNeo4jId(String.valueOf(r.get(1))));
+							if(r.get(1) != null) {
+								vehicle.getMaterial().add((String) IdTranslator.getInstance().fromNeo4jId(String.valueOf(r.get(1))));
+							} else {
+								vehicle.getMaterial().add("");
+							}
 						} else {
-							vehicle.getMaterial().add((String) IdTranslator.getInstance().fromNeo4jId(String.valueOf(r.get(1))));
+							
+							//vehicle.getMaterial().add((String) IdTranslator.getInstance().fromNeo4jId(String.valueOf(r.get(1))));
 						}
-						
+						//System.out.println("NEO --> " + vehicle.getId());
 						list.add(vehicle);
 					}
 					return list;
@@ -825,7 +833,7 @@ public class Neo4jInteractions implements AutoCloseable {
                 @Override
                 public Boolean execute( Transaction tx )
                 {
-                	System.out.println(query);
+                	//System.out.println(query);
 					tx.run(query);
 					return true;
                 }
@@ -979,7 +987,7 @@ public class Neo4jInteractions implements AutoCloseable {
 					
 					Value r = result.single().get(0);
 					
-					System.out.println("[NEO4J]" + r.asMap());
+					//System.out.println("[NEO4J]" + r.asMap());
 					counter = new Counter((String) r.asMap().get("name"), (long) r.asMap().get("counter"), (long) r.asMap().get("reservations"));
 					
 					return counter;

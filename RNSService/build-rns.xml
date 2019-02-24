@@ -24,6 +24,8 @@
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.8" />
 	<property name="source" value="1.8" />
+	<property name="testcase" value="0" />
+	<property name="test.class" value="it.polito.dp2.rns.test.tests.RNSTests" />
 	
 	<import file="tomcat-build.xml"/>
 	<import file="neo4j-build.xml"/>
@@ -37,6 +39,17 @@
 		</fileset>
 		<fileset dir="${ext.lib.dir}">
 			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<path id="test.classpath">
+		<pathelement location="${build.dir}" />
+		<fileset dir="${lib.dir}">
+		    <include name="*.jar" />
+		</fileset>
+		<fileset dir="${ext.lib.dir}">
+		    <include name="*.jar" />
+			<exclude name="ant-*.jar"/>
 		</fileset>
 	</path>
 	
@@ -116,4 +129,17 @@
 		</exec>
 		<touch file="${gen.dir}/.flagfile" />
 	</target>
+	
+	<target name="runFuncTest.real">	
+			<echo>Running Junit tests...</echo>		
+			<junit printsummary="yes" dir="." fork="yes" haltonfailure="no" showoutput="no" filtertrace="true" timeout="120000">
+				<jvmarg value="-Djava.awt.headless=true" />
+				<test haltonfailure="no" failureproperty="test_failed" name="${test.class}"/>
+				<classpath>
+					<path refid="test.classpath" />
+				</classpath>
+			</junit>
+			<fail if="test_failed" status="500" message="*** Junit tests: Some Tests FAILED ***"/>
+			<echo>*** Junit tests: All Tests PASSED  ***</echo>	
+		</target>
 </project>

@@ -32,5 +32,9 @@
 	<target name="generate-bindings" description="generate classes from schema">
 		<ant antfile="build-rns.xml" target="generate-bindings"/>
 	</target>
+	
+	<target name="run-tests" description="run junit tests">
+		<ant antfile="build-rns.xml" target="runFuncTest.real"/>
+	</target>
 </project>
 

@@ -154,7 +154,10 @@ public class StatementBuilder {
 	 * @return a string corresponding to the desired query
 	 */
 	public String getVehicleStatement(String typeConnection) {
-		String query = "MATCH (n: Vehicle)-[:" + typeConnection + "*0..1]->(connected) WHERE id(n) <> id(connected) RETURN properties(n), id(connected)";
+		String query = "MATCH (n: Vehicle) "
+				+ "OPTIONAL MATCH (n)-[:" + typeConnection + "*0..1]->(connected) "
+				+ "WHERE id(n) <> id(connected) "
+				+ "RETURN properties(n), id(connected)";
 		return query;
 	}
 	

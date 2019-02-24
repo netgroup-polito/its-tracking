@@ -327,7 +327,7 @@
 								minOccurs="1" maxOccurs="1"/>
 					<element		name="material"
 								type="string"
-								minOccurs="0" maxOccurs="unbounded"/>
+								minOccurs="0" maxOccurs="unbounded" nillable="true"/>
 				</sequence>
 			</extension>
 		</complexContent>

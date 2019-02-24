@@ -174,12 +174,12 @@ public class Z3Model {
 			for( DangerousMaterialImpl material : materialsTransported) {
 				for(String m : materials) {
 					String mat = m.replace("\"", "");
-					System.out.println("Comparing " + mat + " --- " + material.getId());
+					//System.out.println("Comparing " + mat + " --- " + material.getId());
 					if(!material.isCompatibleWith(mat)) {
-						System.out.println(
+						/*System.out.println(
 								"Node " + current.getId() + 
 								" contains material " + mat + 
-								" that is not compatible with " + material.getId());
+								" that is not compatible with " + material.getId());*/
 						return;
 					}
 				}

@@ -105,6 +105,7 @@ public class VehicleResource {
 	})
     public Response getVehicle(@PathParam("id") String vehicleId, @Context HttpHeaders headers) {
 		try {
+			System.out.println("GET VEHICLE " + vehicleId);
 			VehicleReaderType vehicle = RNSCore.getInstance().getVehicle(vehicleId);
 	    		JAXBElement<VehicleReaderType> jaxbVehicle = (new ObjectFactory()).createVehicle(vehicle);
 	    		return

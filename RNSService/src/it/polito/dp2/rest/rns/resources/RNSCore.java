@@ -1,5 +1,6 @@
 package it.polito.dp2.rest.rns.resources;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import it.polito.dp2.rest.rns.exceptions.IncompatibleMaterialsCarriedException;
+import it.polito.dp2.rest.rns.exceptions.InvalidDestinationPlaceException;
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryTimeException;
 import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
@@ -25,6 +27,7 @@ import it.polito.dp2.rest.rns.jaxb.Gates;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreas;
+import it.polito.dp2.rest.rns.jaxb.PlaceStatus;
 import it.polito.dp2.rest.rns.jaxb.Places;
 import it.polito.dp2.rest.rns.jaxb.RnsReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
@@ -95,8 +98,9 @@ public class RNSCore {
 	 * @throws InvalidVehicleStateException 
 	 * @throws InvalidEntryTimeException 
 	 * @throws IncompatibleMaterialsCarriedException 
+	 * @throws InvalidDestinationPlaceException 
 	 */
-	public synchronized Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException {
+	public synchronized Places addVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException, InvalidDestinationPlaceException {
 		String id = "";
 		System.out.println("***************** ADD VEHICLE *********************");
 		
@@ -193,7 +197,7 @@ public class RNSCore {
 		}
 	}
 	
-	private void checkVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException {
+	private void checkVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException, InvalidDestinationPlaceException {
 		
 		// Check if the ORIGIN if it is a gate of type IN or INOUT
 		GateReaderType origin = this.getGate(vehicle.getOrigin());
@@ -208,6 +212,14 @@ public class RNSCore {
 			if(destination.getType().toString().equals("IN"))
 				throw(new InvalidEntryPlaceException("The gate " + vehicle.getDestination() +" you're trying to exit the system from, is not of type OUT, neither INOUT."));
 		}
+		
+		// Check if origin is the same as before
+		VehicleReaderType currentVehicle = Neo4jInteractions.getInstance().getVehicle(vehicle.getId());
+		if(currentVehicle != null && !currentVehicle.getOrigin().equals(vehicle.getOrigin())) 
+			throw new InvalidEntryPlaceException("Origin is not the same as before.");
+		
+		if(currentVehicle != null && !currentVehicle.getDestination().equals(vehicle.getDestination())) 
+			throw new InvalidDestinationPlaceException("Destination is not the same as before.");
 		
 		// Check for material id correctness
 		for(String s : vehicle.getMaterial()) {
@@ -338,8 +350,12 @@ public class RNSCore {
 				// For each place is the old path we need to increase the capacity by 1
 				for(String id : this.vehiclePath.get(vehicleId).getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList()) ) {
 					//System.out.println("Increasing capacity of node: " + id);
+					
+					// Increase the capacity again and decrease the number of reservations
 					Neo4jInteractions.getInstance().increaseCapacityOfNodeGivenId(id);
+					Neo4jInteractions.getInstance().updateReservationsInPlace(id, false, 1);
 				}
+				
 				this.vehiclePath.remove(vehicleId);
 			}
 		}
@@ -361,8 +377,9 @@ public class RNSCore {
 	 * @throws InvalidVehicleStateException 
 	 * @throws InvalidEntryTimeException 
 	 * @throws IncompatibleMaterialsCarriedException 
+	 * @throws InvalidDestinationPlaceException 
 	 */
-	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException {
+	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException, InvalidDestinationPlaceException {
 		this.checkVehicle(vehicle);
 		
 		// Check presence of the vehicle in the system
@@ -371,9 +388,16 @@ public class RNSCore {
 						.stream()
 						.map(VehicleReaderType::getId)
 						.collect(Collectors.toList());
-		if(!vehiclesLoadedIds.contains(vehicle.getId())) 
+		
+		// Vehicle not in the system
+		if(!vehiclesLoadedIds.contains(vehicle.getId())) {
 			//throw(new VehicleNotInSystemException("Vehicle " + vehicle.getId() + " is not currently in the system."));
-			return this.addVehicle(vehicle);
+			
+			if(!vehicle.getPosition().equals(vehicle.getOrigin())) 
+				throw(new VehicleNotInSystemException("Vehicle " + vehicle.getId() + " is not currently in the system or it is PARKED. So origin and current position have to correspond."));
+			else
+				return this.addVehicle(vehicle);
+		}
 			
 		long occurrences = 0;
 		if(this.vehiclePath.containsKey(vehicle.getId()))
@@ -422,6 +446,9 @@ public class RNSCore {
 			places.getPlace().add(Neo4jInteractions.getInstance().getPlace(vehicle.getPosition()));
 			
 			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
+			
+			// Update the reservations in the current place before the moving
+			Neo4jInteractions.getInstance().updateReservationsInPlace(currentVehicle.getPosition(), false, 1);
 			
 			return places;
 			
@@ -522,6 +549,9 @@ public class RNSCore {
 		while(!path.isEmpty() && !currentId.equals(destinationId)) {
 			current = Neo4jInteractions.getInstance().getPlace(currentId);
 			
+			// Increase the number of reservations of the node
+			Neo4jInteractions.getInstance().updateReservationsInPlace(currentId, true, 1);
+			
 			for(String s : current.getConnectedPlaceId()) {
 				if(!currentId.equals(s) && path.contains(s)) {
 					path.remove(currentId);
@@ -532,6 +562,8 @@ public class RNSCore {
 		}
 		
 		places.getPlace().add(Neo4jInteractions.getInstance().getPlace(currentId));
+		// Increase the number of reservations of the node
+		Neo4jInteractions.getInstance().updateReservationsInPlace(currentId, true, 1);
 		
 		return places;
 	}
@@ -638,5 +670,28 @@ public class RNSCore {
 			}
 		}
 		
+	}
+
+	/**
+	 * Function to retrieve the status of a place, a.k.a. the vehicles
+	 * in that place and the number of reservations made for that place
+	 * @param placeId = id of the considered place
+	 * @return a place status object containing those information
+	 */
+	public PlaceStatus getStatusOfPlace(String placeId) {
+		PlaceStatus status = (new ObjectFactory()).createPlaceStatus();
+		
+		// Find the vehicles in that place
+		for(VehicleReaderType vehicle : this.getVehicles().getVehicle()) {
+			if(vehicle.getPosition().equals(placeId)) 
+				status.getVehicle().add(vehicle);
+		}
+		
+		// Find the number of reservation for that place
+		Counter counter = Neo4jInteractions.getInstance().getCounterGivenPlaceId(placeId);
+		
+		status.setNumberOfReservation(new BigInteger(Long.toString(counter.getReservations())));
+		
+		return status;
 	}
 }

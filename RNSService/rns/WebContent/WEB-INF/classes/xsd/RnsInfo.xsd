@@ -97,6 +97,15 @@
 		</complexType>
 	</element>
 	
+	<element name="placeStatus">
+		<complexType>
+			<sequence>
+				<element name="vehicle" type="tns:VehicleReaderType" minOccurs="1" maxOccurs="unbounded"/>
+				<element name="numberOfReservation" type="integer" minOccurs="1" maxOccurs="1"/>
+			</sequence>
+		</complexType>
+	</element>
+	
 	<element name="ids">
 		<complexType>
 			<sequence>

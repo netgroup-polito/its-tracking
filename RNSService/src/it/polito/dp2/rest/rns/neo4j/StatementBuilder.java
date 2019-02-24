@@ -103,6 +103,7 @@ public class StatementBuilder {
 			
 			query += "MERGE (counter: Counter {name: '" + counter.getName() + "'}) "
 					+ "ON CREATE SET counter.counter = " + counter.getCounter() + " "
+					+ "SET counter.reservations = " + counter.getReservations() + " "
 					+ "RETURN id(counter)";
 		}
 		
@@ -432,6 +433,37 @@ public class StatementBuilder {
 	public String getUpdateStateStatementByVehicleId(String id, String newState) {
 		String query = "MATCH(n: Vehicle) WHERE id(n) = " + id + " "
 				+ "SET n.state = '" + newState + "' RETURN n";
+		return query;
+	}
+	
+	/**
+	 * Function to obtain the query to increase the reservations of a certain node
+	 * whose id is given, of a certain amount
+	 * @param id = id of the node, whose reservations we have to increase
+	 * @param amount = amount to be added
+	 * @return the corresponding query
+	 */
+	public String getIncreaseReservationsStatementGivenNodeId(String id, int amount) {
+		String query = "MATCH(n)<-[:countedVehicles]-(m) " + 
+					"WHERE id(m) = " + id + " " +
+					"SET n.reservations = n.reservations + " + amount;
+		
+		return query;
+	}
+	
+	/**
+	 * Function to obtain the query to decrease the reservations of a certain node
+	 * whose id is given, of a certain amount
+	 * @param id = id of the node, whose reservations we have to decrease
+	 * @param amount = amount to be subtracted
+	 * @return the corresponding query
+	 */
+	public String getDecreaseReservationsStatementGivenNodeId(String id, int amount) {
+		String query = "MATCH(n)<-[:countedVehicles]-(m) " + 
+					"WHERE id(m) = " + id + " " +
+					"AND n.reservations - " + amount + " >= 0 " +
+					"SET n.reservations = n.reservations - " + amount;
+		
 		return query;
 	}
 }

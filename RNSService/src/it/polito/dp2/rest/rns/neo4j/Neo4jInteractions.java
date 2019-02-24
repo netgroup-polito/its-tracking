@@ -968,7 +968,7 @@ public class Neo4jInteractions implements AutoCloseable {
 					Value r = result.single().get(0);
 					
 					System.out.println("[NEO4J]" + r.asMap());
-					counter = new Counter((String) r.asMap().get("name"), (long) r.asMap().get("counter"));
+					counter = new Counter((String) r.asMap().get("name"), (long) r.asMap().get("counter"), (long) r.asMap().get("reservations"));
 					
 					return counter;
                 }
@@ -1003,6 +1003,40 @@ public class Neo4jInteractions implements AutoCloseable {
                 public Boolean execute( Transaction tx )
                 {
 					tx.run(query);
+					
+					return true;
+                }
+            } );
+            
+			session.close();
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+	}
+
+	/**
+	 * Function to update the number of reservations in a certain place
+	 * given its id
+	 * @param placeId = id of the place
+	 * @param increase = true --> addition, false --> subtraction
+	 * @param amount = the amount to be added or subtracted
+	 */
+	public void updateReservationsInPlace(String placeId, boolean increase, int amount) {
+		try ( Session session = driver.session() )
+        {
+			final String query = (increase) 
+							? StatementBuilder.getInstance().getIncreaseReservationsStatementGivenNodeId(
+											IdTranslator.getInstance().getIdTranslation(placeId), amount)
+							: StatementBuilder.getInstance().getDecreaseReservationsStatementGivenNodeId(
+									IdTranslator.getInstance().getIdTranslation(placeId), amount);
+			
+			session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+                	tx.run(query);
 					
 					return true;
                 }

@@ -149,6 +149,17 @@ public class StatementBuilder {
 	
 	/**
 	 * Function to retrieve all the nodes of a certain type
+	 * with all the connections
+	 * @param type = type of the nodes to be retrieved
+	 * @return a string corresponding to the desired query
+	 */
+	public String getVehicleStatement(String typeConnection) {
+		String query = "MATCH (n: Vehicle)-[:" + typeConnection + "*0..1]->(connected) WHERE id(n) <> id(connected) RETURN properties(n), id(connected)";
+		return query;
+	}
+	
+	/**
+	 * Function to retrieve all the nodes of a certain type
 	 * with all the connections and relations with containers
 	 * @param type = type of the nodes to be retrieved
 	 * @return a string corresponding to the desired query

@@ -302,34 +302,46 @@ public class Neo4jInteractions implements AutoCloseable {
 	public List<VehicleReaderType> getVehicles() {
 		try ( Session session = driver.session() )
         {
-			final String query = StatementBuilder.getInstance().getStatementByTypeNoConnection("Vehicle");
+			final String query = StatementBuilder.getInstance().getVehicleStatement("transports");
             List<VehicleReaderType> result = session.writeTransaction( new TransactionWork<List<VehicleReaderType>>()
             {
                 @Override
                 public List<VehicleReaderType> execute( Transaction tx )
                 {
-                		List<VehicleReaderType> list = new LinkedList<>();
+                	List<VehicleReaderType> list = new LinkedList<>();
 					StatementResult result = tx.run(query);
 					
+					VehicleReaderType vehicle = null;
+					
 					for(Record r : result.list()) {
-						VehicleReaderType vehicle = (new ObjectFactory()).createVehicleReaderType();
 						
-						for( Value entry : r.values()) {
-							//System.out.println("[NEO4J] " + (String) entry.asMap().get("type"));
-							vehicle.setName((String) entry.asMap().get("name"));
-							vehicle.setId((String) entry.asMap().get("id"));
-							vehicle.setType(VehicleTypeType.fromValue((String) entry.asMap().get("type")));
-							vehicle.setOrigin((String) entry.asMap().get("origin"));
-							vehicle.setDestination((String) entry.asMap().get("destination"));
-							vehicle.setPosition((String) entry.asMap().get("position"));
-							vehicle.setState(VehicleStateType.fromValue((String) entry.asMap().get("state")));
+						System.out.println("[NEO] " + r);
+						
+						if(vehicle != null) {
+							if(!vehicle.getId().equals((String) r.get(0).asMap().get("id"))) vehicle = null;
+						}
+						
+						if(vehicle == null) {
+							vehicle = (new ObjectFactory()).createVehicleReaderType();
+							
+							vehicle.setName((String) r.get(0).asMap().get("name"));
+							vehicle.setId((String) r.get(0).asMap().get("id"));
+							vehicle.setType(VehicleTypeType.fromValue((String) r.get(0).asMap().get("type")));
+							vehicle.setOrigin((String) r.get(0).asMap().get("origin"));
+							vehicle.setDestination((String) r.get(0).asMap().get("destination"));
+							vehicle.setPosition((String) r.get(0).asMap().get("position"));
+							vehicle.setState(VehicleStateType.fromValue((String) r.get(0).asMap().get("state")));
 							try {
-								vehicle.setEntryTime(DateConverter.convertFromString((String) entry.asMap().get("entryTime"), "yyyy-MM-dd'T'HH:mm:ss"));
+								vehicle.setEntryTime(DateConverter.convertFromString((String) r.get(0).asMap().get("entryTime"), "yyyy-MM-dd'T'HH:mm:ss"));
 							} catch (ParseException e) {
 								e.printStackTrace();
 							} catch (DatatypeConfigurationException e) {
 								e.printStackTrace();
 							}
+							
+							vehicle.getMaterial().add((String) IdTranslator.getInstance().fromNeo4jId(String.valueOf(r.get(1))));
+						} else {
+							vehicle.getMaterial().add((String) IdTranslator.getInstance().fromNeo4jId(String.valueOf(r.get(1))));
 						}
 						
 						list.add(vehicle);

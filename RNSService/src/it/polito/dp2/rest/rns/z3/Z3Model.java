@@ -17,6 +17,7 @@ import com.microsoft.z3.Status;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
+import it.polito.dp2.rest.rns.resources.RNSCore;
 import it.polito.dp2.rest.rns.utility.DangerousMaterialImpl;
 
 /**
@@ -143,10 +144,10 @@ public class Z3Model {
 	 * @param prevId = id of the previous node where we came from
 	 */
 	public void createBooleanExpressions(String source, List<String> materialIds, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) {
-		ArrayList<DangerousMaterialImpl> materialsTtransported = new ArrayList<>();
+		ArrayList<DangerousMaterialImpl> materialsTransported = new ArrayList<>();
 		for(String materialId : materialIds) {		
 			if(materialId != null && !materialId.equals("")) {
-				materialsTtransported.add(new DangerousMaterialImpl(
+				materialsTransported.add(new DangerousMaterialImpl(
 												materialId, 
 												Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)
 										));
@@ -158,7 +159,7 @@ public class Z3Model {
 		
 		// Retrieve materials and actual capacity
 		int actualCapacity = Neo4jInteractions.getInstance().getActualCapacityOfPlace(current.getId());
-		List<String> materials = Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(current.getId());
+		List<String> materials = RNSCore.getInstance().getMaterialsInPlaceGivenId(current.getId());
 		
 		ArithExpr leftSide = ctx.mkSub(ctx.mkInt(actualCapacity), ctx.mkInt(1));
 		this.nodesCapacity.put(current.getId(), leftSide);
@@ -169,15 +170,16 @@ public class Z3Model {
 			return;
 		}*/
 		
-		if( !materialsTtransported.isEmpty() && materials != null) {
-			for( DangerousMaterialImpl material : materialsTtransported) {
+		if( !materialsTransported.isEmpty() && materials != null) {
+			for( DangerousMaterialImpl material : materialsTransported) {
 				for(String m : materials) {
 					String mat = m.replace("\"", "");
+					System.out.println("Comparing " + mat + " --- " + material.getId());
 					if(!material.isCompatibleWith(mat)) {
-						/*System.out.println(
+						System.out.println(
 								"Node " + current.getId() + 
 								" contains material " + mat + 
-								" that is not compatible with " + materialId);*/
+								" that is not compatible with " + material.getId());
 						return;
 					}
 				}

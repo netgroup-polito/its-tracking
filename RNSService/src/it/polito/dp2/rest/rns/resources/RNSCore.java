@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -693,5 +694,22 @@ public class RNSCore {
 		status.setNumberOfReservation(new BigInteger(Long.toString(counter.getReservations())));
 		
 		return status;
+	}
+
+	public List<String> getMaterialsInPlaceGivenId(String id) {
+		List<String> materials = Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(id);
+		
+		// Check if this place is in the path of other dangerous materials
+		for(Entry<String, Places> entry : this.vehiclePath.entrySet()) {
+			List<String> places = entry.getValue().getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList());
+			System.out.println("Checking for collision with " + entry.getKey() + "'s path");
+			if(places.contains(id)) {
+				VehicleReaderType vehicle = Neo4jInteractions.getInstance().getVehicle(entry.getKey());
+				System.out.println("Materials carried by " + vehicle.getId() + " " + vehicle.getMaterial().size());
+				for(String material : vehicle.getMaterial()) materials.add(material);
+			}
+		}
+		
+		return materials;
 	}
 }

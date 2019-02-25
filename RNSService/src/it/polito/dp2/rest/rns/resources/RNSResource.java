@@ -16,7 +16,6 @@ import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.RnsReaderType;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
-import sun.java2d.pipe.SpanShapeRenderer.Simple;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;

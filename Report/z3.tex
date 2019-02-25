@@ -1,5 +1,5 @@
-\chapter{Z3}\label{Z3}
-\section{What is Z3}
+\section{Z3}\label{Z3}
+\subsection{What is Z3}
 Z3 is a a theorem prover \cite{z3}. It came in handy with our project, since it can be exploited to solve problems that requires the definition of constraints.\\
 In particular, Z3, is composed of two components:
 \begin{enumerate}
@@ -9,7 +9,7 @@ In particular, Z3, is composed of two components:
 
 % --------------------------------------------------------------------------
 
-\section{Setup of Z3 in machine running Ubuntu}
+\subsection{Setup of Z3 in machine running Ubuntu}
 The development enviroment that has been used is \textbf{Ubuntu}. In order to use Z3 library in such operating system, there are a couple of steps one has to follow.
 \begin{enumerate}
   \item \underline{download} the prebuilt version of the library from the offical GitHub repository \url{https://github.com/Z3Prover/z3/releases};
@@ -39,7 +39,7 @@ Please make sure, in order to use the library in Tomcat, to have correctly set C
 
 % --------------------------------------------------------------------------
 
-\section{Model}
+\subsection{Model}
 In order to define a model for Z3 to work on, it has been extracted a graph from the actual map stored in the database. The procedure can be subdivided in various steps:
 \begin{enumerate}
   \item creation of a context;
@@ -55,11 +55,11 @@ The definition of the context and creation of the optimizer class, has been done
 \end{lstlisting}
 The context allows the creation of boolean constants, that are assigned a value from the optimizer during its evaluation of feasibility of the problem (based on constraints that have previously been defined).
 
-\subsection{Pruning of nodes from the map}
+\subsubsection{Pruning of nodes from the map}
 First step is the one to retrieve the nodes from the database and select the ones which don't contain any material or, if vehicle containing materials are present in that node, they have to be compatible with the one carried by the new vehicle entering the system.\\
 After selecting these nodes, it has to be defined a boolean expression for each one of them. Such expression will result \textbf{true} if the node has been selected for the path, \textbf{false} otherwise.\\
 
-\subsection{Definition of boolean variables}
+\subsubsection{Definition of boolean variables}
 In order to define boolean variables for the nodes, some other informations are required:
 \begin{itemize}
   \item boolean variable of the previous node we're coming from in recursion. If that is true, the current node, \textbf{may be} taken into the path;
@@ -79,7 +79,7 @@ Last variable it has to be defined is the one responsible for the capacity const
   ArithExpr leftSide = ctx.mkSub(ctx.mkInt(actualCapacity), ctx.mkInt(1));
 \end{lstlisting}
 
-\subsection{Definition of hard constraints}
+\subsubsection{Definition of hard constraints}
 Once everything has been created and initialized, it is necessary to specify to the optimizer the policies to assign value (true or false) to the different created variables.\\
 First of all the constraint on the capacity has to be defined. This is done the way code snippet \ref{Snip:Z3CapacityConstr} shows.
 \begin{lstlisting}[language = Java , frame = trBL, escapeinside={(*@}{@*)}, caption = Definition of capacity constraint for the optimizer, captionpos=b, label=Snip:Z3CapacityConstr]
@@ -107,7 +107,7 @@ Then the conditions for the nodes have to be defined:
   The selection of only two connection per node (one incoming and one outgoing) will be forced by the last node and the definition of soft constraints.
 \end{itemize}
 
-\subsection{Definition of soft constraints}
+\subsubsection{Definition of soft constraints}
 The only soft constraint that need to be added to the optimizer is the one on the minimum amount of time predicted for the traversing of the route. This is shown in code snippet \ref{Snip:Z3Soft}
 \begin{lstlisting}[language = Java , frame = trBL, escapeinside={(*@}{@*)}, caption = Defintion of soft constraint on minimum traverse time, captionpos=b, label=Snip:Z3Soft]
   for(Entry<String, BoolExpr> node : this.nodes.entrySet()) {
@@ -117,7 +117,7 @@ The only soft constraint that need to be added to the optimizer is the one on th
 \end{lstlisting}
 In other words, for each node in the graph, we retrieve information about the place (i.e. average time spent in each place), then we infer that the probability of considering such node in the path is inversely proportional to the average time spent in the node.
 
-\subsection{Final result}
+\subsubsection{Final result}
 The final model from the graph is very simple, only a set of boolean variables representing each one a node in the graph. If the value is \textbf{true}, that means that the node is to be considered in the path, otherwise not.\\
 In the snippet \ref{Snip:Z3Model} there is an example for a path evaluated for a newly entered vehicle.
 \begin{lstlisting}[frame = trBL , escapeinside={(*@}{@*)}, caption = Final result that need to be parsed to retrieve ne node ids, captionpos=b, label=Snip:Z3Model]
@@ -132,3 +132,7 @@ In the snippet \ref{Snip:Z3Model} there is an example for a path evaluated for a
 (define-fun y_g05 () Bool true)
 (define-fun y_g04 () Bool true)
 \end{lstlisting}
+
+% --------------------------------------------------------------------------
+\subsection{Example}
+Lorem ipsum bla bla bla

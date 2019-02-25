@@ -22,7 +22,7 @@ In figure \ref{Fig:ArchImpl} are presented the various components of the system 
 \section{Communication between components}
 There are two communicationchannels in this architecture:
 \begin{enumerate}
-  \item cleint $\leftrightarrow$ server:he server is able to speak both XML and JSON, but for this particular project has been decided to use mainly JSON;
+  \item cleint $\leftrightarrow$ server: the server is able to speak both XML and JSON, but for this particular project has been decided to use mainly JSON;
   \item server $\leftrightarrow$ database: in this case the server uses \textbf{Cypher} query language (specific for Neo4j) in order to run queries in the database. As a result it is obtained a pseudo-json from which it is possible to extract the desired data, asked in the query.
 \end{enumerate}
 

@@ -135,4 +135,44 @@ In the snippet \ref{Snip:Z3Model} there is an example for a path evaluated for a
 
 % --------------------------------------------------------------------------
 \subsection{Example}
-Lorem ipsum bla bla bla
+In this subsection will be presented an example of how the server will compute the correct path for a new vehicle that wants to enter the system.
+\begin{figure}[!htb]
+   \centering
+   \includegraphics[width=\textwidth]{graph00.png}
+   \caption{Example graph.}\label{Fig:Graph00}
+\end{figure}
+The initial graph that is given Z3 to work on is the one in figure \ref{Fig:Graph00}. Here two assumptions are made:
+\begin{enumerate}
+  \item node \textbf{P5} contains a vehicle that carries a dangerous material not compatible with the one carried by the new vehicle that wants to enter;
+  \item node \textbf{P4} has not enough capacity to accept another vehicle.
+\end{enumerate}
+The first step that it has to be performed is selecting the origin and destination in the graph (in this case \textbf{P1} and \textbf{P6}) and infer in Z3's optimizer an hard constraint that state that both these nodes has to result \textbf{true} in order to verify the correctness of the solution. The selection of origin node (red) and destination node (green) is shown in fugire \ref{Fig:Graph01}.
+\begin{figure}[!htb]
+   \centering
+   \includegraphics[width=\textwidth]{graph01.png}
+   \caption{Selection of origin (red) and destination (green).}\label{Fig:Graph01}
+\end{figure}
+The next step is pruning from the actual graph, in order to input a correct map to Z3, all the nodes that don't meet the dangerous material constraint. Such constraint states that for a node to be selected it has not to contain any vehicle carrying materials not compatible with the one carried by the vehicle that wants to enter the system. Coherently with assumptions, node \textbf{P5} is pruned out from the graph, since it contains a vehicle with materials not compatible with the new entering (figure \ref{Fig:Graph02}).
+\begin{figure}[!htb]
+   \centering
+   \includegraphics[width=\textwidth]{graph02.png}
+   \caption{Pruning of a node due to dangerous materials constraints.}\label{Fig:Graph02}
+\end{figure}
+Once a correct graph has been retrieve for Z3, the next phase is to define boolean expressions for the optimizer. To achieve that, it is necessary to recur the whole graph in order to explore every node. For each one of them, different expressions has to be defined:
+\begin{itemize}
+  \item a boolean expression for understanding if a node is considered in the final path, that will result \textbf{true} only if one of its incoming connection's boolean expression is \textbf{true};
+  \item a boolean expression for the capacity of the node, that will result to true only if the capacity of the node is greater or equal than 1. If this expression is false, it will invalidate the node as a whole, making it not suitable for the route;
+  \item a boolean expression for each one the connection betwee the node and the previous ones. This is not an actual boolean expression, because it is derived from the AND between the two boolean expressions of the nodes at the end of the connection.
+\end{itemize}
+\begin{figure}[!htb]
+   \centering
+   \includegraphics[width=\textwidth]{graph03.png}
+   \caption{Pruning of a node due to capacity constraints.}\label{Fig:Graph03}
+\end{figure}
+Given the definition of such expressions, since the capacity of node \textbf{P4} doesn't meet the requirements as specified above, the corresponding boolean expression of the node is invalidated by the optimized, making it not a suitable node for the evaluation of a path as shown in figure \ref{Fig:Graph03}.
+\begin{figure}[!htb]
+   \centering
+   \includegraphics[width=\textwidth]{graph04.png}
+   \caption{Evaluation of path from source to destination.}\label{Fig:Graph04}
+\end{figure}
+The resulting path produced by Z3 is the one show in figure \ref{Fig:Graph04}. In the case multiple paths are present from source to destination, the optimizer will choose the one with the minimum traverse time, using the min time constraint define as subsection \ref{Subs:MathModel} shows.

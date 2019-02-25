@@ -38,8 +38,8 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {5.2.4}Example}{15}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5.3}Neo4j}{16}
+\contentsline {section}{\numberline {5.3}Neo4j}{20}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {6}Client}{17}
+\contentsline {chapter}{\numberline {6}Client}{21}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {7}Project setup}{18}
+\contentsline {chapter}{\numberline {7}Project setup}{22}

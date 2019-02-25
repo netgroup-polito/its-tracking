@@ -413,6 +413,8 @@ public class RNSCore {
 		if(vehicle.getPosition().equals(currentVehicle.getPosition())) 
 			throw new InvalidPathException("Vehicle " + vehicle.getId() + " didn't change position. Still located in " + vehicle.getPosition() + ". State: " + vehicle.getState().toString());
 		
+		
+		
 		if(occurrences != 0) { // Still following the path
 			// Check on the correct sequence of places
 			String nextPlaceId = "";
@@ -454,6 +456,29 @@ public class RNSCore {
 			return places;
 			
 		} else { // Need to recompute the path
+			
+			if(vehiclesLoadedIds.contains(vehicle.getId())) { // It has to start from the same position 
+				
+				if( // Restart case
+					!currentVehicle.getPosition().equals(vehicle.getOrigin())
+				) {
+					throw new InvalidEntryPlaceException("You must restart from the place you are now. Current place id: " + currentVehicle.getPosition());
+				}
+				
+				SimplePlaceReaderType currentPlace = Neo4jInteractions.getInstance().getPlace(currentVehicle.getPosition());
+				
+				if( // Moving case
+					!vehicle.getOrigin().equals(currentPlace.getId()) || 
+					!vehicle.getPosition().equals(currentPlace.getId()) ||
+					!currentPlace.getConnectedPlaceId().contains(vehicle.getOrigin()) ||
+					!currentPlace.getConnectedPlaceId().contains(vehicle.getPosition())
+				) {
+					String errorMessage = "You must enter valid position/origin. Valid positions: " + currentPlace.getId();
+					for(String s : currentPlace.getConnectedPlaceId()) errorMessage += " " + s;
+					throw new InvalidPathException(errorMessage);
+				}
+			}
+			
 			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
 			
 			this.deleteVehicle(vehicle.getId(), false);

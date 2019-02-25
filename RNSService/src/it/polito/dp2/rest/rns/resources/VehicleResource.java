@@ -164,6 +164,9 @@ public class VehicleResource {
     		//System.out.println("CATALINA_HOME = " + System.getenv("CATALINA_HOME"));
     		System.out.println("VEHICLE: " + vehicle.getValue().getId() + " --- STATE: " + vehicle.getValue().getState());
 		try {
+			if(!vehicle.getValue().getOrigin().equals(vehicle.getValue().getPosition()))
+				throw new InvalidEntryPlaceException("Current position and origin don't correspond.");
+			
 			Places path = RNSCore.getInstance().addVehicle(vehicle.getValue());
 			return Response.status(Status.CREATED).entity(path).build();
 		} catch (PlaceFullException e) { // PLACE FULL

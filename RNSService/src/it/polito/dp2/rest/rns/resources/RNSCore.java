@@ -413,7 +413,8 @@ public class RNSCore {
 		if(vehicle.getPosition().equals(currentVehicle.getPosition())) 
 			throw new InvalidPathException("Vehicle " + vehicle.getId() + " didn't change position. Still located in " + vehicle.getPosition() + ". State: " + vehicle.getState().toString());
 		
-		
+		if(!vehicle.getDestination().equals(currentVehicle.getDestination()))
+			occurrences = 0; // Need to force the recomputation of the path
 		
 		if(occurrences != 0) { // Still following the path
 			// Check on the correct sequence of places

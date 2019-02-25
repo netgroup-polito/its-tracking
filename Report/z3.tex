@@ -40,85 +40,39 @@ Please make sure, in order to use the library in Tomcat, to have correctly set C
 % --------------------------------------------------------------------------
 
 \subsection{Model}
-In order to define a model for Z3 to work on, it has been extracted a graph from the actual map stored in the database. The procedure can be subdivided in various steps:
-\begin{enumerate}
-  \item creation of a context;
-  \item extraction of the viable nodes from the map;
-  \item definition of constraints to select correct nodes the vehicle can traverse;
-  \item definition of soft constraints.
-\end{enumerate}
-Since the map in not known in advance, in order to traverse the whole graph has been used \textbf{recursion}.\\
-The definition of the context and creation of the optimizer class, has been done as shows code snippet \ref{Snip:Z3Init}.
-\begin{lstlisting}[language = Java , frame = trBL, escapeinside={(*@}{@*)}, caption = Initialization of context, captionpos=b, label=Snip:Z3Init]
-  ctx = new Context();
-  mkOptimize = ctx.mkOptimize();
-\end{lstlisting}
-The context allows the creation of boolean constants, that are assigned a value from the optimizer during its evaluation of feasibility of the problem (based on constraints that have previously been defined).
-
-\subsubsection{Pruning of nodes from the map}
-First step is the one to retrieve the nodes from the database and select the ones which don't contain any material or, if vehicle containing materials are present in that node, they have to be compatible with the one carried by the new vehicle entering the system.\\
-After selecting these nodes, it has to be defined a boolean expression for each one of them. Such expression will result \textbf{true} if the node has been selected for the path, \textbf{false} otherwise.\\
-
-\subsubsection{Definition of boolean variables}
-In order to define boolean variables for the nodes, some other informations are required:
+In order to define a model for Z3 to work on, it has been extracted a graph from the actual map, with updated capacities and position of vehicles.\\
+The criteria for a node to be selected as a possible node are: 
 \begin{itemize}
-  \item boolean variable of the previous node we're coming from in recursion. If that is true, the current node, \textbf{may be} taken into the path;
-  \item boolean variable of the connection between the previous node and the current one. If it is true, and the previous node as well, then the current node \textbf{is} taken in the path.
-\end{itemize}
-\begin{lstlisting}[language = Java , frame = trBL, escapeinside={(*@}{@*)}, caption = Definition of a boolean expression, captionpos=b, label=Snip:Z3CurrentNode]
-	BoolExpr y_curr = ctx.mkBoolConst("y_" + current.getId());
-\end{lstlisting}
-The code snippet \ref{Snip:Z3CurrentNode} shows how the boolean variables for the nodes have been defined.\\
-Once this has been defined it is necessary to derive a variable to determine whether the connection between the previous node and the current one is taken. This step is shown in the snippet \ref{Snip:Z3Connection}.
-\begin{lstlisting}[language = Java , frame = trBL, escapeinside={(*@}{@*)}, caption = Definition of a boolean expression for connection between nodes, captionpos=b, label=Snip:Z3Connection]
-  this.connectionsBool.put("z_" + prevId + "_" + current.getId(), ctx.mkAnd(y_prev, y_curr));
-\end{lstlisting}
-The variable for the connection has been defined as the AND between the boolean variable of the previous node and the current one, so that it will result \textbf{true} only if both are \textbf{true}.\\
-Last variable it has to be defined is the one responsible for the capacity constraint. It hasn't been used a \textit{BoolExpr} like in the previous cases for this one, instead an \textit{ArithExpr}. Such variable has been defined as the subtraction between the current capacity of the node and 1 as code snippet \ref{Snip:Z3Capacity} shows. In this way, if the arithmetic result is less than 0, the boolean expression defined for the node has to be forced to false, implying that the node has not to be considered.
-\begin{lstlisting}[language = Java , frame = trBL, escapeinside={(*@}{@*)}, caption = Definition of arithmetic expression for capacity constraint, captionpos=b, label=Snip:Z3Capacity]
-  ArithExpr leftSide = ctx.mkSub(ctx.mkInt(actualCapacity), ctx.mkInt(1));
-\end{lstlisting}
-
-\subsubsection{Definition of hard constraints}
-Once everything has been created and initialized, it is necessary to specify to the optimizer the policies to assign value (true or false) to the different created variables.\\
-First of all the constraint on the capacity has to be defined. This is done the way code snippet \ref{Snip:Z3CapacityConstr} shows.
-\begin{lstlisting}[language = Java , frame = trBL, escapeinside={(*@}{@*)}, caption = Definition of capacity constraint for the optimizer, captionpos=b, label=Snip:Z3CapacityConstr]
-  ArithExpr capacity = this.nodesCapacity.get(node.getKey());
-  mkOptimize.Add(ctx.mkImplies(ctx.mkLt(capacity, ctx.mkInt(0)), ctx.mkNot(node.getValue())));
-\end{lstlisting}
-In order words if \textit{capacity} is Less Than 0, we force to negate the boolean expression of the node.\\
-Then the conditions for the nodes have to be defined:
-\begin{itemize}
-  \item if the node is the \underline{source} from which the path has to be started, then it has to be true. Since it has no incoming connection from previous nodes (by being the first one), no other constraints have to be defined \ref{Snip:Z3FirstNode};
-  \begin{lstlisting}[language = Java , frame = trBL, escapeinside={(*@}{@*)}, caption = Defintion of constraint for the source node, captionpos=b, label=Snip:Z3FirstNode]
-    mkOptimize.Add(ctx.mkEq(node.getValue(), ctx.mkBool(true)));
-  \end{lstlisting}
-  \item if the node is the \underline{destination} of the vehicle, then it has to be true, and it has to have only one incoming connection. No outgoing connection because it is the last node to be visited \ref{Snip:Z3LastNode};
-  \begin{lstlisting}[language = Java, frame = trBL, escapeinside={(*@}{@*)}, caption = Defintion of constraint for the destination node, captionpos=b, label=Snip:Z3LastNode]
-    mkOptimize.Add(ctx.mkEq(node.getValue(), ctx.mkBool(true)));
-    mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkAtLeast(conns.stream().toArray(BoolExpr[]::new), 1)));
-    mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkAtMost(conns.stream().toArray(BoolExpr[]::new), 1)));
-  \end{lstlisting}
-  The node boolean value has to be forced to \textbf{true}, like in the source node case. Since it is true, exactly one (combination of at least one constraint and at most one constraint) connection between all incoming connection (conns is a list containing all the boolean variables for the connection incoming define like in code snippet \ref{Snip:Z3Connection}) has to be selected;
-  \item if it is a generic node it has to be inferred that if this node has been selected (boolean variable of the node set to \textbf{true}), then one incoming connection has to be selected as shown in code snippet \ref{Snip:Z3GenericNode}.
-  \begin{lstlisting}[language = Java , frame = trBL, escapeinside={(*@}{@*)}, caption = Defintion of constraint for a geneeric node, captionpos=b, label=Snip:Z3GenericNode]
-    mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkOr(conns.stream().toArray(BoolExpr[]::new))));
-  \end{lstlisting}
-  The selection of only two connection per node (one incoming and one outgoing) will be forced by the last node and the definition of soft constraints.
+	\item the node doesn't contain any dangerous material.
+	\item the node contains some vehicles carrying dangerous materials, but they are compatible with the one of the new vehicle.\\
 \end{itemize}
 
-\subsubsection{Definition of soft constraints}
-The only soft constraint that need to be added to the optimizer is the one on the minimum amount of time predicted for the traversing of the route. This is shown in code snippet \ref{Snip:Z3Soft}
-\begin{lstlisting}[language = Java , frame = trBL, escapeinside={(*@}{@*)}, caption = Defintion of soft constraint on minimum traverse time, captionpos=b, label=Snip:Z3Soft]
-  for(Entry<String, BoolExpr> node : this.nodes.entrySet()) {
-    SimplePlaceReaderType place = Neo4jInteractions.getInstance().getPlace(node.getKey());
-    mkOptimize.AssertSoft(ctx.mkNot(node.getValue()), place.getAvgTimeSpent().intValue(), "latency");
-  }
-\end{lstlisting}
-In other words, for each node in the graph, we retrieve information about the place (i.e. average time spent in each place), then we infer that the probability of considering such node in the path is inversely proportional to the average time spent in the node.
+\subsubsection{Mathematical Model}\label{Subs:MathModel}
+The obtained mathematical model is the following.
+
+\paragraph{Objective Function}
+\begin{description}
+	\item min $\ \sum_{i=1}^{N} y_{i}t_{i}$
+\end{description}
+\paragraph{Variables}
+\begin{description}
+	\item \textit{N}: number of nodes of the system
+	\item $\ y_{i} \in$ \{0, 1\}: a generic node \textit{i}
+	\item $\ c_{i} \geq 0$: the capacity of the node \textit{i}
+	\item $\ t_{i} \in \mathbb{N}$: the weight average time spent in the node \textit{i}
+	\item $\ y_{ij} \in \{0, 1\}$: a connection from node \textit{i} to node \textit{j} 
+\end{description}
+
+\paragraph{Constraints}
+\begin{description}
+	\item $\ c_{i} \geq y_{i} $
+	\item $\ \sum_{i \in N} y_{si} = 1$, where \textit{s} is the origin 
+	\item $\ \sum_{i \in N} y_{id} = 1$, where \textit{d} is the destination
+	\item $\ \sum_{i,j \in N} y_{ij} - \sum_{i,j \in N} y_{ji} = 0$, where $\ y_{ij}$ are the incoming and $\ y_{ji}$ the outcoming connections 	
+\end{description}
 
 \subsubsection{Final result}
-The final model from the graph is very simple, only a set of boolean variables representing each one a node in the graph. If the value is \textbf{true}, that means that the node is to be considered in the path, otherwise not.\\
+The final output of the z3 model consists in a set of boolean variables. If the value is \textbf{true}, that means that the node is to be considered in the path.\\
 In the snippet \ref{Snip:Z3Model} there is an example for a path evaluated for a newly entered vehicle.
 \begin{lstlisting}[frame = trBL , escapeinside={(*@}{@*)}, caption = Final result that need to be parsed to retrieve ne node ids, captionpos=b, label=Snip:Z3Model]
 (define-fun y_a02-01 () Bool true)

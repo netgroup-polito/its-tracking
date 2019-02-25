@@ -6,5 +6,26 @@ import {Path} from './path';
 })
 export class PathService {
   path: Path;
-  constructor() { }
+  state = 'IN_TRANSIT';
+  info;
+
+  constructor() {}
+
+  fillInfo(
+    sourceId: string,
+    destinationId: string,
+    vehicleId: string,
+    type: string,
+    dangerousMaterial: string[]): any {
+    this.info = {
+      id: vehicleId,
+      destination: destinationId,
+      origin: sourceId,
+      position: sourceId,
+      entryTime: new Date().toJSON(),
+      state: {value: this.state},
+      type: {value: type},
+      material: dangerousMaterial
+    };
+  }
 }

@@ -6,45 +6,34 @@ import { Path } from './path';
 import { Types } from './types';
 import { Materials } from './materials';
 import { DangerousMaterial } from './dangerousMaterial';
+import { PathService } from './path.service';
+import { Place } from './place';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClientHttpService {
   private path = 'http://localhost:8080/rns/webapi/';
-  state = 'IN_TRANSIT';
-  json;
 
-  constructor(private http: HttpClient) {}
+  constructor(private pathService: PathService, private http: HttpClient) {}
 
   getSystem(): Observable<Rns> {
     return this.http.get<Rns>(this.path + 'rns');
   }
 
-  postVehicle(
-    sourceId: string,
-    destinationId: string,
-    vehicleId: string,
-    type: string,
-    dangerousMaterial: string[]): Observable<Path> {
-    // @ts-ignore
-    this.json = {
-      id: vehicleId,
-      destination: destinationId,
-      origin: sourceId,
-      position: sourceId,
-      entryTime: new Date().toJSON(),
-      state: {value: this.state},
-      type: {value: type},
-      material: dangerousMaterial
-    };
-
-    return this.http.post<Path>(this.path + 'vehicles', this.json, {});
+  getPlace(placeId: string): Observable<Place> {
+    return this.http.get<Place>(this.path + 'rns/places/' + placeId);
   }
 
-  putVehicle(positionId: string): Observable<Path> {
-    this.json.position = positionId;
-    return this.http.put<Path>(this.path + 'vehicles/' + this.json.id, this.json, {});
+  postVehicle(): Observable<Path> {
+    return this.http.post<Path>(this.path + 'vehicles', this.pathService.info, {});
+  }
+
+  putVehicle(positionId?: string): Observable<Path> {
+    if (positionId !== undefined) {
+      this.pathService.info.position = positionId;
+    }
+    return this.http.put<Path>(this.path + 'vehicles/' + this.pathService.info.id, this.pathService.info, {});
   }
 
   getTypes(): Observable<Types> {
@@ -65,6 +54,6 @@ export class ClientHttpService {
 
   changeState(): any {
     const state = 'PARKED';
-    return this.http.put(this.path + 'vehicles/' + this.json.id + '/state', state, {responseType: 'text'});
+    return this.http.put(this.path + 'vehicles/' + this.pathService.info.id + '/state', state, {responseType: 'text'});
   }
 }

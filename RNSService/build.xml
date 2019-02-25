@@ -34,7 +34,7 @@
 	</target>
 	
 	<target name="run-tests" description="run junit tests">
-		<ant antfile="build-rns.xml" target="runFuncTest.real"/>
+		<ant antfile="build-rns.xml" target="run-tests"/>
 	</target>
 </project>
 

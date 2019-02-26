@@ -14,32 +14,34 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {4}Data model}{6}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {5}Server application}{7}
+\contentsline {chapter}{\numberline {5}Server application}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5.1}Application organization}{7}
+\contentsline {section}{\numberline {5.1}Application organization}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5.2}Z3}{9}
+\contentsline {section}{\numberline {5.2}Z3}{11}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.2.1}What is Z3}{9}
+\contentsline {subsection}{\numberline {5.2.1}What is Z3}{11}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.2.2}Setup of Z3 in machine running Ubuntu}{9}
+\contentsline {subsection}{\numberline {5.2.2}Setup of Z3 in machine running Ubuntu}{11}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.2.3}Model}{11}
+\contentsline {subsection}{\numberline {5.2.3}Model}{13}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{Mathematical Model}{12}
+\contentsline {subsubsection}{Mathematical Model}{14}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Objective Function}{12}
+\contentsline {paragraph}{Objective Function}{14}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Variables}{12}
+\contentsline {paragraph}{Variables}{14}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Constraints}{12}
+\contentsline {paragraph}{Constraints}{14}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{Final result}{13}
+\contentsline {subsubsection}{Final result}{15}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.2.4}Example}{13}
+\contentsline {subsection}{\numberline {5.2.4}Example}{15}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5.3}Neo4j}{18}
+\contentsline {section}{\numberline {5.3}Neo4j}{20}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {6}Client}{21}
+\contentsline {chapter}{\numberline {6}Client}{23}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {7}Project setup}{22}
+\contentsline {chapter}{\numberline {7}Project setup}{24}
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {7.1}Necessary libraries }{24}

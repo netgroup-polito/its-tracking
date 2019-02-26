@@ -9,7 +9,7 @@ In particular, Z3, is composed of two components:
 
 % --------------------------------------------------------------------------
 
-\subsection{Setup of Z3 in machine running Ubuntu}
+\subsection{Setup of Z3 in machine running Ubuntu}\label{SubSec:Z3Setup}
 The development enviroment that has been used is \textbf{Ubuntu}. In order to use Z3 library in such operating system, there are a couple of steps one has to follow.
 \begin{enumerate}
   \item \underline{download} the prebuilt version of the library from the offical GitHub repository \url{https://github.com/Z3Prover/z3/releases};
@@ -41,7 +41,7 @@ Please make sure, in order to use the library in Tomcat, to have correctly set C
 
 \subsection{Model}
 In order to define a model for Z3 to work on, it has been extracted a graph from the actual map, with updated capacities and position of vehicles.\\
-The criteria for a node to be selected as a possible node are: 
+The criteria for a node to be selected as a possible node are:
 \begin{itemize}
 	\item the node doesn't contain any dangerous material.
 	\item the node contains some vehicles carrying dangerous materials, but they are compatible with the one of the new vehicle.\\
@@ -60,15 +60,15 @@ The obtained mathematical model is the following.
 	\item $\ y_{i} \in$ \{0, 1\}: a generic node \textit{i}
 	\item $\ c_{i} \geq 0$: the capacity of the node \textit{i}
 	\item $\ t_{i} \in \mathbb{N}$: the weight average time spent in the node \textit{i}
-	\item $\ y_{ij} \in \{0, 1\}$: a connection from node \textit{i} to node \textit{j} 
+	\item $\ y_{ij} \in \{0, 1\}$: a connection from node \textit{i} to node \textit{j}
 \end{description}
 
 \paragraph{Constraints}
 \begin{description}
 	\item $\ c_{i} \geq y_{i} $
-	\item $\ \sum_{i \in N} y_{si} = 1$, where \textit{s} is the origin 
+	\item $\ \sum_{i \in N} y_{si} = 1$, where \textit{s} is the origin
 	\item $\ \sum_{i \in N} y_{id} = 1$, where \textit{d} is the destination
-	\item $\ \sum_{i,j \in N} y_{ij} - \sum_{i,j \in N} y_{ji} = 0$, where $\ y_{ij}$ are the incoming and $\ y_{ji}$ the outcoming connections 	
+	\item $\ \sum_{i,j \in N} y_{ij} - \sum_{i,j \in N} y_{ji} = 0$, where $\ y_{ij}$ are the incoming and $\ y_{ji}$ the outcoming connections
 \end{description}
 
 \subsubsection{Final result}

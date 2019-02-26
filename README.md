@@ -1,6 +1,14 @@
 #  its-tracking
 The aim of this project is to design a RESTful web service able to track the precence of vehicles in an area with restricted access and, based on this information, choose if guarantee or reject the access to other vehicles. If the access is granted, the system has to provide the newly-entered vehicle with a suggested path to follow. Otherwise the vehicle is just rejected by the system with a message.
 
+# Folders organization
+Project folders are organized this way:
+1. server application resides in folder RNSService;
+2. client application is located in folder Client;
+3. in the Report folder are present all files LateX needed to compile correctly the report.
+
+The final report contains more detailed information about the project.
+
 # Project Setup
 
 ## Server

@@ -253,9 +253,9 @@ public class Neo4jInteractions implements AutoCloseable {
 	public synchronized VehicleReaderType getVehicle(String vehicleId) {
 		List<VehicleReaderType> vehicles = this.getVehicles();
 		
-		System.out.println("Vehicle id to look for: " + vehicleId);
+		//System.out.println("Vehicle id to look for: " + vehicleId);
 		for(VehicleReaderType vehicle : vehicles) {
-			System.out.println("Vehicle " + vehicle.getId() + " is in the system!");
+			//System.out.println("Vehicle " + vehicle.getId() + " is in the system!");
 			if(vehicle.getId().equals(vehicleId)) return vehicle;
 		}
 		
@@ -305,7 +305,7 @@ public class Neo4jInteractions implements AutoCloseable {
 		try ( Session session = driver.session() )
         {
 			final String query = StatementBuilder.getInstance().getVehicleStatement("transports");
-			System.out.println(query);
+			//System.out.println(query);
             List<VehicleReaderType> result = session.writeTransaction( new TransactionWork<List<VehicleReaderType>>()
             {
                 @Override
@@ -510,7 +510,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * Function to update the position of a vehicle in the system
 	 * @param vehicle = the vehicle whose position has to be updated
 	 */
-	public void updatePositionVehicle(VehicleReaderType vehicle, String oldPosition) {
+	public synchronized void updatePositionVehicle(VehicleReaderType vehicle, String oldPosition) {
 		try ( Session session = driver.session() )
         {
 			//System.out.println("*******************************");
@@ -790,7 +790,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * database
 	 * @param idPlace = id of the desired place
 	 */
-	public void decreaseCapacityOfNodeGivenId(String idPlace) {
+	public synchronized void decreaseCapacityOfNodeGivenId(String idPlace) {
 		try ( Session session = driver.session() )
         {
 			final String query = StatementBuilder.getInstance()
@@ -820,7 +820,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * system
 	 * @param idPlace = id of the place in question
 	 */
-	public void increaseCapacityOfNodeGivenId(String idPlace) {
+	public synchronized void increaseCapacityOfNodeGivenId(String idPlace) {
 		try ( Session session = driver.session() )
         {
 			final String query = StatementBuilder.getInstance()
@@ -905,7 +905,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @param duration = duration to be added
 	 * @param l = counter by which divide
 	 */
-	public void updateAvgTimeSpentPlace(String id, long duration, long l) {
+	public synchronized void updateAvgTimeSpentPlace(String id, long duration, long l) {
 		try ( Session session = driver.session() )
         {
 			final String query = StatementBuilder.getInstance()
@@ -939,7 +939,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @param amount = amount to which increase or decrease
 	 * @param increase = true if we want to increase, false otherwise
 	 */
-	public void updateCounterValueOfPlace(String placeId, int amount, boolean increase) {
+	public synchronized void updateCounterValueOfPlace(String placeId, int amount, boolean increase) {
 		try ( Session session = driver.session() )
         {
 			final String query = (increase) 
@@ -1008,7 +1008,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @param vehicleId = id of the vehicle
 	 * @param newState = new state of the vehicle
 	 */
-	public void updateVehicleState(String vehicleId, String newState) {
+	public synchronized void updateVehicleState(String vehicleId, String newState) {
 		
 		try ( Session session = driver.session() )
         {
@@ -1042,7 +1042,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @param increase = true --> addition, false --> subtraction
 	 * @param amount = the amount to be added or subtracted
 	 */
-	public void updateReservationsInPlace(String placeId, boolean increase, int amount) {
+	public synchronized void updateReservationsInPlace(String placeId, boolean increase, int amount) {
 		try ( Session session = driver.session() )
         {
 			final String query = (increase) 

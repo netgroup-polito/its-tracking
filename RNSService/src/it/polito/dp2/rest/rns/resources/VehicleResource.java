@@ -29,6 +29,7 @@ import it.polito.dp2.rest.rns.exceptions.InvalidVehicleStateException;
 import it.polito.dp2.rest.rns.exceptions.InvalidVehicleTypeException;
 import it.polito.dp2.rest.rns.exceptions.NonRecognizedMaterial;
 import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
+import it.polito.dp2.rest.rns.exceptions.SamePositionException;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.exceptions.VehicleAlreadyInSystemException;
 import it.polito.dp2.rest.rns.exceptions.VehicleNotInSystemException;
@@ -105,7 +106,7 @@ public class VehicleResource {
 	})
     public Response getVehicle(@PathParam("id") String vehicleId, @Context HttpHeaders headers) {
 		try {
-			System.out.println("GET VEHICLE " + vehicleId);
+			//System.out.println("GET VEHICLE " + vehicleId);
 			VehicleReaderType vehicle = RNSCore.getInstance().getVehicle(vehicleId);
 	    		JAXBElement<VehicleReaderType> jaxbVehicle = (new ObjectFactory()).createVehicle(vehicle);
 	    		return
@@ -162,7 +163,7 @@ public class VehicleResource {
     		//System.out.println("Working Directory = " + System.getProperty("user.dir"));
     		//System.out.println("LD_LIBRARY_PATH = " + System.getenv("LD_LIBRARY_PATH"));
     		//System.out.println("CATALINA_HOME = " + System.getenv("CATALINA_HOME"));
-    		System.out.println("VEHICLE: " + vehicle.getValue().getId() + " --- STATE: " + vehicle.getValue().getState());
+    		System.out.println("CREATE VEHICLE: " + vehicle.getValue().getId() + " --- STATE: " + vehicle.getValue().getState());
 		try {
 			if(!vehicle.getValue().getOrigin().equals(vehicle.getValue().getPosition()))
 				throw new InvalidEntryPlaceException("Current position and origin don't correspond.");
@@ -170,37 +171,37 @@ public class VehicleResource {
 			Places path = RNSCore.getInstance().addVehicle(vehicle.getValue());
 			return Response.status(Status.CREATED).entity(path).build();
 		} catch (PlaceFullException e) { // PLACE FULL
-			System.out.println(e.getMessage());
+			System.out.println("Exception PLACE FULL message: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (VehicleAlreadyInSystemException e) { // ALREADY ADDED VEHICLE
-			System.out.println(e.getMessage());
+			System.out.println("Exception VEHICLE ALREADY PRESENT message: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (InvalidEntryPlaceException e) { // GATE NON VALID
-			System.out.println(e.getMessage());
+			System.out.println("Exception INVALID ENTRY PLACE message: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (UnsatisfiableException e) { // GENERIC ERROR WHEN GETTING THE PATH
-			System.out.println(e.getMessage());
+			System.out.println("Exception UNSATISFIABLE message: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (InvalidPathException e) {
-			System.out.println(e.getMessage());
+			System.out.println("Exception INVALID PATH message: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (NonRecognizedMaterial e) {
-			System.out.println(e.getMessage());
+			System.out.println("ExceptionNON RECOGNIZED MATERIAL message: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (InvalidVehicleTypeException e) {
-			System.out.println(e.getMessage());
+			System.out.println("Exception INVALID VEHICLE TYPE message: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (InvalidVehicleStateException e) {
-			System.out.println(e.getMessage());
+			System.out.println("Exception INVALID VEHICLE STATEmessage: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (InvalidEntryTimeException e) {
-			System.out.println(e.getMessage());
+			System.out.println("Exception INVALID ENTRY TIME message: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (IncompatibleMaterialsCarriedException e) {
-			System.out.println(e.getMessage());
+			System.out.println("Exception INCOMPATIBLE MATERIAL message: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		} catch (InvalidDestinationPlaceException e) {
-			System.out.println(e.getMessage());
+			System.out.println("Exception INVALID DESTINATION PLACE message: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
     }
@@ -227,13 +228,17 @@ public class VehicleResource {
 		    	MediaType.APPLICATION_JSON
     })
     public Response updateVehicle(@PathParam("id") String vehicleId, JAXBElement<VehicleReaderType> vehicle) {
-    		System.out.println("++++++++++++++++++++++++++++++++++++++");
-    		System.out.println((new Date()).toString());
+    		/*System.out.println("++++++++++++++++++++++++++++++++++++++");
+    		System.out.println((new Date()).toString());*/
     		System.out.println("UPDATE VEHICLE " + vehicleId + " --- " + vehicle.getValue().getPosition());
     		try {
 			Places places = RNSCore.getInstance().updateVehicle(vehicle.getValue());
 			return Response.status(Status.OK).entity(places).build();
-		} catch (Exception e) {
+		} catch(SamePositionException e) {
+			System.out.println("Exception SAME POSITION message: " + e.getMessage());
+			return Response.status(Status.OK).entity(e.getMessage()).build();
+    	} catch (Exception e) {
+			System.out.println("Exception message: " + e.getMessage());
 			e.printStackTrace();
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
@@ -267,7 +272,7 @@ public class VehicleResource {
 			RNSCore.getInstance().updateVehicleState(vehicleId, newState);
 			return Response.status(Status.CREATED).entity("Updated state of vehicle " + vehicleId + " to " + newState).build();
 		} catch (InvalidVehicleStateException e) {
-			System.out.println(e.getMessage());
+			System.out.println("Exception INVALID VEHICLE STATE message: " + e.getMessage());
 			return Response.status(Status.OK).entity(e.getMessage()).build();
 		}
     		

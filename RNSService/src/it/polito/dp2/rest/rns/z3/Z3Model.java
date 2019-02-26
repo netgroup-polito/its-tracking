@@ -14,6 +14,7 @@ import com.microsoft.z3.Model;
 import com.microsoft.z3.Optimize;
 import com.microsoft.z3.Status;
 
+import it.polito.dp2.rest.rns.exceptions.LastNodeException;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
@@ -52,7 +53,7 @@ public class Z3Model {
 	
 	private String sourceNodeId = "";
 	
-	public Z3Model(String sourceNodeId, String destinationNodeId, List<String> materialId) throws UnsatisfiableException {
+	public Z3Model(String sourceNodeId, String destinationNodeId, List<String> materialId) throws UnsatisfiableException, LastNodeException {
 		if(Neo4jInteractions.getInstance().getActualCapacityOfPlace(sourceNodeId) < 1)
 			throw(new UnsatisfiableException("Node " + sourceNodeId + " has no more room for another vehicle"));
 		
@@ -141,8 +142,9 @@ public class Z3Model {
 	 * @param z_prev = connection where we came from
 	 * @param y_prev = previous node where we were
 	 * @param prevId = id of the previous node where we came from
+	 * @throws LastNodeException 
 	 */
-	public void createBooleanExpressions(String source, List<String> materialIds, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) {
+	public void createBooleanExpressions(String source, List<String> materialIds, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) throws LastNodeException {
 		ArrayList<DangerousMaterialImpl> materialsTransported = new ArrayList<>();
 		for(String materialId : materialIds) {		
 			if(materialId != null && !materialId.equals("")) {
@@ -187,7 +189,7 @@ public class Z3Model {
 		
 		// Check on end of recursion
 		if(source.equals(destination)) {
-			//System.out.println("!!!! Found end: " + source + " !!!!");
+			System.out.println("!!!! Found end: " + source + " !!!!");
 			
 			// Current node
 			BoolExpr y_curr = ctx.mkBoolConst("y_" + current.getId());
@@ -195,6 +197,10 @@ public class Z3Model {
 			this.nodes.put(current.getId(), y_curr);
 			if(!connections.containsKey(current.getId())) this.connections.put(current.getId(), new ArrayList<String>());
 			this.connections.get(current.getId()).add("z_" + prevId + "_" + current.getId());
+			//System.out.println((connectionsBool == null) + " " + (prevId == null) + " " + (ctx == null) + " " + y_prev + " " + y_curr);
+			
+			//if(y_prev != null && prevId != null)
+			if(y_prev == null && prevId == null) throw new LastNodeException();
 			this.connectionsBool.put("z_" + prevId + "_" + current.getId(), ctx.mkAnd(y_prev, y_curr));
 			
 			foundEnd = true;

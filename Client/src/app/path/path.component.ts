@@ -136,6 +136,7 @@ export class PathComponent implements OnInit {
         this.vehicleId.value,
         this.typeId.value,
         this.selectedMaterials);
+      this.pathService.path = undefined;
       this.client.putVehicle().subscribe(
         data => {
           localStorage.setItem('vehicleId', this.vehicleId.value);

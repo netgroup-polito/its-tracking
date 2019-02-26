@@ -13,6 +13,7 @@ import { MatSnackBar } from '@angular/material';
 export class RoutesComponent implements OnInit {
   path: Path;
   intervals;
+  parkedIndex;
   wrongRoad: number;
   parked: boolean;
   tooltipOptions = {
@@ -27,7 +28,7 @@ export class RoutesComponent implements OnInit {
               private router: Router) { }
 
   ngOnInit() {
-    this.wrongRoad = 90;
+    this.wrongRoad = 50;
     this.parked = false;
     this.intervals = [];
     if (this.pathService.path !== undefined) {
@@ -39,7 +40,7 @@ export class RoutesComponent implements OnInit {
   }
 
   drive(): any {
-    const randomTime = this.getRandomInt(0, 5);
+    const randomTime = this.getRandomInt(5, 5);
     this.path.place[0].visited = 0;
     this.visitPlace(0, randomTime);
   }
@@ -47,18 +48,29 @@ export class RoutesComponent implements OnInit {
   visitPlace(index: number, time: number) {
     const self = this;
     let timer = 0;
+    self.parkedIndex = -1;
     this.intervals[index] = setInterval( function() {
-      if (self.parked) {
+      if (self.parked === true) {
+        if (self.parkedIndex === -1) {
+          console.log('fjs2')
+          self.parkedIndex = index;
+        }
         timer--;
       }
       if (timer >= time) {
         clearInterval(self.intervals[index]);
         self.path.place[index].visited = 1;
+        console.log(self.parkedIndex)
+        if (self.parkedIndex !== -1) {
+          console.log("fuck js")
+          index = self.parkedIndex;
+          self.parkedIndex = -1;
+        }
         const currentIndex = index++;
         if (index < self.path.place.length) {
-          const randomTime = self.getRandomInt(0, 5);
+          const randomTime = self.getRandomInt(5, 5);
           const randomRoad = self.getRandomInt(0, 100);
-          if (randomRoad <= this.wrongRoad || self.path.place[currentIndex].connectedPlaceId.length === 1) { // right road
+          if (randomRoad <= self.wrongRoad || self.path.place[currentIndex].connectedPlaceId.length === 1) { // right road
             self.client.putVehicle(self.path.place[index].id).subscribe(
               () => {
                 self.path.place[index].visited = 0;
@@ -78,7 +90,7 @@ export class RoutesComponent implements OnInit {
                 self.path.place.length = index;
                 self.path.place.push.apply(self.path.place, data.place);
                 self.path.place[index].visited = 0;
-                const randomTimeNew = self.getRandomInt(0, 5);
+                const randomTimeNew = self.getRandomInt(5, 5);
                 self.visitPlace(index, randomTimeNew);
               },
               err => self.openSnackBar(err.error, 'OK')
@@ -94,8 +106,7 @@ export class RoutesComponent implements OnInit {
   getRandomInt(min: number, max: number) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return 5;
-    // return Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   openSnackBar(message: string, action: string) {

@@ -1,5 +1,6 @@
 \boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
-\babel@toc {english}{}
+\defcounter {refsection}{0}\relax 
+\select@language {english}
 \defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {1}Summary}{2}
 \defcounter {refsection}{0}\relax 
@@ -17,28 +18,28 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {5.1}Application organization}{7}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5.2}Z3}{8}
+\contentsline {section}{\numberline {5.2}Z3}{9}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.2.1}What is Z3}{8}
+\contentsline {subsection}{\numberline {5.2.1}What is Z3}{9}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.2.2}Setup of Z3 in machine running Ubuntu}{8}
+\contentsline {subsection}{\numberline {5.2.2}Setup of Z3 in machine running Ubuntu}{9}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.2.3}Model}{10}
+\contentsline {subsection}{\numberline {5.2.3}Model}{11}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{Mathematical Model}{11}
+\contentsline {subsubsection}{Mathematical Model}{12}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Objective Function}{11}
+\contentsline {paragraph}{Objective Function}{12}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Variables}{11}
+\contentsline {paragraph}{Variables}{12}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Constraints}{11}
+\contentsline {paragraph}{Constraints}{12}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{Final result}{12}
+\contentsline {subsubsection}{Final result}{13}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.2.4}Example}{12}
+\contentsline {subsection}{\numberline {5.2.4}Example}{13}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5.3}Neo4j}{17}
+\contentsline {section}{\numberline {5.3}Neo4j}{18}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {6}Client}{18}
+\contentsline {chapter}{\numberline {6}Client}{21}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {7}Project setup}{19}
+\contentsline {chapter}{\numberline {7}Project setup}{22}

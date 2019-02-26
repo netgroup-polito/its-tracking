@@ -3,12 +3,10 @@ The aim of this project is to design a RESTful web service able to track the pre
 
 # Project Setup
 
-##Server
+## Server
 In order to launch and compile the server application (in the directory RNSService) and its tests, it is available a set of ant scripts. In particular:
-• ant script neo4j-build.xml provides a set of target to launch/stop/restart&clean neo4j database;
-• ant script build.xml provides all the target to start/stop tomcat, to
-deploy the application and to run tests, it relies upon another script to
-define the operation of such targets, that is build-rns.xml.
+1. ant script neo4j-build.xml provides a set of target to launch/stop/restart&clean neo4j database;
+2. ant script build.xml provides all the target to start/stop tomcat, to deploy the application and to run tests, it relies upon another script to define the operation of such targets, that is build-rns.xml.
 
 The targets can be either launched via Eclipse IDE or command line.
 To setup the server up and running it is necessary to follow these step:
@@ -22,11 +20,11 @@ From command line: `ant 'redeploy  -f /path/to/build.xml`.
 In order to launch the tests written for the service it is necessary to use rns-
 tests target of build.xml script.
 
-##Client
+## Client
 To setup the client (in the directory Client) it is necessary to install Node.js,
 then it is possible to launch the application. To get Node.js, go to nodejs.org.
 These are the steps:
-271. go to dir Client
+1. go to dir Client
 2. install the angular CLI running the following command:
 `npm install -g @angular/cli`
 3. launch the app running the following command:

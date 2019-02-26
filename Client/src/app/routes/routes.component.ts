@@ -13,6 +13,7 @@ import { MatSnackBar } from '@angular/material';
 export class RoutesComponent implements OnInit {
   path: Path;
   intervals;
+  wrongRoad: number;
   parked: boolean;
   tooltipOptions = {
     'placement': 'bottom',
@@ -26,6 +27,7 @@ export class RoutesComponent implements OnInit {
               private router: Router) { }
 
   ngOnInit() {
+    wrongRoad = 90;
     this.parked = false;
     this.intervals = [];
     if (this.pathService.path !== undefined) {
@@ -56,7 +58,7 @@ export class RoutesComponent implements OnInit {
         if (index < self.path.place.length) {
           const randomTime = self.getRandomInt(0, 5);
           const randomRoad = self.getRandomInt(0, 100);
-          if (randomRoad <= 90 || self.path.place[currentIndex].connectedPlaceId.length === 1) { // right road
+          if (randomRoad <= this.wrongRoad || self.path.place[currentIndex].connectedPlaceId.length === 1) { // right road
             self.client.putVehicle(self.path.place[index].id).subscribe(
               () => {
                 self.path.place[index].visited = 0;

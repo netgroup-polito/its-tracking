@@ -19,6 +19,10 @@ mat-card div {
   margin: 3%
 }
 
+.selected-materials {
+  padding-bottom: 10px;
+}
+
 mat-card-title {
   padding: 1%
 }

@@ -205,27 +205,29 @@
   </div>
 
   <div class="row">
-    <mat-card>
-      <mat-card-title>
-        Select Dangerous Materials
-      </mat-card-title>
+    <div>
+      <mat-card>
+        <mat-card-title>
+          Select Dangerous Materials
+        </mat-card-title>
 
-      <div>
-        <mat-selection-list *ngIf="materials !== undefined"
-                            [(ngModel)]="selectedMaterials">
-          <mat-list-option *ngFor="let material of materials.dangerousMaterial"
-                            [value]="material" (click)="checkMaterials(material)">
-            {{material}}
-          </mat-list-option>
-        </mat-selection-list>
-      </div>
+        <div>
+          <mat-selection-list *ngIf="materials !== undefined"
+                              [(ngModel)]="selectedMaterials">
+            <mat-list-option *ngFor="let material of materials.dangerousMaterial"
+                              [value]="material" (click)="checkMaterials(material)">
+              {{material}}
+            </mat-list-option>
+          </mat-selection-list>
+        </div>
 
-      <div *ngIf="selectedMaterials.length !== 0">
-        <h5>Selected materials:</h5>
-        <mat-accordion *ngFor="let mat of selectedMaterials">
-          <li class="mat-list"> {{ mat }}</li>
-        </mat-accordion>
-      </div>
-    </mat-card>
+        <div class="selected-materials" *ngIf="selectedMaterials.length !== 0">
+          <h5>Selected materials:</h5>
+          <mat-accordion *ngFor="let mat of selectedMaterials">
+            <li class="mat-list"> {{ mat }}</li>
+          </mat-accordion>
+        </div>
+      </mat-card>
+    </div>
   </div>
 </div>

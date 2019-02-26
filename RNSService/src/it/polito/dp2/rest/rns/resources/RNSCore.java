@@ -16,8 +16,10 @@ import it.polito.dp2.rest.rns.exceptions.InvalidEntryTimeException;
 import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
 import it.polito.dp2.rest.rns.exceptions.InvalidVehicleStateException;
 import it.polito.dp2.rest.rns.exceptions.InvalidVehicleTypeException;
+import it.polito.dp2.rest.rns.exceptions.LastNodeException;
 import it.polito.dp2.rest.rns.exceptions.NonRecognizedMaterial;
 import it.polito.dp2.rest.rns.exceptions.PlaceFullException;
+import it.polito.dp2.rest.rns.exceptions.SamePositionException;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.exceptions.VehicleAlreadyInSystemException;
 import it.polito.dp2.rest.rns.exceptions.VehicleNotInSystemException;
@@ -126,8 +128,17 @@ public class RNSCore {
 			// Check correctness of fields
 			this.checkVehicle(vehicle);
 			
-			Z3 z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial());
-			List<String> path = z3.findPath();
+			Z3 z3;
+			List<String> path = null;
+			try {
+				z3 = new Z3(vehicle.getPosition(), vehicle.getDestination(), vehicle.getMaterial());
+				path = z3.findPath();
+			} catch (LastNodeException e) {
+				Places places = (new ObjectFactory()).createPlaces();
+				places.getPlace().add(Neo4jInteractions.getInstance().getPlace(vehicle.getDestination()));
+				return places;
+			}
+			
 			
 			if(path != null) {
 				
@@ -175,7 +186,7 @@ public class RNSCore {
 				if(vehicle.getMaterial() != null && vehicle.getMaterial().size() != 0) {
 					if(vehicle.getMaterial().size() >= 1) {
 						for(String material : vehicle.getMaterial())
-							if(!material.equals("") && material != null) {
+							if(material != null && !material.equals("") && !material.equals("null")) {
 								Neo4jInteractions.getInstance().connectNodes(
 										vehicle.getId(), 
 										material, 
@@ -198,7 +209,7 @@ public class RNSCore {
 		}
 	}
 	
-	private void checkVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException, InvalidDestinationPlaceException {
+	private synchronized void checkVehicle(VehicleReaderType vehicle) throws PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException, InvalidDestinationPlaceException {
 		
 		// Check if the ORIGIN if it is a gate of type IN or INOUT
 		GateReaderType origin = this.getGate(vehicle.getOrigin());
@@ -224,8 +235,10 @@ public class RNSCore {
 		
 		// Check for material id correctness
 		for(String s : vehicle.getMaterial()) {
-			if(!IdTranslator.getInstance().isInTheSystem(s) && !s.equals("")) {
-				throw new NonRecognizedMaterial("Material id " + s + " non recognized by the system.");
+			if(s != null && !s.equals("null")) {
+				if(!IdTranslator.getInstance().isInTheSystem(s) && !s.equals("")) {
+					throw new NonRecognizedMaterial("Material id " + s + " non recognized by the system.");
+				}
 			}
 		}
 		
@@ -249,7 +262,13 @@ public class RNSCore {
 		if(vehicle.getState() == null) {
 			throw new InvalidVehicleStateException("Wrong value for vehicle state.");
 		}
-		
+		try { 
+			VehicleStateType.valueOf(vehicle.getState().name()); 
+		}
+		catch(Exception e) {
+			throw new InvalidVehicleStateException("Vehicle state " + vehicle.getState().name() + " is not acceptable.");
+		}
+
 		// Check that the entry time isn't null or empty
 		if(vehicle.getEntryTime() == null || vehicle.getEntryTime().toString().equals("")) {
 			throw new InvalidEntryTimeException("Vehicle must have entry time specified");
@@ -258,11 +277,13 @@ public class RNSCore {
 		// Check on incompatible materials 
 		if(vehicle.getMaterial() != null && vehicle.getMaterial().size() != 0) {
 			for(String mat1 :  vehicle.getMaterial()) {
-				DangerousMaterialImpl material = new DangerousMaterialImpl(mat1, Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(mat1));
-				for(String mat2 : vehicle.getMaterial()) {
-					if(!mat1.equals(mat2)) {
-						if(!material.isCompatibleWith(mat2))
-							throw new IncompatibleMaterialsCarriedException("Vehicle can't carry " + mat1 + " " + mat2 + " at the same time. They're not compatible");
+				if(mat1 != null && !mat1.equals("null")) {
+					DangerousMaterialImpl material = new DangerousMaterialImpl(mat1, Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(mat1));
+					for(String mat2 : vehicle.getMaterial()) {
+						if(!mat1.equals(mat2)) {
+							if(!material.isCompatibleWith(mat2))
+								throw new IncompatibleMaterialsCarriedException("Vehicle can't carry " + mat1 + " " + mat2 + " at the same time. They're not compatible");
+						}
 					}
 				}
 			}
@@ -348,7 +369,7 @@ public class RNSCore {
 			Neo4jInteractions.getInstance().deleteNode(vehicleId, "Vehicle");
 			IdTranslator.getInstance().removeTranslation(vehicleId);
 			
-			if(this.vehiclePath.containsKey(vehicleId) && !update) {
+			if(this.vehiclePath.containsKey(vehicleId)) {
 				// For each place is the old path we need to increase the capacity by 1
 				for(String id : this.vehiclePath.get(vehicleId).getPlace().stream().map(SimplePlaceReaderType::getId).collect(Collectors.toList()) ) {
 					//System.out.println("Increasing capacity of node: " + id);
@@ -381,8 +402,9 @@ public class RNSCore {
 	 * @throws InvalidEntryTimeException 
 	 * @throws IncompatibleMaterialsCarriedException 
 	 * @throws InvalidDestinationPlaceException 
+	 * @throws SamePositionException 
 	 */
-	public Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException, InvalidDestinationPlaceException {
+	public synchronized Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException, InvalidDestinationPlaceException, SamePositionException {
 		this.checkVehicle(vehicle);
 		
 		// Check presence of the vehicle in the system
@@ -393,6 +415,7 @@ public class RNSCore {
 						.collect(Collectors.toList());
 		
 		// Vehicle not in the system
+		vehiclesLoadedIds.stream().forEach((id) -> System.out.println(id));
 		if(!vehiclesLoadedIds.contains(vehicle.getId())) {
 			//throw(new VehicleNotInSystemException("Vehicle " + vehicle.getId() + " is not currently in the system."));
 			
@@ -412,9 +435,34 @@ public class RNSCore {
 		
 		VehicleReaderType currentVehicle = Neo4jInteractions.getInstance().getVehicle(vehicle.getId());
 		
-		if(vehicle.getPosition().equals(currentVehicle.getPosition())) 
-			throw new InvalidPathException("Vehicle " + vehicle.getId() + " didn't change position. Still located in " + vehicle.getPosition() + ". State: " + vehicle.getState().toString());
+		if(vehicle.getPosition().equals(currentVehicle.getPosition()) && currentVehicle.getState().equals(VehicleStateType.IN_TRANSIT)) { // SAME POSITION
+			
+			//throw new SamePositionException("Vehicle " + vehicle.getId() + " didn't change position. Still located in " + vehicle.getPosition() + ". State: " + vehicle.getState().toString());
 		
+			System.out.println("Same position!!!");
+			
+			// Delete the current place from the vehicle path
+			Places path = this.vehiclePath.get(currentVehicle.getId());
+			path.getPlace().removeIf((place) -> {
+				if(place.getId().equals(currentVehicle.getPosition())) {
+					System.out.println("Removing place: " + place);
+					return true;
+				} else
+					return false;
+				
+			});
+			
+			// Return the current position
+			Places places = (new ObjectFactory()).createPlaces();
+			places.getPlace().add(Neo4jInteractions.getInstance().getPlace(vehicle.getPosition()));
+			
+			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
+			
+			// Update the reservations in the current place before the moving
+			Neo4jInteractions.getInstance().updateReservationsInPlace(currentVehicle.getPosition(), false, 1);
+			
+			return places;
+		}
 		if(!vehicle.getDestination().equals(currentVehicle.getDestination()))
 			occurrences = 0; // Need to force the recomputation of the path
 		
@@ -465,29 +513,37 @@ public class RNSCore {
 			
 			if(vehiclesLoadedIds.contains(vehicle.getId())) { // It has to start from the same position 
 				
-				if( // Restart case
-					!currentVehicle.getPosition().equals(vehicle.getOrigin())
-				) {
-					throw new InvalidEntryPlaceException("You must restart from the place you are now. Current place id: " + currentVehicle.getPosition());
-				}
+				// if( // Restart case
+				// 	!currentVehicle.getPosition().equals(vehicle.getOrigin())
+				// ) {
+				// 	throw new InvalidEntryPlaceException("You must restart from the place you are now. Current place id: " + currentVehicle.getPosition());
+				// }
 				
 				SimplePlaceReaderType currentPlace = Neo4jInteractions.getInstance().getPlace(currentVehicle.getPosition());
 				
-				if( // Moving case
-					!vehicle.getOrigin().equals(currentPlace.getId()) || 
-					!vehicle.getPosition().equals(currentPlace.getId()) ||
-					!currentPlace.getConnectedPlaceId().contains(vehicle.getOrigin()) ||
-					!currentPlace.getConnectedPlaceId().contains(vehicle.getPosition())
-				) {
-					String errorMessage = "You must enter valid position/origin. Valid positions: " + currentPlace.getId();
-					for(String s : currentPlace.getConnectedPlaceId()) errorMessage += " " + s;
-					throw new InvalidPathException(errorMessage);
+				System.out.println("[RNSCORE] " + vehicle.getPosition() + " --- " + currentPlace.getId());
+				
+				if (!vehicle.getOrigin().equals(currentPlace.getId()) || 
+					!vehicle.getPosition().equals(currentPlace.getId())) {
+					if( // Moving case
+						!currentPlace.getConnectedPlaceId().contains(vehicle.getOrigin()) && 
+						!currentPlace.getId().equals(vehicle.getOrigin()) &&
+						!currentVehicle.getOrigin().equals(vehicle.getOrigin()))
+					 {
+						String errorMessage = "You must enter valid ORIGIN. Valid origins: " + currentPlace.getId();
+						for(String s : currentPlace.getConnectedPlaceId()) errorMessage += " " + s;
+						throw new InvalidPathException(errorMessage);
+					} else if((!currentPlace.getConnectedPlaceId().contains(vehicle.getPosition()))) {
+						String errorMessage = "You must enter valid POSITION. Valid positions: " + currentPlace.getId();
+						for(String s : currentPlace.getConnectedPlaceId()) errorMessage += " " + s;
+						throw new InvalidPathException(errorMessage);
+					}
 				}
 			}
 			
 			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
 			
-			this.deleteVehicle(vehicle.getId(), false);
+			this.deleteVehicle(vehicle.getId(), true);
 			Places places;
 			try {
 				places = this.addVehicle(vehicle);

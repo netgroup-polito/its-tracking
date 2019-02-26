@@ -52,7 +52,9 @@ export class PathComponent implements OnInit {
           this.typeId.setValue(this.vehicle.type);
           this.sourceId.setValue(this.vehicle.origin);
           this.destinationId.setValue(this.vehicle.destination);
-          this.selectedMaterials = this.vehicle.material;
+          if (this.vehicle.material !== null) {
+            this.selectedMaterials = this.vehicle.material;
+          }
           this.client.getPlace(this.vehicle.position).subscribe(
             place => this.currentPosition = place
           );
@@ -134,7 +136,8 @@ export class PathComponent implements OnInit {
         this.vehicleId.value,
         this.typeId.value,
         this.selectedMaterials);
-      this.client.postVehicle().subscribe(
+      this.pathService.path = undefined;
+      this.client.putVehicle().subscribe(
         data => {
           localStorage.setItem('vehicleId', this.vehicleId.value);
           this.pathService.path = data;

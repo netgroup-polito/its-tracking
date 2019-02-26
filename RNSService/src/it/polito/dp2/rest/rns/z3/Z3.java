@@ -5,12 +5,13 @@ import java.util.List;
 
 import com.microsoft.z3.Model;
 
+import it.polito.dp2.rest.rns.exceptions.LastNodeException;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 
 public class Z3 {
 	private Z3Model model;
 	
-	public Z3(String sourceNodeId, String destinationNodeId, List<String> materialId) throws UnsatisfiableException {
+	public Z3(String sourceNodeId, String destinationNodeId, List<String> materialId) throws UnsatisfiableException, LastNodeException {
 		this.model = new Z3Model(sourceNodeId, destinationNodeId, materialId);
 	}
 	

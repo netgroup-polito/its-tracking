@@ -2,10 +2,11 @@
 The client is a web application developed in Angular. It is designed to choose and simulate the vehicle journey inside a given map.
 
 \section{Client architecture}
-The client is composed by two pages:
+The client is composed by three pages:
 \begin{itemize}
 	\item Home page: where it is possible to choose the path
 	\item Route page: where it is possible to see the route and the next directions to take.
+	\item Admin page: where it is possible to see  all the information about the whole system.
 \end{itemize}
 The application uses a service to make HTTP requests to the server to retrieve the information needed and another one to share data inside the client.
 \newpage
@@ -34,7 +35,7 @@ Also dangerous material are displayed at the end of the page, where it is possib
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=.8\textwidth]{dangerous_mat.png}
-	\caption{Possible choices of source and destination.}\label{Fig:dangerous_mat}
+	\caption{Possible choices of dangerous material.}\label{Fig:dangerous_mat}
 \end{figure}
 
 It is then possible to create a POST request using JSON with all the information collected, that are summarized as seen in figure \ref{Fig:path_info}.
@@ -42,7 +43,7 @@ It is then possible to create a POST request using JSON with all the information
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=.8\textwidth]{path_info.png}
-	\caption{Possible choices of source and destination.}\label{Fig:path_info}
+	\caption{Information summary.}\label{Fig:path_info}
 \end{figure}
 
 \newpage
@@ -56,4 +57,22 @@ The probability to chose a wrong road is constant and defined as 90\%. In this e
 	\centering
 	\includegraphics[width=.8\textwidth]{route_page.png}
 	\caption{Simulation of the path of the vehicle.}\label{Fig:route}
+\end{figure}
+
+\newpage
+\section{Admin page}
+In the admin page it is possible to see all the information of the system, concerning all kind of places. Also the vehicles that are currently tracked in the map are listed in this page. 
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=.8\textwidth]{admin.png}
+	\caption{Admin page view.}\label{Fig:admin}
+\end{figure}
+
+Expanding an element it is possible to see the details about the place or the vehicle selected. In the former case it can be performed a request to the server, to discover the number of reservation made by the vehicles in the selected place (see figure \ref{Fig:admin_detail}).
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[height=.3\textheight]{admin_detail.png}
+	\caption{Admin page detail.}\label{Fig:admin_detail}
 \end{figure}

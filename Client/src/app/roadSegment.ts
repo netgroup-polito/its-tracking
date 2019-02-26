@@ -1,7 +1,6 @@
 import {Place} from './place';
 
 export class RoadSegment extends Place {
-  avgTimeSpent: number = undefined;
   containerPlaceId: string = undefined;
 
 

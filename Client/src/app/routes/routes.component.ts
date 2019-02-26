@@ -28,7 +28,7 @@ export class RoutesComponent implements OnInit {
               private router: Router) { }
 
   ngOnInit() {
-    this.wrongRoad = 50;
+    this.wrongRoad = 90;
     this.parked = false;
     this.intervals = [];
     if (this.pathService.path !== undefined) {
@@ -52,7 +52,6 @@ export class RoutesComponent implements OnInit {
     this.intervals[index] = setInterval( function() {
       if (self.parked === true) {
         if (self.parkedIndex === -1) {
-          console.log('fjs2')
           self.parkedIndex = index;
         }
         timer--;
@@ -60,9 +59,7 @@ export class RoutesComponent implements OnInit {
       if (timer >= time) {
         clearInterval(self.intervals[index]);
         self.path.place[index].visited = 1;
-        console.log(self.parkedIndex)
         if (self.parkedIndex !== -1) {
-          console.log("fuck js")
           index = self.parkedIndex;
           self.parkedIndex = -1;
         }

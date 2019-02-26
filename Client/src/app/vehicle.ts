@@ -4,7 +4,7 @@ export class Vehicle {
   destination: string = undefined;
   origin: string = undefined;
   position: string = undefined;
-  entrytime: string = undefined;
+  entryTime: string = undefined;
   state: string = undefined;
   type: string = undefined;
   material: string[];
@@ -23,7 +23,7 @@ export class Vehicle {
     this.destination = destination;
     this.origin = origin;
     this.position = position;
-    this.entrytime = entrytime;
+    this.entryTime = entrytime;
     this.state = state;
     this.type = type;
     this.material = material;

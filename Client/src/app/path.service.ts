@@ -19,6 +19,7 @@ export class PathService {
     dangerousMaterial: string[]): any {
     this.info = {
       id: vehicleId,
+      name: vehicleId,
       destination: destinationId,
       origin: sourceId,
       position: sourceId,

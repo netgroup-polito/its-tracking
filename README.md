@@ -7,7 +7,7 @@ Project folders are organized this way:
 2. client application is located in folder Client;
 3. in the Report folder are present all files LateX needed to compile correctly the report.
 
-The final report contains more detailed information about the project.
+The final report in the root directory contains more detailed information about the project.
 
 # Project Setup
 

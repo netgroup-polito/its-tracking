@@ -48,16 +48,18 @@ export class PathComponent implements OnInit {
       this.vehicleId.setValue(vId);
       this.client.getVehicle(vId).subscribe(
         vehicle => {
-          this.vehicle = vehicle;
-          this.typeId.setValue(this.vehicle.type);
-          this.sourceId.setValue(this.vehicle.origin);
-          this.destinationId.setValue(this.vehicle.destination);
-          if (this.vehicle.material !== null) {
-            this.selectedMaterials = this.vehicle.material;
+          if (vehicle !== undefined && vehicle !== null) {
+            this.vehicle = vehicle;
+            this.typeId.setValue(this.vehicle.type);
+            this.sourceId.setValue(this.vehicle.origin);
+            this.destinationId.setValue(this.vehicle.destination);
+            if (this.vehicle.material !== null) {
+              this.selectedMaterials = this.vehicle.material;
+            }
+            this.client.getPlace(this.vehicle.position).subscribe(
+              place => this.currentPosition = place
+            );
           }
-          this.client.getPlace(this.vehicle.position).subscribe(
-            place => this.currentPosition = place
-          );
         });
     }
     this.getSystem();

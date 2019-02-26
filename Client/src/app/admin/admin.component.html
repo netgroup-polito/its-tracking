@@ -1,22 +1,140 @@
 <mat-card>
-  <mat-card-title>
-    Statistics
-  </mat-card-title>
-  <mat-card-content>
-    <mat-expansion-panel
-      [expanded]="false"
-      (opened)="panelOpenState2 = true"
-      (closed)="panelOpenState2 = false"
-      *ngIf="currentPosition !== undefined"
-    >
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <p>{{currentPosition.name}}</p>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <p><span>Id: </span>{{currentPosition.id}}</p>
-      <p><span>Capacity: </span>{{currentPosition.capacity}}</p>
-    </mat-expansion-panel>
-    <p *ngIf="currentPosition === undefined">You are not currently in the system</p> 
-  </mat-card-content>
+  <div>
+    <mat-card-title>
+      System
+    </mat-card-title>
+    <mat-card-content>
+      <div class="container">
+        <mat-accordion class="column">
+          <h4>Gates</h4>
+          <li *ngFor="let gate of gates">
+            <mat-expansion-panel
+              [expanded]="false"
+              (opened)="panelOpenState2 = true"
+              (closed)="panelOpenState2 = false"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <p>Gate {{gate.name}}</p>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p><span>Id: </span>{{gate.id}}</p>
+              <p><span>Type: </span>{{gate.type}}</p>
+              <p><span>Capacity: </span>{{gate.capacity}}</p>
+              <div class="button-container">
+                <button mat-raised-button color="primary"
+                        tooltip="Show # of reservations" [options]="tooltipOptions"
+                        (click)='getPlace(gate.id)'>
+                  Reservations
+                </button>
+              </div>
+            </mat-expansion-panel>
+          </li>
+        </mat-accordion>
+        <mat-accordion class="column">
+          <h4>Parkings</h4>
+          <li *ngFor="let parking of parkings">
+            <mat-expansion-panel
+              [expanded]="false"
+              (opened)="panelOpenState2 = true"
+              (closed)="panelOpenState2 = false"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <p>Parking {{parking.name}}</p>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p><span>Id: </span>{{parking.id}}</p>
+              <p><span>Capacity: </span>{{parking.capacity}}</p>
+              <div *ngIf="parking.service !== undefined && parking.service.length > 0">
+                <h5>Services:</h5>
+                <mat-list>
+                    <mat-list-item *ngFor="let service of parking.service">
+                      <p>{{service}}</p>
+                    </mat-list-item>
+                </mat-list>
+              </div>
+              <div class="button-container">
+                <button mat-raised-button color="primary"
+                        tooltip="Show # of reservations" [options]="tooltipOptions"
+                        (click)='getPlace(parking.id)'>
+                  Reservations
+                </button>
+              </div>
+            </mat-expansion-panel>
+          </li>
+        </mat-accordion>
+        <mat-accordion class="column">
+            <h4>Roads</h4>
+          <li *ngFor="let road of roads">
+            <mat-expansion-panel
+              [expanded]="false"
+              (opened)="panelOpenState2 = true"
+              (closed)="panelOpenState2 = false"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <p>Road {{road.name}}</p>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p><span>Id: </span>{{road.id}}</p>
+              <p><span>Capacity: </span>{{road.capacity}}</p>
+              <div *ngIf="road.containerId !== undefined && road.containerId !== null">
+                <p><span>Container: </span>{{road.containerId}}</p>
+              </div>
+              <div *ngIf="road.connectedPlaceId !== undefined && road.connectedPlaceId !== null">
+                <h5>Connected places:</h5>
+                <mat-list>
+                    <mat-list-item *ngFor="let conn of road.connectedPlaceId">
+                      <p>{{conn}}</p>
+                    </mat-list-item>
+                </mat-list>
+              </div>
+              <div class="button-container">
+                <button mat-raised-button color="primary"
+                        tooltip="Show # of reservations" [options]="tooltipOptions"
+                        (click)='getPlace(road.id)'>
+                  Reservations
+                </button>
+              </div>
+            </mat-expansion-panel>
+          </li>
+        </mat-accordion>
+        <mat-accordion class="column" *ngIf="vehicles.length > 0">
+            <h4>Vehicles</h4>
+          <li *ngFor="let vehicle of vehicles">
+            <mat-expansion-panel
+              [expanded]="false"
+              (opened)="panelOpenState2 = true"
+              (closed)="panelOpenState2 = false"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <p>Vehicle {{vehicle.name}}</p>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p><span>Id: </span>{{vehicle.id}}</p>
+              <p><span>Type: </span>{{vehicle.type}}</p>
+              <p><span>State: </span>{{vehicle.state}}</p>
+              <p><span>Entry time: </span>{{vehicle.entryTime}}</p>
+              <p><span>Position: </span>{{vehicle.position}}</p>
+              <p><span>Origin: </span>{{vehicle.origin}}</p>
+              <p><span>Destination: </span>{{vehicle.destination}}</p>
+              <div *ngIf="vehicle.material !== undefined 
+                          && vehicle.material !== null
+                          && vehicle.material.length > 0
+                          && vehicle.material[0] !== null">
+                <h5>Dangerous materials:</h5>
+                <mat-list>
+                    <mat-list-item *ngFor="let mat of vehicle.material">
+                      <p>{{mat}}</p>
+                    </mat-list-item>
+                </mat-list>
+              </div>
+            </mat-expansion-panel>
+          </li>
+        </mat-accordion>
+      </div>
+    </mat-card-content>
+  </div>
 </mat-card>

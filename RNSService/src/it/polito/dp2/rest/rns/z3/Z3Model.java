@@ -110,10 +110,8 @@ public class Z3Model {
 				List<BoolExpr> conns = new ArrayList<>();
 				for(String conn : this.connections.get(node.getKey())) {
 					conns.add(this.connectionsBool.get(conn));
+					mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkXor(node.getValue(), this.connectionsBool.get(conn))));
 				}
-				
-				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkOr(conns.stream().toArray(BoolExpr[]::new))));
-				
 			}
 		}
 	}

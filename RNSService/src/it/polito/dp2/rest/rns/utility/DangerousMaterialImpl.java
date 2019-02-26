@@ -17,7 +17,8 @@ public class DangerousMaterialImpl extends DangerousMaterialType {
 		this.id = id;
 		this.incompatibleMaterial = new ArrayList<>();
 		incompatibleMaterials.stream().forEach((material) -> {
-			this.incompatibleMaterial.add(material);
+			String s = material.replace("\"", "");
+			this.incompatibleMaterial.add(s);
 		});
 	}
 	
@@ -25,11 +26,13 @@ public class DangerousMaterialImpl extends DangerousMaterialType {
 		this.id = id;
 		this.incompatibleMaterial = new ArrayList<>();
 		for(String material : incompatibleMaterials) {
-			this.incompatibleMaterial.add(material);
+			String s = material.replace("\"", "");
+			this.incompatibleMaterial.add(s);
 		}
 	}
 	
 	public boolean isCompatibleWith(String material) {
+		//System.out.println("Checking compatibility between " + this.id + " --- " + material + " = " + this.incompatibleMaterial.contains(material));
 		return !this.incompatibleMaterial.contains(material);
 	}
 

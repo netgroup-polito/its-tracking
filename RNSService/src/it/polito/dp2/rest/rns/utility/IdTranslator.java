@@ -30,7 +30,7 @@ public class IdTranslator {
 	 * @param id = the id client side
 	 * @param neo4jId = the id neo4j has given the object
 	 */
-	public void addIdTranslation(String id, String neo4jId) {
+	public synchronized void addIdTranslation(String id, String neo4jId) {
 		this.id2neo4j.put(id, neo4jId);
 		this.neo4j2id.put(neo4jId, id);
 	}
@@ -41,7 +41,7 @@ public class IdTranslator {
 	 * @param id = the id client has for an objects
 	 * @return the corresponding neo4j id
 	 */
-	public String getIdTranslation(String id) {
+	public synchronized String getIdTranslation(String id) {
 		return this.id2neo4j.get(id);
 	}
 
@@ -50,7 +50,7 @@ public class IdTranslator {
 	 * @param vehicleId = id of the vehicle of which the correspondence
 	 * has to be removed
 	 */
-	public void removeTranslation(String vehicleId) {
+	public synchronized void removeTranslation(String vehicleId) {
 		this.id2neo4j.remove(vehicleId);
 		String toBeRemovedKey = "";
 		for(Entry<String, String> entry : this.neo4j2id.entrySet()) {
@@ -78,7 +78,7 @@ public class IdTranslator {
 	 * @param id = the id to be checked
 	 * @return true if the id is saved in the system
 	 */
-	public boolean isInTheSystem(String id) {
+	public synchronized boolean isInTheSystem(String id) {
 		return this.id2neo4j.containsKey(id);
 	}
 }

@@ -18,4 +18,6 @@ public interface Constants {
 	public static final String[] notCompatibleWith2 = {"dangerousMaterial1", "dangerousMaterial3", "dangerousMaterial5", "dangerousMaterial6"};
 	public static final String[] notCompatibleWith3 = {"dangerousMaterial2", "dangerousMaterial4"};
 	public static final String[] notCompatibleWith4 = {"dangerousMaterial2", "dangerousMaterial6", "dangerousMaterial5"};
+
+	//public static Map<String, Integer> countVehiclePlace = new HashMap<>();
 }

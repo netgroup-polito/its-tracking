@@ -20,7 +20,10 @@ import javax.xml.bind.JAXBElement;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
+import it.polito.dp2.rest.rns.exceptions.IncompatibleMaterialsCarriedException;
+import it.polito.dp2.rest.rns.exceptions.InvalidDestinationPlaceException;
 import it.polito.dp2.rest.rns.exceptions.InvalidEntryPlaceException;
+import it.polito.dp2.rest.rns.exceptions.InvalidEntryTimeException;
 import it.polito.dp2.rest.rns.exceptions.InvalidPathException;
 import it.polito.dp2.rest.rns.exceptions.InvalidVehicleStateException;
 import it.polito.dp2.rest.rns.exceptions.InvalidVehicleTypeException;
@@ -102,6 +105,7 @@ public class VehicleResource {
 	})
     public Response getVehicle(@PathParam("id") String vehicleId, @Context HttpHeaders headers) {
 		try {
+			System.out.println("GET VEHICLE " + vehicleId);
 			VehicleReaderType vehicle = RNSCore.getInstance().getVehicle(vehicleId);
 	    		JAXBElement<VehicleReaderType> jaxbVehicle = (new ObjectFactory()).createVehicle(vehicle);
 	    		return
@@ -160,6 +164,9 @@ public class VehicleResource {
     		//System.out.println("CATALINA_HOME = " + System.getenv("CATALINA_HOME"));
     		System.out.println("VEHICLE: " + vehicle.getValue().getId() + " --- STATE: " + vehicle.getValue().getState());
 		try {
+			if(!vehicle.getValue().getOrigin().equals(vehicle.getValue().getPosition()))
+				throw new InvalidEntryPlaceException("Current position and origin don't correspond.");
+			
 			Places path = RNSCore.getInstance().addVehicle(vehicle.getValue());
 			return Response.status(Status.CREATED).entity(path).build();
 		} catch (PlaceFullException e) { // PLACE FULL
@@ -186,6 +193,15 @@ public class VehicleResource {
 		} catch (InvalidVehicleStateException e) {
 			System.out.println(e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		} catch (InvalidEntryTimeException e) {
+			System.out.println(e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		} catch (IncompatibleMaterialsCarriedException e) {
+			System.out.println(e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		} catch (InvalidDestinationPlaceException e) {
+			System.out.println(e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
     }
     
@@ -198,6 +214,7 @@ public class VehicleResource {
 	@ApiResponses(
 			value = {
 					@ApiResponse(code = 201, message = "Created"),
+					@ApiResponse(code = 400, message = "Bad Request"),
 					@ApiResponse(code = 500, message = "Internal Server Error")
 			}
 	)
@@ -217,9 +234,44 @@ public class VehicleResource {
 			Places places = RNSCore.getInstance().updateVehicle(vehicle.getValue());
 			return Response.status(Status.OK).entity(places).build();
 		} catch (Exception e) {
-			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+			//e.printStackTrace();
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
+    }
+    
+    @PUT
+    @Path("/{id}/state")
+    @ApiOperation(
+			value = "updateVehicle",
+			notes = "allow to update information about a specific vehicle"
+	)
+	@ApiResponses(
+			value = {
+					@ApiResponse(code = 201, message = "Created"),
+					@ApiResponse(code = 400, message = "Bad Request"),
+					@ApiResponse(code = 500, message = "Internal Server Error")
+			}
+	)
+	@Produces({
+			MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_JSON
+	})
+    @Consumes({
+		    	MediaType.APPLICATION_XML,
+		    	MediaType.APPLICATION_JSON,
+		    	MediaType.TEXT_PLAIN
+    })
+    public Response updateVehicleState(@PathParam("id") String vehicleId, String newState) {
+    		
+		try {
+			RNSCore.getInstance().updateVehicleState(vehicleId, newState);
+			return Response.status(Status.CREATED).entity("Updated state of vehicle " + vehicleId + " to " + newState).build();
+		} catch (InvalidVehicleStateException e) {
+			System.out.println(e.getMessage());
+			return Response.status(Status.OK).entity(e.getMessage()).build();
+		}
+    		
+		
     }
     
     @DELETE
@@ -239,12 +291,12 @@ public class VehicleResource {
 			MediaType.APPLICATION_XML,
 			MediaType.APPLICATION_JSON
 	})
-    public Response deleteVehicle(@PathParam("id") int vehicleId) {
+    public Response deleteVehicle(@PathParam("id") String vehicleId) {
     		try {
-    			RNSCore.getInstance().deleteVehicle(String.valueOf(vehicleId));
-    			return Response.status(Status.OK).entity("deleted").build();
+    			RNSCore.getInstance().deleteVehicle(String.valueOf(vehicleId), false);
+    			return Response.status(Status.OK).entity("Vehicle " + vehicleId + " has been corretly deleted from the system.").build();
     		} catch (Exception e) {
-    			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+    			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
     		}
     }
 }

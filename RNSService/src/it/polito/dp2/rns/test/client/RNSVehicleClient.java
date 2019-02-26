@@ -4,7 +4,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-
 import it.polito.dp2.rest.rns.jaxb.*;
 
 public class RNSVehicleClient {
@@ -19,11 +18,11 @@ public class RNSVehicleClient {
 	 * @param vehicle = the vehicle to be created
 	 * @return string that is the id of the vehicle just created
 	 */
-	public String createVehicle(VehicleReaderType vehicle) {
+	public Places createVehicle(VehicleReaderType vehicle) {
 		// Instantiate the new client
 		Client client = ClientBuilder.newClient();
-		ObjectFactory factory = new ObjectFactory(); // To create Jaxb-generated objects
-		String vehicleId = "";
+		ObjectFactory factory = new ObjectFactory();
+		Places path = factory.createPlaces();
 		
 		Response response = 
 				client.target(serverUrl + "/vehicles")
@@ -34,19 +33,19 @@ public class RNSVehicleClient {
 		switch(response.getStatusInfo().getStatusCode()){
 			case 500:
 				System.err.println(TAG + "Internal server error!");
-				break;
+				return null;
 			
 			case 404:
 				System.err.println(TAG + "Not found!");
-				break;
+				return null;
 			
 			case 400:
 				System.err.println(TAG + "Bad request!");
-				break;
+				return null;
 			
 			case 201:
 				System.out.println(TAG + "Vehicle created!");
-				vehicleId = response.readEntity(String.class);
+				path = response.readEntity(Places.class);
 				break;
 				
 			default:
@@ -57,7 +56,7 @@ public class RNSVehicleClient {
 		// Close the client connection and release resources
 		client.close();
 		
-		return vehicleId;
+		return path;
 	}
 	
 	/**
@@ -70,8 +69,10 @@ public class RNSVehicleClient {
 		Client client = ClientBuilder.newClient();
 		
 		Response response = 
-				client.target(serverUrl + "/vehicles/" + id)
+				client
+				.target(serverUrl + "/vehicles/" + id)
 				.request()
+				.header("Accept", "application/xml")
 				.get();
 		
 		switch(response.getStatusInfo().getStatusCode()){
@@ -96,6 +97,45 @@ public class RNSVehicleClient {
 				break;	
 		}
 
-		return vehicle;
+		return (vehicle == null) ? null : vehicle;
+	}
+
+	/**
+	 * Function to retrieve from the service all the gates
+	 * in the system
+	 * @return an object containing all gates in the system
+	 */
+	public Gates getGates() {
+		Gates gates = null;
+		Client client = ClientBuilder.newClient();
+		
+		Response response = 
+				client.target(serverUrl + "/gates")
+				.request()
+				.get();
+		
+		switch(response.getStatusInfo().getStatusCode()){
+			case 500:
+				System.err.println(TAG + "Internal server error!");
+				break;
+			
+			case 404:
+				System.err.println(TAG + "Not found!");
+				break;
+			
+			case 400:
+				System.err.println(TAG + "Bad request!");
+				break;
+			
+			case 200:
+				System.out.println(TAG + "Vehicle retrieved!");
+				gates = response.readEntity(Gates.class);
+				break;
+				
+			default:
+				break;	
+		}
+
+		return gates;
 	}
 }

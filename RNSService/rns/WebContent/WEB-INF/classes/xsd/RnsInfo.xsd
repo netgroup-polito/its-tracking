@@ -97,6 +97,15 @@
 		</complexType>
 	</element>
 	
+	<element name="placeStatus">
+		<complexType>
+			<sequence>
+				<element name="vehicle" type="tns:VehicleReaderType" minOccurs="1" maxOccurs="unbounded"/>
+				<element name="numberOfReservation" type="integer" minOccurs="1" maxOccurs="1"/>
+			</sequence>
+		</complexType>
+	</element>
+	
 	<element name="ids">
 		<complexType>
 			<sequence>
@@ -148,7 +157,7 @@
 	<element name="dangerousMaterials">
 		<complexType>
 			<sequence>
-				<element name="dangerousMaterial" type="tns:DangerousMaterialType" minOccurs="1" maxOccurs="unbounded"/>
+				<element name="dangerousMaterial" type="string" minOccurs="1" maxOccurs="unbounded"/>
 			</sequence>
 		</complexType>
 	</element>
@@ -265,7 +274,7 @@
 			<extension base="tns:SimplePlaceReaderType">
 				<sequence>
 					<element 	name="service"
-								type="tns:ServiceType"
+								type="string"
 								minOccurs="0" maxOccurs="unbounded"/>
 				</sequence>
 			</extension>
@@ -318,7 +327,7 @@
 								minOccurs="1" maxOccurs="1"/>
 					<element		name="material"
 								type="string"
-								minOccurs="0" maxOccurs="unbounded"/>
+								minOccurs="0" maxOccurs="unbounded" nillable="true"/>
 				</sequence>
 			</extension>
 		</complexContent>

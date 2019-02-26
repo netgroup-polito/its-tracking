@@ -7,8 +7,8 @@ import it.polito.dp2.rest.rns.jaxb.GateReaderType;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
-import it.polito.dp2.rest.rns.jaxb.ServiceType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
+import it.polito.dp2.rest.rns.utility.Counter;
 
 public class StatementBuilder {
 	private static StatementBuilder instance = null;
@@ -98,17 +98,24 @@ public class StatementBuilder {
 			
 			query += "MERGE (material: DangerousMaterial {id: '" + material.getId() + "'}) "
 					+ " RETURN id(material)";
+		} else if (element instanceof Counter) {
+			Counter counter = (Counter) element;
+			
+			query += "MERGE (counter: Counter {name: '" + counter.getName() + "'}) "
+					+ "ON CREATE SET counter.counter = " + counter.getCounter() + " "
+					+ "SET counter.reservations = " + counter.getReservations() + " "
+					+ "RETURN id(counter)";
 		}
 		
 		return query;
 	}
 	
-	private String getCorrectStringFromListService(List<ServiceType> serviceList) {
+	private String getCorrectStringFromListService(List<String> serviceList) {
 		String result = "[";
 		
 		int i = 0;
-		for(ServiceType service : serviceList) {
-			result += "'" + service.getName() + "'";
+		for(String service : serviceList) {
+			result += "'" + service + "'";
 			if(i < serviceList.size() - 1) result += ", ";
 			i++;
 		}
@@ -142,6 +149,20 @@ public class StatementBuilder {
 	
 	/**
 	 * Function to retrieve all the nodes of a certain type
+	 * with all the connections
+	 * @param type = type of the nodes to be retrieved
+	 * @return a string corresponding to the desired query
+	 */
+	public String getVehicleStatement(String typeConnection) {
+		String query = "MATCH (n: Vehicle) "
+				+ "OPTIONAL MATCH (n)-[:" + typeConnection + "*0..1]->(connected) "
+				+ "WHERE id(n) <> id(connected) "
+				+ "RETURN properties(n), id(connected)";
+		return query;
+	}
+	
+	/**
+	 * Function to retrieve all the nodes of a certain type
 	 * with all the connections and relations with containers
 	 * @param type = type of the nodes to be retrieved
 	 * @return a string corresponding to the desired query
@@ -163,6 +184,16 @@ public class StatementBuilder {
 	 */
 	public String getStatementByTypeNoConnection(String type) {
 		String query = "MATCH (n: " + type + ") RETURN properties(n)";
+		return query;
+	}
+	
+	/**
+	 * Function to retrieve all the nodes of a certain type and the neo4j id
+	 * @param type = type of the nodes to be retrieved
+	 * @return a string corresponding to the desired query
+	 */
+	public String getStatementWithIdByTypeNoConnection(String type) {
+		String query = "MATCH (n: " + type + ") RETURN id(n), properties(n)";
 		return query;
 	}
 	
@@ -343,6 +374,110 @@ public class StatementBuilder {
 		String query = "MATCH (n) WHERE id(n) = " + id + " "
 				+ "SET n.capacity = n.capacity - 1 "
 				+ "RETURN n";
+		return query;
+	}
+
+	/**
+	 * Function to obtain the query that updates the avgTime of
+	 * a place
+	 * @param id = id of the place
+	 * @param duration = duration to be added
+	 * @param l = counter to which divide
+	 * @return the corresponding query
+	 */
+	public String getUpdateAvgTimeStatementById(String id, long duration, long l) {
+		String query = "MATCH(n) WHERE id(n) = " + id + " "
+				+ "SET n.avgTimeSpent = (n.avgTimeSpent + " + duration + ") / " + l + " "
+				+ "RETURN n";
+		return query;
+	}
+	
+	/**
+	 * Function to obtain the query to decrease the counter of a certain node
+	 * whose id is given, of a certain amount
+	 * @param id = id of the node, whose counter we have to decrease
+	 * @param amount = amount to be subtracted
+	 * @return the corresponding query
+	 */
+	public String getDecreaseCounterStatementGivenNodeId(String id, int amount) {
+		String query = "MATCH(n)<-[:countedVehicles]-(m) " + 
+					"WHERE id(m) = " + id + " " +
+					"AND n.counter - " + amount + " > 0 " +
+					"SET n.counter = n.counter - " + amount;
+		
+		return query;
+	}
+	
+	/**
+	 * Function to obtain the query to increase the counter of a certain node
+	 * whose id is given, of a certain amount
+	 * @param id = id of the node, whose counter we have to increase
+	 * @param amount = amount to be added
+	 * @return the corresponding query
+	 */
+	public String getIncreaseCounterStatementGivenNodeId(String id, int amount) {
+		String query = "MATCH(n)<-[:countedVehicles]-(m) " + 
+					"WHERE id(m) = " + id + " " +
+					"SET n.counter = n.counter + " + amount;
+		
+		return query;
+	}
+	
+	/**
+	 * Function to obtain the query to retrieve a counter, given
+	 * the connected node id
+	 * @param id = id of the node, whose counter we want to be retrieved
+	 * @return the corresponding query
+	 */
+	public String getCounterStatementByPlaceId(String id) {
+		String query = "MATCH(n)<-[:countedVehicles]-(m) " + 
+				"WHERE id(m) = " + id + " " +
+				"RETURN n";
+	
+	return query;
+	}
+
+	/**
+	 * Function to retrieve the cypher query to update the state of 
+	 * a vehicle in the database
+	 * @param id = id of the vehicle
+	 * @param newState = new state of the vehicle
+	 * @return the corresponding query
+	 */
+	public String getUpdateStateStatementByVehicleId(String id, String newState) {
+		String query = "MATCH(n: Vehicle) WHERE id(n) = " + id + " "
+				+ "SET n.state = '" + newState + "' RETURN n";
+		return query;
+	}
+	
+	/**
+	 * Function to obtain the query to increase the reservations of a certain node
+	 * whose id is given, of a certain amount
+	 * @param id = id of the node, whose reservations we have to increase
+	 * @param amount = amount to be added
+	 * @return the corresponding query
+	 */
+	public String getIncreaseReservationsStatementGivenNodeId(String id, int amount) {
+		String query = "MATCH(n)<-[:countedVehicles]-(m) " + 
+					"WHERE id(m) = " + id + " " +
+					"SET n.reservations = n.reservations + " + amount;
+		
+		return query;
+	}
+	
+	/**
+	 * Function to obtain the query to decrease the reservations of a certain node
+	 * whose id is given, of a certain amount
+	 * @param id = id of the node, whose reservations we have to decrease
+	 * @param amount = amount to be subtracted
+	 * @return the corresponding query
+	 */
+	public String getDecreaseReservationsStatementGivenNodeId(String id, int amount) {
+		String query = "MATCH(n)<-[:countedVehicles]-(m) " + 
+					"WHERE id(m) = " + id + " " +
+					"AND n.reservations - " + amount + " >= 0 " +
+					"SET n.reservations = n.reservations - " + amount;
+		
 		return query;
 	}
 }

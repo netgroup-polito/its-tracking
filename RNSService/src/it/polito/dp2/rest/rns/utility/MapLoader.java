@@ -12,15 +12,15 @@ import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
-import it.polito.dp2.rest.rns.jaxb.ServiceType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class that offers methods to load a map from an xml file.
@@ -34,8 +34,9 @@ public class MapLoader {
 	private static List<RoadSegmentReaderType> roadSegments = new ArrayList<>();
 	private static List<ParkingAreaReaderType> parkings = new ArrayList<>();
 	private static List<DangerousMaterialType> dangerousMaterials = new ArrayList<>();
+	private static Map<String, Counter> placeCounters = new HashMap<>();
 	
-	public static void loadMap() {
+	public synchronized static void loadMap() {
 		try {
 
 			File fXmlFile = new File(Constants.MapXMLPath);
@@ -71,6 +72,9 @@ public class MapLoader {
 			connectRoadSegments(roadSegments);
 			connectParkingAreas(parkings);
 			connectDangerousMaterials(dangerousMaterials);
+			
+			// set Translations for vehicles present in the DB
+			loadVehicles();
 		} catch (Exception e) {
 			e.printStackTrace();
 	    }
@@ -104,6 +108,9 @@ public class MapLoader {
 			String containerId = park.getContainerPlaceId();
 			if(containerId != null)
 				neo4j.connectNodes(park.getId(), containerId, "isContainedInto");
+			
+			// Connect to counter
+			neo4j.connectNodes(park.getId(), placeCounters.get(park.getId()).getName(), "countedVehicles");
 		}
 		
 	}
@@ -122,6 +129,9 @@ public class MapLoader {
 			String containerId = roadSegment.getContainerPlaceId();
 			if(containerId != null)
 				neo4j.connectNodes(roadSegment.getId(), containerId, "isContainedInto");
+			
+			// Connect to counter
+			neo4j.connectNodes(roadSegment.getId(), placeCounters.get(roadSegment.getId()).getName(), "countedVehicles");
 		}
 		
 	}
@@ -141,6 +151,9 @@ public class MapLoader {
 			String containerId = gate.getContainerPlaceId();
 			if(containerId != null)
 				neo4j.connectNodes(gate.getId(), containerId, "isContainedInto");
+			
+			// Connect to counter
+			neo4j.connectNodes(gate.getId(), placeCounters.get(gate.getId()).getName(), "countedVehicles");
 		}
 	}
 
@@ -166,10 +179,8 @@ public class MapLoader {
 					if(node.getNodeName().equals("name")) park.setName(node.getTextContent());
 					if(node.getNodeName().equals("capacity")) park.setCapacity(new BigInteger(node.getTextContent()));
 					if(node.getNodeName().equals("connectedPlace")) park.getConnectedPlaceId().add(node.getTextContent());
-					if(node.getNodeName().equals("service")) { 
-						ServiceType service = (new ObjectFactory()).createServiceType();
-						service.setName(node.getTextContent());
-						park.getService().add(service);
+					if(node.getNodeName().equals("service")) {
+						park.getService().add(node.getTextContent());
 					}
 					if(node.getNodeName().equals("avgTimeSpent")) { 
 						//System.err.println("Node: " + eElement.getAttribute("id") + " avgTimeSpent: " + node.getTextContent());
@@ -178,9 +189,14 @@ public class MapLoader {
 				}
 				/*System.out.println("*************************************");
 				System.out.println("Loading parking area: " + park.getId());*/
+				Counter parkCounter = new Counter("counter_" + park.getId(), 0);
 				String parkId = neo4j.createNode(park);
+				String counterId = neo4j.createNode(parkCounter);
 				id2neo4j.addIdTranslation(park.getId(), parkId);
+				id2neo4j.addIdTranslation(parkCounter.getName(), counterId);
 				parkings.add(park);
+				placeCounters.put(park.getId(), parkCounter);
+				//Constants.countVehiclePlace.put(park.getId(), 0);
 			}
 		}
 	}
@@ -213,9 +229,14 @@ public class MapLoader {
 				}
 				/*System.out.println("*************************************");
 				System.out.println("Loading road segment: " + roadSegment.getId());*/
+				Counter roadSegmentCounter = new Counter("counter_" + roadSegment.getId(), 0);
 				String roadSegmentId = neo4j.createNode(roadSegment);
+				String counterId = neo4j.createNode(roadSegmentCounter);
 				id2neo4j.addIdTranslation(roadSegment.getId(), roadSegmentId);
+				id2neo4j.addIdTranslation(roadSegmentCounter.getName(), counterId);
 				roadSegments.add(roadSegment);
+				placeCounters.put(roadSegment.getId(), roadSegmentCounter);
+				//Constants.countVehiclePlace.put(roadSegment.getId(), 0);
 			}
 		}
 		
@@ -272,9 +293,15 @@ public class MapLoader {
 				}
 				/*System.out.println("*************************************");
 				System.out.println("Loading gate: " + gate.getId());*/
+				// Create counter for node
+				Counter gateCounter = new Counter("counter_" + gate.getId(), 0);
 				String gateId = neo4j.createNode(gate);
+				String counterId = neo4j.createNode(gateCounter);
 				id2neo4j.addIdTranslation(gate.getId(), gateId);
+				id2neo4j.addIdTranslation(gateCounter.getName(), counterId);
 				gates.add(gate);
+				placeCounters.put(gate.getId(), gateCounter);
+				//Constants.countVehiclePlace.put(gate.getId(), 0);
 			}
 		}
 	}
@@ -332,4 +359,13 @@ public class MapLoader {
 		
 		return dangerousMaterials.get(index).getIncompatibleMaterial().contains(material2);
 	}
+	
+
+	private static void loadVehicles() {
+		Map<String, String> map = Neo4jInteractions.getInstance().getMapVehiclesIdN4JId();
+		map.forEach((k, v) -> {
+			id2neo4j.addIdTranslation(k, v);
+		});
+	}
+
 }

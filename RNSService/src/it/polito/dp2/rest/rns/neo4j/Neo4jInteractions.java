@@ -15,12 +15,12 @@ import it.polito.dp2.rest.rns.jaxb.GateType;
 import it.polito.dp2.rest.rns.jaxb.ObjectFactory;
 import it.polito.dp2.rest.rns.jaxb.ParkingAreaReaderType;
 import it.polito.dp2.rest.rns.jaxb.RoadSegmentReaderType;
-import it.polito.dp2.rest.rns.jaxb.ServiceType;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleReaderType;
 import it.polito.dp2.rest.rns.jaxb.VehicleStateType;
 import it.polito.dp2.rest.rns.jaxb.VehicleTypeType;
 import it.polito.dp2.rest.rns.utility.Constants;
+import it.polito.dp2.rest.rns.utility.Counter;
 import it.polito.dp2.rest.rns.utility.DateConverter;
 import it.polito.dp2.rest.rns.utility.IdTranslator;
 
@@ -77,7 +77,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @param element = the new element to be loaded
 	 * @return the corresponding id
 	 */
-	public String createNode(Object element) {
+	public synchronized String createNode(Object element) {
 		try ( Session session = driver.session() )
         {
 			final String query = StatementBuilder.getInstance().createStatement(element);
@@ -105,7 +105,7 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @param label = label of the relation
 	 * @return a string representing the id of the newly created relation
 	 */
-	public String connectNodes(String node1, String node2, String label) {
+	public synchronized String connectNodes(String node1, String node2, String label) {
 		String query = StatementBuilder.getInstance().connectStatement(
 				IdTranslator.getInstance().getIdTranslation(node1), 
 				IdTranslator.getInstance().getIdTranslation(node2), 
@@ -136,11 +136,11 @@ public class Neo4jInteractions implements AutoCloseable {
 	 * @param nodeId = id of the node to be deleted
 	 * @param type = type of the node to be deleted
 	 */
-	public void deleteNode(String nodeId, String type) {
+	public synchronized void deleteNode(String nodeId, String type) {
 		String query = StatementBuilder.getInstance().deleteByTypeAndIdStatement(
 				IdTranslator.getInstance().getIdTranslation(nodeId),  
 				type);
-		
+
 		try ( Session session = driver.session() )
         {
             session.writeTransaction( new TransactionWork<String>()
@@ -216,6 +216,7 @@ public class Neo4jInteractions implements AutoCloseable {
 							gate.getConnectedPlaceId().add(IdTranslator.getInstance().fromNeo4jId(
 									String.valueOf((int) r.get(1).asInt())
 								));
+							gate.setAvgTimeSpent((new BigInteger(Long.toString((Long) r.get(0).asMap().get("avgTimeSpent")))));
 							
 							map.put(
 								gate.getId(),
@@ -252,9 +253,45 @@ public class Neo4jInteractions implements AutoCloseable {
 	public synchronized VehicleReaderType getVehicle(String vehicleId) {
 		List<VehicleReaderType> vehicles = this.getVehicles();
 		
+		System.out.println("Vehicle id to look for: " + vehicleId);
 		for(VehicleReaderType vehicle : vehicles) {
+			System.out.println("Vehicle " + vehicle.getId() + " is in the system!");
 			if(vehicle.getId().equals(vehicleId)) return vehicle;
 		}
+		
+		return null;
+	}
+	
+	/**
+	 * Function to retrieve all the nodes that are of type vehicle
+	 * stored in neo4j database
+	 * @return the list of vehicles in the system
+	 */
+	public Map<String, String> getMapVehiclesIdN4JId() {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance().getStatementWithIdByTypeNoConnection("Vehicle");
+			Map<String, String> result = session.writeTransaction( new TransactionWork<Map<String, String>>()
+            {
+                @Override
+                public Map<String, String> execute( Transaction tx )
+                {
+                	Map<String, String> list = new HashMap<>();
+					StatementResult result = tx.run(query);
+					
+					for(Record r : result.list()) {
+						list.put((String) r.get(1).asMap().get("id"), String.valueOf(r.get(0)) );
+					}
+					return list;
+                }
+            } );
+            
+            session.close();
+            
+            return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
 		
 		return null;
 	}
@@ -267,36 +304,54 @@ public class Neo4jInteractions implements AutoCloseable {
 	public List<VehicleReaderType> getVehicles() {
 		try ( Session session = driver.session() )
         {
-			final String query = StatementBuilder.getInstance().getStatementByTypeNoConnection("Vehicle");
+			final String query = StatementBuilder.getInstance().getVehicleStatement("transports");
+			System.out.println(query);
             List<VehicleReaderType> result = session.writeTransaction( new TransactionWork<List<VehicleReaderType>>()
             {
                 @Override
                 public List<VehicleReaderType> execute( Transaction tx )
                 {
-                		List<VehicleReaderType> list = new LinkedList<>();
+                	List<VehicleReaderType> list = new LinkedList<>();
 					StatementResult result = tx.run(query);
 					
+					VehicleReaderType vehicle = null;
+					
 					for(Record r : result.list()) {
-						VehicleReaderType vehicle = (new ObjectFactory()).createVehicleReaderType();
 						
-						for( Value entry : r.values()) {
-							//System.out.println("[NEO4J] " + (String) entry.asMap().get("type"));
-							vehicle.setName((String) entry.asMap().get("name"));
-							vehicle.setId((String) entry.asMap().get("id"));
-							vehicle.setType(VehicleTypeType.fromValue((String) entry.asMap().get("type")));
-							vehicle.setOrigin((String) entry.asMap().get("origin"));
-							vehicle.setDestination((String) entry.asMap().get("destination"));
-							vehicle.setPosition((String) entry.asMap().get("position"));
-							vehicle.setState(VehicleStateType.fromValue((String) entry.asMap().get("state")));
+						//System.out.println("[NEO] " + r);
+						
+						if(vehicle != null) {
+							if(!vehicle.getId().equals((String) r.get(0).asMap().get("id"))) vehicle = null;
+						}
+						
+						if(vehicle == null) {
+							vehicle = (new ObjectFactory()).createVehicleReaderType();
+							
+							vehicle.setName((String) r.get(0).asMap().get("name"));
+							vehicle.setId((String) r.get(0).asMap().get("id"));
+							vehicle.setType(VehicleTypeType.fromValue((String) r.get(0).asMap().get("type")));
+							vehicle.setOrigin((String) r.get(0).asMap().get("origin"));
+							vehicle.setDestination((String) r.get(0).asMap().get("destination"));
+							vehicle.setPosition((String) r.get(0).asMap().get("position"));
+							vehicle.setState(VehicleStateType.fromValue((String) r.get(0).asMap().get("state")));
 							try {
-								vehicle.setEntryTime(DateConverter.convertFromString((String) entry.asMap().get("entryTime"), "yyyy-MM-dd'T'HH:mm:ss"));
+								vehicle.setEntryTime(DateConverter.convertFromString((String) r.get(0).asMap().get("entryTime"), "yyyy-MM-dd'T'HH:mm:ss"));
 							} catch (ParseException e) {
 								e.printStackTrace();
 							} catch (DatatypeConfigurationException e) {
 								e.printStackTrace();
 							}
+							
+							if(r.get(1) != null) {
+								vehicle.getMaterial().add((String) IdTranslator.getInstance().fromNeo4jId(String.valueOf(r.get(1))));
+							} else {
+								vehicle.getMaterial().add("");
+							}
+						} else {
+							
+							//vehicle.getMaterial().add((String) IdTranslator.getInstance().fromNeo4jId(String.valueOf(r.get(1))));
 						}
-						
+						//System.out.println("NEO --> " + vehicle.getId());
 						list.add(vehicle);
 					}
 					return list;
@@ -411,6 +466,7 @@ public class Neo4jInteractions implements AutoCloseable {
 									IdTranslator.getInstance().fromNeo4jId(
 											String.valueOf((int) r.get(1).asInt())
 										));
+							//System.out.println("Services for " + park.getId() + " " + r.get(0).asMap().get("service"));
 							String[] servicesString = r.get(0).asMap().get("service")
 														.toString()
 														.replace("[", "")
@@ -418,9 +474,9 @@ public class Neo4jInteractions implements AutoCloseable {
 														.replace(",", "")
 														.split(" ");
 							for(String s : servicesString) {
-								ServiceType service = (new ObjectFactory()).createServiceType();
-								service.setName(s);
-								park.getService().add(service);
+								if(!s.equals("")) {
+									park.getService().add(s);
+								}
 							}
 						
 							map.put(
@@ -777,6 +833,7 @@ public class Neo4jInteractions implements AutoCloseable {
                 @Override
                 public Boolean execute( Transaction tx )
                 {
+                	//System.out.println(query);
 					tx.run(query);
 					return true;
                 }
@@ -841,5 +898,174 @@ public class Neo4jInteractions implements AutoCloseable {
         		e.printStackTrace();
         }
 		return null;
+	}
+
+	/**
+	 * Function to update the average time spent in a place
+	 * @param duration = duration to be added
+	 * @param l = counter by which divide
+	 */
+	public void updateAvgTimeSpentPlace(String id, long duration, long l) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getUpdateAvgTimeStatementById(
+										IdTranslator.getInstance().getIdTranslation(id),
+										duration,
+										l
+								);
+			
+			session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+                	tx.run(query);
+					
+					return true;
+                }
+            } );
+            
+			session.close();
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+	}
+	
+	/**
+	 * Function to update the value of the counter of a given place
+	 * @param placeId = id of the place whose counter needs an update
+	 * @param amount = amount to which increase or decrease
+	 * @param increase = true if we want to increase, false otherwise
+	 */
+	public void updateCounterValueOfPlace(String placeId, int amount, boolean increase) {
+		try ( Session session = driver.session() )
+        {
+			final String query = (increase) 
+							? StatementBuilder.getInstance().getIncreaseCounterStatementGivenNodeId(
+											IdTranslator.getInstance().getIdTranslation(placeId), amount)
+							: StatementBuilder.getInstance().getDecreaseCounterStatementGivenNodeId(
+									IdTranslator.getInstance().getIdTranslation(placeId), amount);
+			
+			session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+                	tx.run(query);
+					
+					return true;
+                }
+            } );
+            
+			session.close();
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+	}
+	
+	/**
+	 * Function to retrieve the counter of a place given 
+	 * its id
+	 * @param placeId = id of the place
+	 * @return the counter for that place
+	 */
+	public Counter getCounterGivenPlaceId(String placeId) {
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getCounterStatementByPlaceId(IdTranslator.getInstance().getIdTranslation(placeId));
+			
+			Counter result = session.writeTransaction( new TransactionWork<Counter>()
+            {
+                @Override
+                public Counter execute( Transaction tx )
+                {
+					StatementResult result = tx.run(query);
+					Counter counter = null;
+					
+					Value r = result.single().get(0);
+					
+					//System.out.println("[NEO4J]" + r.asMap());
+					counter = new Counter((String) r.asMap().get("name"), (long) r.asMap().get("counter"), (long) r.asMap().get("reservations"));
+					
+					return counter;
+                }
+            } );
+            
+			session.close();
+			
+			return result;
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		return null;
+	}
+
+	/**
+	 * Function to update in neo4j the state of a vehicle
+	 * @param vehicleId = id of the vehicle
+	 * @param newState = new state of the vehicle
+	 */
+	public void updateVehicleState(String vehicleId, String newState) {
+		
+		try ( Session session = driver.session() )
+        {
+			final String query = StatementBuilder.getInstance()
+								.getUpdateStateStatementByVehicleId(
+										IdTranslator.getInstance().getIdTranslation(vehicleId), 
+										newState);
+			
+			session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+					tx.run(query);
+					
+					return true;
+                }
+            } );
+            
+			session.close();
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
+	}
+
+	/**
+	 * Function to update the number of reservations in a certain place
+	 * given its id
+	 * @param placeId = id of the place
+	 * @param increase = true --> addition, false --> subtraction
+	 * @param amount = the amount to be added or subtracted
+	 */
+	public void updateReservationsInPlace(String placeId, boolean increase, int amount) {
+		try ( Session session = driver.session() )
+        {
+			final String query = (increase) 
+							? StatementBuilder.getInstance().getIncreaseReservationsStatementGivenNodeId(
+											IdTranslator.getInstance().getIdTranslation(placeId), amount)
+							: StatementBuilder.getInstance().getDecreaseReservationsStatementGivenNodeId(
+									IdTranslator.getInstance().getIdTranslation(placeId), amount);
+			
+			session.writeTransaction( new TransactionWork<Boolean>()
+            {
+                @Override
+                public Boolean execute( Transaction tx )
+                {
+                	tx.run(query);
+					
+					return true;
+                }
+            } );
+            
+			session.close();
+        } catch(Exception e) {
+        		e.printStackTrace();
+        }
+		
 	}
 }

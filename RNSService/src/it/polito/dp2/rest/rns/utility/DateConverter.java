@@ -38,8 +38,9 @@ public class DateConverter {
 	 * @param end = end date
 	 * @return the duration in milliseconds elapsed between the two
 	 */
-	public static int getDurationFromXMLGregorianCalendar(XMLGregorianCalendar start, XMLGregorianCalendar end) {
-		return end.getMillisecond() - start.getMillisecond();
+	public static long getDurationFromXMLGregorianCalendar(XMLGregorianCalendar start, XMLGregorianCalendar end) {
+		long duration = end.toGregorianCalendar().getTimeInMillis() - start.toGregorianCalendar().getTimeInMillis();
+		return duration;
 	}
 	
 	/**

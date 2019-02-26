@@ -24,6 +24,8 @@
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.8" />
 	<property name="source" value="1.8" />
+	<property name="testcase" value="0" />
+	<property name="test.class" value="it.polito.dp2.rns.test.tests.RNSTests" />
 	
 	<import file="tomcat-build.xml"/>
 	<import file="neo4j-build.xml"/>
@@ -37,6 +39,17 @@
 		</fileset>
 		<fileset dir="${ext.lib.dir}">
 			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<path id="test.classpath">
+		<pathelement location="${build.dir}" />
+		<fileset dir="${lib.dir}">
+		    <include name="*.jar" />
+		</fileset>
+		<fileset dir="${ext.lib.dir}">
+		    <include name="*.jar" />
+			<exclude name="ant-*.jar"/>
 		</fileset>
 	</path>
 	
@@ -115,5 +128,49 @@
 			<arg value="${resources.dir}/WEB-INF/classes/xsd/RnsInfo.xsd" />
 		</exec>
 		<touch file="${gen.dir}/.flagfile" />
+	</target>
+	
+	<target name="build.client" depends="init, generate-bindings">
+		<echo>Building Tests (if needed)...</echo>
+		<javac 
+			destdir="${root.location}/build"
+			debug="${debug}"
+			debuglevel="${debuglevel}"
+			source="${source}"
+			target="${target}"
+			includeantruntime="false">
+				<src path="${root.location}/src" />
+				<src path="${root.location}/build" />
+				<src path="${root.location}/generated" />
+				<include name="it/polito/dp2/rns/test/tests/**" />
+				<classpath>
+					<path refid="classpath" />
+				</classpath>
+		</javac>
+		<echo>Done.</echo>
+	</target>
+	
+	<target name="run-tests" depends="build.service, build.client" description="runs tests">
+		<echo>Running functional tests</echo>
+		
+		<!-- Start real functional tests -->
+		<antcall target="runFuncTest.real">
+			<param name="exit.code1" value="126" />
+			<param name="exit.code2" value="125" />
+		</antcall>
+	</target>
+	
+	<target name="runFuncTest.real">	
+		<echo>Running Junit tests...</echo>		
+		<junit printsummary="yes" dir="." fork="yes" haltonfailure="no" showoutput="no" filtertrace="true" timeout="120000">
+			<jvmarg value="-Djava.awt.headless=true" />
+			<formatter type="brief" usefile="false"/>
+			<test haltonfailure="no" failureproperty="test_failed" name="${test.class}"/>
+			<classpath>
+				<path refid="test.classpath" />
+			</classpath>
+		</junit>
+		<fail if="test_failed" status="${exit.code2}" message="*** Junit tests: Some Tests FAILED ***"/>
+		<echo>*** Junit tests: All Tests PASSED  ***</echo>	
 	</target>
 </project>

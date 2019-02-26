@@ -10,11 +10,14 @@ import { PathComponent } from './path/path.component';
 import { RouterModule, Routes } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
-import {FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TooltipModule } from 'ng2-tooltip-directive';
+import { AdminComponent } from './admin/admin.component';
 
 const appRoutes: Routes = [
   { path: 'home', component: PathComponent },
   { path: 'route', component: RoutesComponent },
+  { path: 'admin', component: AdminComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', component: PathComponent }
 ];
@@ -23,7 +26,8 @@ const appRoutes: Routes = [
   declarations: [
     AppComponent,
     RoutesComponent,
-    PathComponent
+    PathComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,
@@ -32,7 +36,8 @@ const appRoutes: Routes = [
     RouterModule.forRoot(appRoutes),
     FormsModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    TooltipModule
   ],
   providers: [],
   bootstrap: [AppComponent]

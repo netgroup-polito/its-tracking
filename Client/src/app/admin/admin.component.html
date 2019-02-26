@@ -1,0 +1,22 @@
+<mat-card>
+  <mat-card-title>
+    Statistics
+  </mat-card-title>
+  <mat-card-content>
+    <mat-expansion-panel
+      [expanded]="false"
+      (opened)="panelOpenState2 = true"
+      (closed)="panelOpenState2 = false"
+      *ngIf="currentPosition !== undefined"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <p>{{currentPosition.name}}</p>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <p><span>Id: </span>{{currentPosition.id}}</p>
+      <p><span>Capacity: </span>{{currentPosition.capacity}}</p>
+    </mat-expansion-panel>
+    <p *ngIf="currentPosition === undefined">You are not currently in the system</p> 
+  </mat-card-content>
+</mat-card>

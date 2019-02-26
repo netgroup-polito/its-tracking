@@ -69,3 +69,12 @@ mat-sidenav {
 mat-sidenav mat-nav-list a {
   color: white;
 }
+
+@media screen and (max-width: 600px) {
+  mat-sidenav-container {
+    margin-top: 0 !important;
+  }
+  mat-sidenav {
+    top: 40px !important
+  }
+}

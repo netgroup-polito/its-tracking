@@ -1,3 +1,53 @@
-<p>
-  routes works!
-</p>
+<mat-card>
+  <mat-card-title>
+    Path
+  </mat-card-title>
+  <div>
+    <mat-accordion *ngIf="path !== undefined">
+      <li *ngFor="let place of path.place" 
+        [ngClass]="{'visited' : place.visited == 1, 'current' : place.visited == 0 }">
+        <mat-expansion-panel
+          [expanded]="false"
+          (opened)="panelOpenState2 = true"
+          (closed)="panelOpenState2 = false"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <p>{{place.name}}
+                <span *ngIf="place.visited == 1"> - Visited</span>
+                <span *ngIf="place.visited == 0"> - You are here</span>
+              </p>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <p><span>Id: </span>{{place.id}}</p>
+        </mat-expansion-panel>
+      </li>
+    </mat-accordion>
+  </div>
+
+  <div class="button-container">
+    <button mat-fab color="basic"
+            tooltip="Homepage" [options]="tooltipOptions"
+            (click)='goHome()'>
+      <mat-icon>home</mat-icon>
+    </button>
+    <button mat-fab color="primary"
+            *ngIf="!this.parked"
+            tooltip="Park here" [options]="tooltipOptions"
+            class="fab-button done"
+            (click)='park()'>
+      <mat-icon>local_parking</mat-icon>
+    </button>
+    <button *ngIf="this.parked" mat-fab color="primary"
+            tooltip="Restart driving" [options]="tooltipOptions"
+            class="fab-button done"
+            (click)='this.parked = false'>
+      <mat-icon>directions_car</mat-icon>
+    </button>
+    <button mat-fab
+            tooltip="Exit system and go to homepage" [options]="tooltipOptions"
+            color="warn" (click)='exitSystem()'>
+      <mat-icon>exit_to_app</mat-icon>
+    </button>
+  </div>
+</mat-card>

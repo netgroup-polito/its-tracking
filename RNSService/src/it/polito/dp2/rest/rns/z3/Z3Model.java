@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.microsoft.z3.ArithExpr;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
 import com.microsoft.z3.IntExpr;
@@ -16,6 +17,7 @@ import com.microsoft.z3.Status;
 import it.polito.dp2.rest.rns.exceptions.UnsatisfiableException;
 import it.polito.dp2.rest.rns.jaxb.SimplePlaceReaderType;
 import it.polito.dp2.rest.rns.neo4j.Neo4jInteractions;
+import it.polito.dp2.rest.rns.resources.RNSCore;
 import it.polito.dp2.rest.rns.utility.DangerousMaterialImpl;
 
 /**
@@ -46,10 +48,11 @@ public class Z3Model {
 	private Map<String, List<String>> connections = new HashMap<>();
 	private Map<String, BoolExpr> connectionsBool = new HashMap<>();
 	private Map<String, BoolExpr> nodes = new HashMap<>();
+	private Map<String, ArithExpr> nodesCapacity = new HashMap<>();
 	
 	private String sourceNodeId = "";
 	
-	public Z3Model(String sourceNodeId, String destinationNodeId, String materialId) throws UnsatisfiableException {
+	public Z3Model(String sourceNodeId, String destinationNodeId, List<String> materialId) throws UnsatisfiableException {
 		if(Neo4jInteractions.getInstance().getActualCapacityOfPlace(sourceNodeId) < 1)
 			throw(new UnsatisfiableException("Node " + sourceNodeId + " has no more room for another vehicle"));
 		
@@ -84,6 +87,9 @@ public class Z3Model {
 	 */
 	private void defineHardConstraints(String source, String destination) {
 		for(Entry<String, BoolExpr> node : this.nodes.entrySet()) {
+			ArithExpr capacity = this.nodesCapacity.get(node.getKey());
+			mkOptimize.Add(ctx.mkImplies(ctx.mkLt(capacity, ctx.mkInt(0)), ctx.mkNot(node.getValue())));
+			
 			if(source.equals(node.getKey())) {
 				
 				mkOptimize.Add(ctx.mkEq(node.getValue(), ctx.mkBool(true)));
@@ -100,6 +106,7 @@ public class Z3Model {
 				mkOptimize.Add(ctx.mkImplies(node.getValue(), ctx.mkAtMost(conns.stream().toArray(BoolExpr[]::new), 1)));
 				
 			} else {
+				
 				List<BoolExpr> conns = new ArrayList<>();
 				for(String conn : this.connections.get(node.getKey())) {
 					conns.add(this.connectionsBool.get(conn));
@@ -135,13 +142,15 @@ public class Z3Model {
 	 * @param y_prev = previous node where we were
 	 * @param prevId = id of the previous node where we came from
 	 */
-	public void createBooleanExpressions(String source, String materialId, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) {
-		DangerousMaterialImpl material = null;
-		if(materialId != null && !materialId.equals("")) {
-			material= new DangerousMaterialImpl(
-											materialId, 
-											Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)
-									);
+	public void createBooleanExpressions(String source, List<String> materialIds, String destination, List<String> tabuList, BoolExpr z_prev, BoolExpr y_prev, String prevId) {
+		ArrayList<DangerousMaterialImpl> materialsTransported = new ArrayList<>();
+		for(String materialId : materialIds) {		
+			if(materialId != null && !materialId.equals("")) {
+				materialsTransported.add(new DangerousMaterialImpl(
+												materialId, 
+												Neo4jInteractions.getInstance().getIncompatibleMaterialsGivenId(materialId)
+										));
+			}
 		}
 		
 		SimplePlaceReaderType current = Neo4jInteractions.getInstance().getPlace(source);
@@ -149,22 +158,29 @@ public class Z3Model {
 		
 		// Retrieve materials and actual capacity
 		int actualCapacity = Neo4jInteractions.getInstance().getActualCapacityOfPlace(current.getId());
-		List<String> materials = Neo4jInteractions.getInstance().getMaterialsInPlaceGivenId(current.getId());
+		List<String> materials = RNSCore.getInstance().getMaterialsInPlaceGivenId(current.getId());
+		
+		ArithExpr leftSide = ctx.mkSub(ctx.mkInt(actualCapacity), ctx.mkInt(1));
+		this.nodesCapacity.put(current.getId(), leftSide);
 		
 		// Check on capacity and materials
-		if(actualCapacity < 1) {
+		/*if(actualCapacity < 1) {
 			//System.out.println("Place " + current.getId() + " has no more room.");
 			return;
-		}
+		}*/
 		
-		if(materialId != null && material != null) {
-			for(String mat : materials) {
-				if(!material.isCompatibleWith(mat)) {
-					/*System.out.println(
-							"Node " + current.getId() + 
-							" contains material " + mat + 
-							" that is not compatible with " + materialId);*/
-					return;
+		if( !materialsTransported.isEmpty() && materials != null) {
+			for( DangerousMaterialImpl material : materialsTransported) {
+				for(String m : materials) {
+					String mat = m.replace("\"", "");
+					//System.out.println("Comparing " + mat + " --- " + material.getId());
+					if(!material.isCompatibleWith(mat)) {
+						/*System.out.println(
+								"Node " + current.getId() + 
+								" contains material " + mat + 
+								" that is not compatible with " + material.getId());*/
+						return;
+					}
 				}
 			}
 		}
@@ -214,7 +230,7 @@ public class Z3Model {
 		for(String id : current.getConnectedPlaceId()) {
 			if(!tabuList.contains(id)) {
 				//System.out.println("+++++ Visiting next: " + id);
-				this.createBooleanExpressions(id, materialId, destination, tabuList, ctx.mkBoolConst("z_" + current.getId() + "_" + id), y_curr, source);
+				this.createBooleanExpressions(id, materialIds, destination, tabuList, ctx.mkBoolConst("z_" + current.getId() + "_" + id), y_curr, source);
 			}
 		}		
 	}

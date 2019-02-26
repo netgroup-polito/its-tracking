@@ -8,6 +8,7 @@ import { Materials } from './materials';
 import { DangerousMaterial } from './dangerousMaterial';
 import { PathService } from './path.service';
 import { Place } from './place';
+import { Vehicle } from './vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,10 @@ export class ClientHttpService {
     return this.http.get<Rns>(this.path + 'rns');
   }
 
+  getVehicle(vId: string): Observable<Vehicle> {
+    return this.http.get<Vehicle>(this.path + 'vehicles/' + vId);
+  }
+  
   getPlace(placeId: string): Observable<Place> {
     return this.http.get<Place>(this.path + 'rns/places/' + placeId);
   }

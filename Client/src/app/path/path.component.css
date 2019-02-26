@@ -1,3 +1,32 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-card.left {
+  flex-shrink: 1;
+  width: 48%;
+  float: left;
+}
+
+mat-card.right {
+  flex-shrink: 1;
+  width: 48%;
+  float: right;
+}
+
+mat-card div {
+  margin: 3%
+}
+
+mat-card-title {
+  padding: 1%
+}
+
+mat-card-content {
+  padding: 1%
+}
+
 li {
   margin: 10px 10px 15px;
   list-style: none;
@@ -6,10 +35,6 @@ li {
 p {
    text-align: center;
    width: 100%;
-}
-
-.row {
-  text-align: center;
 }
 
 mat-form-field {
@@ -25,23 +50,20 @@ mat-expansion-panel.selected {
 }
 
 mat-card {
+  padding: 0;
+  margin: 1%
+}
+
+.vehicle .row {
+  text-align: center;
   margin: 2%;
-}
-
-.vehicle{
-  width: 80%;
-  display: inline-block;
-}
-
-.search {
-  width: 20%;
-  display: inline-block;
 }
 
 .button-container, .search-container {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 5px;
 }
 
 button {
@@ -58,9 +80,37 @@ li.mat-list {
 }
 
 @media screen and (max-width: 991px) {
-  .vehicle, .search {
+  .row {
+    margin: 1%;
+  }
+
+  mat-card div {
+    margin: 1%
+  }
+
+  mat-card.left,
+  mat-card.right {
+    margin: 0;
     margin-bottom: 10px;
     float: none;
     width: 100%;
+  }
+
+  .search-container .row {
+    width: 50%;
+    margin: 0 auto;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .search-container {
+    display: inline-block;
+    align-items: none;
+    justify-content: none;
+  }
+
+  .search-container .row {
+    width: 100%;
+    margin: 0 auto;
   }
 }

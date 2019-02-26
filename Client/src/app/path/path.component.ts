@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { Types } from '../types';
 import { Materials } from '../materials';
 import { Place } from '../place';
+import { Vehicle } from '../vehicle';
 
 @Component({
   selector: 'app-path',
@@ -28,6 +29,7 @@ export class PathComponent implements OnInit {
   typeId = new FormControl('', [Validators.required]);
   selectedMaterials: string[] = [];
   dangerousMaterialsDependencies;
+  vehicle: Vehicle;
   currentPosition: Place;
   tooltipOptions = {
     'placement': 'bottom',
@@ -42,19 +44,19 @@ export class PathComponent implements OnInit {
 
   ngOnInit() {
     const vId = localStorage.getItem('vehicleId');
-    const sId = localStorage.getItem('sourceId');
-    const tId = localStorage.getItem('typeId');
     if (vId !== null) {
       this.vehicleId.setValue(vId);
-    }
-    if (sId !== null) {
-      this.sourceId.setValue(sId);
-      this.client.getPlace(sId).subscribe(
-        data => this.currentPosition = data
-      );
-    }
-    if (tId !== null) {
-      this.typeId.setValue(tId);
+      this.client.getVehicle(vId).subscribe(
+        vehicle => {
+          this.vehicle = vehicle;
+          this.typeId.setValue(this.vehicle.type);
+          this.sourceId.setValue(this.vehicle.origin);
+          this.destinationId.setValue(this.vehicle.destination);
+          this.selectedMaterials = this.vehicle.material;
+          this.client.getPlace(this.vehicle.position).subscribe(
+            place => this.currentPosition = place
+          );
+        });
     }
     this.getSystem();
     this.getTypes();
@@ -132,10 +134,9 @@ export class PathComponent implements OnInit {
         this.vehicleId.value,
         this.typeId.value,
         this.selectedMaterials);
-      this.client.putVehicle().subscribe(
+      this.client.postVehicle().subscribe(
         data => {
           localStorage.setItem('vehicleId', this.vehicleId.value);
-          localStorage.setItem('typeId', this.typeId.value);
           this.pathService.path = data;
           this.router.navigate(['/route']);
         },
@@ -166,6 +167,7 @@ export class PathComponent implements OnInit {
     this.sourceId.reset();
     this.destinationId.reset();
     this.vehicleId.reset();
+    this.typeId.reset();
     this.selectedMaterials = [];
     localStorage.clear();
   }
@@ -208,5 +210,21 @@ export class PathComponent implements OnInit {
           this.openSnackBar(err.error, 'OK');
         }
       );
+  }
+
+  exitSystem() {
+    const vId = localStorage.getItem('vehicleId');
+    this.client.deleteVehicle(vId).subscribe(
+      data => {
+        this.currentPosition = undefined;
+        this.openSnackBar(data, 'OK');
+        this.vehicle = undefined;
+        this.sourceId.reset();
+        this.destinationId.reset();
+        this.vehicleId.reset();
+        this.typeId.reset();
+        this.selectedMaterials = [];
+        localStorage.clear();
+      });
   }
 }

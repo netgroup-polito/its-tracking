@@ -1,1 +1,13 @@
 \chapter{Client}\label{Chap:Client}
+The client is a web application developed in Angular. It is designed to choose and simulate the vehicle journey inside a given map.
+
+\section{Client architecture}
+The client is composed by two pages:
+\begin{itemize}
+	\item Home page: where it is possible to choose the path
+	\item Route page: where it is possible to see the route and the next directions to take.
+\end{itemize}
+The application uses a service to make HTTP requests to the server to retrieve the information needed and another one to share data inside the client.
+
+\section{Home page}
+In the home page it is possible to decide the origin and destination of the vehicle, in order to retrieve an authorization from the server and a path that should be followed.

@@ -340,8 +340,9 @@ public class RNSCore {
 	/**
 	 * Function to delete a vehicle from the database
 	 * @param vehicleId = id of the vehicle to be deleted
+	 * @throws VehicleNotInSystemException 
 	 */
-	public synchronized void deleteVehicle(String vehicleId, boolean update) {
+	public synchronized void deleteVehicle(String vehicleId, boolean update) throws VehicleNotInSystemException {
 		//System.out.println("Deletion of vehicle " + vehicleId + " " + update);
 		if (IdTranslator.getInstance().getIdTranslation(vehicleId) != null) {
 			Neo4jInteractions.getInstance().deleteNode(vehicleId, "Vehicle");
@@ -359,7 +360,8 @@ public class RNSCore {
 				
 				this.vehiclePath.remove(vehicleId);
 			}
-		}
+		} else 
+			throw new VehicleNotInSystemException("Vehicle is not in the system. Either it was never in the system or it has been deleted before.");
 	}
 
 	/**
@@ -415,6 +417,9 @@ public class RNSCore {
 		
 		if(!vehicle.getDestination().equals(currentVehicle.getDestination()))
 			occurrences = 0; // Need to force the recomputation of the path
+		
+		if(vehicle.getState().equals(VehicleStateType.IN_TRANSIT) && currentVehicle.getState().equals(VehicleStateType.PARKED)) // Need to recompute
+			occurrences = 0;
 		
 		if(occurrences != 0) { // Still following the path
 			// Check on the correct sequence of places

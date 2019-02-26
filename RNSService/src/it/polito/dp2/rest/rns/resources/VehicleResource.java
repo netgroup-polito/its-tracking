@@ -296,7 +296,7 @@ public class VehicleResource {
     			RNSCore.getInstance().deleteVehicle(String.valueOf(vehicleId), false);
     			return Response.status(Status.OK).entity("Vehicle " + vehicleId + " has been corretly deleted from the system.").build();
     		} catch (Exception e) {
-    			return Response.status(Status.BAD_REQUEST).build();
+    			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
     		}
     }
 }

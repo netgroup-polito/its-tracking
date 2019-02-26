@@ -1,7 +1,6 @@
 \section{Z3}\label{Z3}
 \subsection{What is Z3}
-Z3 is a a theorem prover \cite{z3}. It came in handy with our project, since it can be exploited to solve problems that requires the definition of constraints.\\
-In particular, Z3, is composed of two components:
+Z3 is a a theorem prover \cite{z3}. We used it to implement the optimization algorithm in the server logic. Z3 is composed of two components:
 \begin{enumerate}
   \item the \textit{OptSMT} module that is used to solve problems regarding the optimization of classical linear arithmetic objective functions (e.g. Knapsack problem \cite{knapsack});
   \item the \textit{MaxSMT} (actually a collection of \underline{MaxSAT} solvers) module that we're most interested in, because it allows the definition of soft contraints in order to evaluate a solution.
@@ -9,8 +8,13 @@ In particular, Z3, is composed of two components:
 
 % --------------------------------------------------------------------------
 
+<<<<<<< HEAD
 \subsection{Setup of Z3 in machine running Ubuntu}\label{SubSec:Z3Setup}
 The development enviroment that has been used is \textbf{Ubuntu}. In order to use Z3 library in such operating system, there are a couple of steps one has to follow.
+=======
+\subsection{Setup of Z3 in machine running Ubuntu}
+The development environment used was \textbf{Ubuntu}. In order to use Z3 library in such operating system, there are a couple of steps to be followed.
+>>>>>>> 272a36639a1e7dcceec007cf6b7c91acbad69ff5
 \begin{enumerate}
   \item \underline{download} the prebuilt version of the library from the offical GitHub repository \url{https://github.com/Z3Prover/z3/releases};
   \item once extracted the files, we have to place them in a specific location in which we will command other applications to look for the needed classes;
@@ -129,4 +133,4 @@ Given the definition of such expressions, since the capacity of node \textbf{P4}
    \includegraphics[width=\textwidth]{graph04.png}
    \caption{Evaluation of path from source to destination.}\label{Fig:Graph04}
 \end{figure}
-The resulting path produced by Z3 is the one show in figure \ref{Fig:Graph04}. In the case multiple paths are present from source to destination, the optimizer will choose the one with the minimum traverse time, using the min time constraint define as subsection \ref{Subs:MathModel} shows.
+The resulting path produced by Z3 is the one shown in figure \ref{Fig:Graph04}. In the case multiple paths are present from source to destination, the optimizer will choose the one with the minimum traverse time, using the min time constraint define as subsection \ref{Subs:MathModel} shows.

@@ -60,7 +60,6 @@ export class RoutesComponent implements OnInit {
             self.client.putVehicle(self.path.place[index].id).subscribe(
               () => {
                 self.path.place[index].visited = 0;
-                localStorage.setItem('sourceId', self.path.place[index].id);
                 self.visitPlace(index, randomTime);
               },
               err => self.openSnackBar(err.error, 'OK')
@@ -77,7 +76,6 @@ export class RoutesComponent implements OnInit {
                 self.path.place.length = index;
                 self.path.place.push.apply(self.path.place, data.place);
                 self.path.place[index].visited = 0;
-                localStorage.setItem('sourceId', self.path.place[index].id);
                 const randomTimeNew = self.getRandomInt(0, 5);
                 self.visitPlace(index, randomTimeNew);
               },

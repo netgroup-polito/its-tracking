@@ -7,6 +7,7 @@ export class Vehicle {
   entrytime: string = undefined;
   state: string = undefined;
   type: string = undefined;
+  material: string[];
 
   constructor(id: string,
               name: string,
@@ -15,7 +16,8 @@ export class Vehicle {
               position: string,
               entrytime: string,
               state: string,
-              type: string) {
+              type: string,
+              material: string[]) {
     this.id = id;
     this.name = name;
     this.destination = destination;
@@ -24,5 +26,6 @@ export class Vehicle {
     this.entrytime = entrytime;
     this.state = state;
     this.type = type;
+    this.material = material;
   }
 }

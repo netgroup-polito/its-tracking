@@ -234,7 +234,7 @@ public class VehicleResource {
 			Places places = RNSCore.getInstance().updateVehicle(vehicle.getValue());
 			return Response.status(Status.OK).entity(places).build();
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
     }

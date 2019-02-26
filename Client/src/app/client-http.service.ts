@@ -25,7 +25,7 @@ export class ClientHttpService {
   getVehicle(vId: string): Observable<Vehicle> {
     return this.http.get<Vehicle>(this.path + 'vehicles/' + vId);
   }
-  
+
   getPlace(placeId: string): Observable<Place> {
     return this.http.get<Place>(this.path + 'rns/places/' + placeId);
   }

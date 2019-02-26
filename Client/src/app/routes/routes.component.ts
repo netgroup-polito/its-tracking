@@ -27,7 +27,7 @@ export class RoutesComponent implements OnInit {
               private router: Router) { }
 
   ngOnInit() {
-    wrongRoad = 90;
+    this.wrongRoad = 90;
     this.parked = false;
     this.intervals = [];
     if (this.pathService.path !== undefined) {

@@ -15,6 +15,8 @@
 
 	<!--PROPERTIES AND TASKS TO BE OVERRIDDEN BY MAIN BUILD-->
 	<property name="serviceName" value="service" />
+
+	<import file="neo4j-build.xml"/>
 	
     <target name="package.service">         
     </target>
@@ -33,7 +35,7 @@
 	<import file="${server.location}/bin/catalina-tasks.xml" />
 	
 	<!-- TOMCAT LIFECICLE MANAGEMENT-->
-	<target name="start-tomcat" depends="check-tomcat-status" unless="tomcat.started" description="Start Tomcat server">
+	<target name="start-tomcat" depends="start-neo4j, check-tomcat-status" unless="tomcat.started" description="Start Tomcat server">
 		<echo>Start Tomcat</echo>
 		<java classname="org.apache.catalina.startup.Bootstrap" fork="true"
 			classpathref="tomcat.class.path">
@@ -92,5 +94,4 @@
 	<target name="redeployWS" depends="undeployWS" description="Redeploy service in tomcat">
 		<antcall target="deployWS" />
 	</target>
-
 </project>

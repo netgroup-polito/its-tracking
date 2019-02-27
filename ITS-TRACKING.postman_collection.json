@@ -1,0 +1,485 @@
+{
+	"info": {
+		"_postman_id": "73df41d9-99e2-41e4-962f-f93c499dc1fb",
+		"name": "ITS-TRACKING",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET",
+			"item": [
+				{
+					"name": "GET system",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/rns",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"rns"
+							]
+						},
+						"description": "Hello world test request."
+					},
+					"response": []
+				},
+				{
+					"name": "GET gates",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/gates",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"gates"
+							]
+						},
+						"description": "Request to get all the gates."
+					},
+					"response": []
+				},
+				{
+					"name": "GET gate",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/gates/g01",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"gates",
+								"g01"
+							]
+						},
+						"description": "Request to get all the gates."
+					},
+					"response": []
+				},
+				{
+					"name": "GET parking area",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/xml"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/parkingareas/pa01",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"parkingareas",
+								"pa01"
+							]
+						},
+						"description": "Request to get all the gates."
+					},
+					"response": []
+				},
+				{
+					"name": "GET road segment",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/xml"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/roadsegments/a01-02",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"roadsegments",
+								"a01-02"
+							]
+						},
+						"description": "Request to get all the gates."
+					},
+					"response": []
+				},
+				{
+					"name": "GET vehicles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/vehicles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"vehicles"
+							]
+						},
+						"description": "Retrieve all the vehicles in the system"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "POST",
+			"item": [
+				{
+					"name": "POST vehicle 01 (XML)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/xml"
+							},
+							{
+								"key": "Accept",
+								"value": "application/xml",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE xml>\n<vehicle \n\txmlns=\"http://www.example.org/RnsInfo\"\n\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n\txsi:schemaLocation=\"https://www.w3schools.com/RnsInfo RnsInfo.xsd\"\n\tid=\"v01\">\n\t<name>Vehicle 01</name>\n\t<destination>g05</destination>\n\t<origin>g05</origin>\n\t<position>a01-02</position>\n\t<entryTime>1985-01-15T18:30:00-04:00</entryTime>\n\t<state>IN_TRANSIT</state>\n\t<type>CARAVAN</type>\n\t<material>dangerousMaterial1</material>\n</vehicle>"
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/vehicles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"vehicles"
+							]
+						},
+						"description": "To create this new vehicle in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "POST vehicle 02 (XML)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/xml"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE xml>\n<vehicle \n\txmlns=\"http://www.example.org/RnsInfo\"\n\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n\txsi:schemaLocation=\"https://www.w3schools.com/RnsInfo RnsInfo.xsd\"\n\tid=\"v02\">\n\t<name>Vehicle 02</name>\n\t<destination>pa01</destination>\n\t<origin>g01</origin>\n\t<position>g01</position>\n\t<entryTime>1985-01-15T18:30:00-04:00</entryTime>\n\t<state>IN_TRANSIT</state>\n\t<type>CARAVAN</type>\n\t<material>dangerousMaterial02</material>\n</vehicle>"
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/vehicles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"vehicles"
+							]
+						},
+						"description": "To create this new vehicle in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "POST vehicle 02 (JSON)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"v02\",\n    \"name\": \"Vehicle 02\",\n    \"destination\": \"pa01\",\n    \"origin\": \"g01\",\n    \"position\": \"g01\",\n    \"entryTime\": \"1985-01-15T18:30:00.000+01:00\",\n    \"state\": {\"value\": \"IN_TRANSIT\"},\n    \"type\": {\"value\":\"CARAVAN\"},\n    \"material\": \"\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/vehicles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"vehicles"
+							]
+						},
+						"description": "To create this new vehicle in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "POST vehicle 03 (JSON)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"v03\",\n    \"name\": \"Vehicle 03\",\n    \"destination\": \"g03\",\n    \"origin\": \"pa02\",\n    \"position\": \"pa02\",\n    \"entryTime\": \"1985-01-15T18:30:00.000+01:00\",\n    \"state\": {\"value\":\"PARKED\"},\n    \"type\": {\"value\":\"CAR\"},\n    \"material\": \"\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/vehicles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"vehicles"
+							]
+						},
+						"description": "To create this new vehicle in the system"
+					},
+					"response": []
+				}
+			],
+			"description": "POST requests for the service"
+		},
+		{
+			"name": "PUT",
+			"item": [
+				{
+					"name": "PUT vehicle  01 (XML)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/xml"
+							},
+							{
+								"key": "Accept",
+								"value": "application/xml",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE xml>\n<vehicle \n\txmlns=\"http://www.example.org/RnsInfo\"\n\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n\txsi:schemaLocation=\"https://www.w3schools.com/RnsInfo RnsInfo.xsd\"\n\tid=\"v01\">\n\t<name>Vehicle 01</name>\n\t<destination>g03</destination>\n\t<origin>g05</origin>\n\t<position>ss02</position>\n\t<entryTime>1985-01-15T18:30:00-04:00</entryTime>\n\t<state>IN_TRANSIT</state>\n\t<type>CARAVAN</type>\n\t<material>dangerousMaterial1</material>\n</vehicle>"
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/vehicles/v01",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"vehicles",
+								"v01"
+							]
+						},
+						"description": "To create this new vehicle in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT vehicle 02 (JSON)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"v02\",\n    \"name\": \"Vehicle 02\",\n    \"destination\": \"pa01\",\n    \"origin\": \"g01\",\n    \"position\": \"a02-01\",\n    \"entryTime\": \"1985-01-15T18:30:00.000+01:00\",\n    \"state\": {\"value\": \"IN_TRANSIT\"},\n    \"type\": {\"value\": \"CARAVAN\"}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/vehicles/v02",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"vehicles",
+								"v02"
+							]
+						},
+						"description": "To create this new vehicle in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT vehicle 03 (JSON)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"v03\",\n    \"name\": \"Vehicle 03\",\n    \"destination\": \"g03\",\n    \"origin\": \"pa02\",\n    \"position\": \"ss02\",\n    \"entryTime\": \"1985-01-15T18:30:00.000+01:00\",\n    \"state\": {\"value\":\"IN_TRANSIT\"},\n    \"type\": {\"value\":\"CAR\"}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/rns/webapi/vehicles/v03",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"rns",
+								"webapi",
+								"vehicles",
+								"v03"
+							]
+						},
+						"description": "To create this new vehicle in the system"
+					},
+					"response": []
+				}
+			],
+			"description": "Put requests for the service"
+		}
+	]
+}

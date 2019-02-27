@@ -2,7 +2,9 @@
 
 The aim of this project is to design a RESTful web service able to track the precence of vehicles in an area with restricted access and, based on this information, choose if guarantee or reject the access to other vehicles. If the access is granted, the system has to provide the newly-entered vehicle with a suggested path to follow. Otherwise the vehicle is just rejected by the system with a message.
 
-# Folders organization
+## Project Setup
+
+### Folders organization
 
 Project folders are organized this way:
 1. server application resides in folder RNSService;
@@ -10,9 +12,7 @@ Project folders are organized this way:
 3. in the Report folder are present all files LateX needed to modify and compile the report.
 5. the root directory contains the final report with more detailed information about the project and a Postman collection usefull for testing purposes.
 
-# Project Setup
-
-## Prerequisites
+### Prerequisites
 
 The SO used is Ubuntu 16.04. The server is written in Java v8.
 It is deployed in Tomcat, along with Ant, and use Neo4j as DB.
@@ -26,7 +26,7 @@ If any of the previous installation were different on you machine, also the rela
 
 A VM with the previous requirements can be found here: https://summer.ipv6.polito.it:8081/share.cgi?ssid=0fanb9R
 
-## Server
+### Server
 
 In order to launch and compile the server application and its tests, it is available a set of ant scripts.
 To setup the server it is necessary to follow these step:
@@ -38,7 +38,7 @@ From command line: `ant start-tomcat -f RNSService/build.xml`
 From command line: `ant redeploy -f RNSService/build.xml`.
 This step is necessary only the first time.
 
-## Client
+### Client
 
 To setup the client (in the directory Client) it is necessary to install Node.js,
 then it is possible to launch the application. To install Node.js, go to the ufficial site https://nodejs.org.
@@ -55,7 +55,7 @@ These are the steps to install and run only the Angular Client:
 4. launch the app running the following command:
 `ng serve`
 
-## Z3
+### Z3
 
 Z3 is the core of the application, the optimization library used to compute the path of the vehicles.
 Follow these steps to configure z3:

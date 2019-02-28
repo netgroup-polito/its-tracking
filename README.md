@@ -70,4 +70,4 @@ To be sure that this step worked, one way is to check the environment variables 
           System.out.println("[" + key + "] " + value);  
     }
 
-If the correctLD_LIBRARY_PATH is not set, another way is to put the .so files contained in the z3 zip inside a folder listed in LD_LIBRARY_PATH
+If the correct LD_LIBRARY_PATH is not set, another way is to put the .so files contained in the z3 zip inside a folder listed in LD_LIBRARY_PATH. After that restart tomcat.

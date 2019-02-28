@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -25,6 +26,8 @@ public class DateConverter {
 		DateFormat format = new SimpleDateFormat(dateFormat);
 		Date date = format.parse(inputDate);
 		
+		System.out.println("String: " + inputDate + " --- Converted Date: " + date.toString());
+		
 		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTime(date);
 		
@@ -40,6 +43,7 @@ public class DateConverter {
 	 */
 	public static long getDurationFromXMLGregorianCalendar(XMLGregorianCalendar start, XMLGregorianCalendar end) {
 		long duration = end.toGregorianCalendar().getTimeInMillis() - start.toGregorianCalendar().getTimeInMillis();
+		System.out.println("Start: " + start.toString() + " --- End: " + end.toString());
 		return duration;
 	}
 	

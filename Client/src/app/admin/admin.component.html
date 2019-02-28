@@ -21,6 +21,7 @@
               <p><span>Id: </span>{{gate.id}}</p>
               <p><span>Type: </span>{{gate.type}}</p>
               <p><span>Capacity: </span>{{gate.capacity}}</p>
+              <p><span>Average time spent: </span>{{gate.avgTimeSpent}}</p>
               <div class="button-container">
                 <button mat-raised-button color="primary"
                         tooltip="Show # of reservations" [options]="tooltipOptions"
@@ -46,6 +47,7 @@
               </mat-expansion-panel-header>
               <p><span>Id: </span>{{parking.id}}</p>
               <p><span>Capacity: </span>{{parking.capacity}}</p>
+              <p><span>Average time spent: </span>{{parking.avgTimeSpent}}</p>
               <div *ngIf="parking.service !== undefined && parking.service.length > 0">
                 <h5>Services:</h5>
                 <mat-list>
@@ -79,6 +81,7 @@
               </mat-expansion-panel-header>
               <p><span>Id: </span>{{road.id}}</p>
               <p><span>Capacity: </span>{{road.capacity}}</p>
+              <p><span>Average time spent: </span>{{road.avgTimeSpent}}</p>
               <div *ngIf="road.containerId !== undefined && road.containerId !== null">
                 <p><span>Container: </span>{{road.containerId}}</p>
               </div>

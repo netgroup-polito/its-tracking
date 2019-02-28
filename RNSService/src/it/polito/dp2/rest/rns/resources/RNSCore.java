@@ -1,12 +1,14 @@
 package it.polito.dp2.rest.rns.resources;
 
 import java.math.BigInteger;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import it.polito.dp2.rest.rns.exceptions.IncompatibleMaterialsCarriedException;
@@ -403,8 +405,10 @@ public class RNSCore {
 	 * @throws IncompatibleMaterialsCarriedException 
 	 * @throws InvalidDestinationPlaceException 
 	 * @throws SamePositionException 
+	 * @throws DatatypeConfigurationException 
+	 * @throws ParseException 
 	 */
-	public synchronized Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException, InvalidDestinationPlaceException, SamePositionException {
+	public synchronized Places updateVehicle(VehicleReaderType vehicle) throws VehicleNotInSystemException, PlaceFullException, VehicleAlreadyInSystemException, InvalidEntryPlaceException, UnsatisfiableException, InvalidPathException, NonRecognizedMaterial, InvalidVehicleTypeException, InvalidVehicleStateException, InvalidEntryTimeException, IncompatibleMaterialsCarriedException, InvalidDestinationPlaceException, SamePositionException, ParseException, DatatypeConfigurationException {
 		this.checkVehicle(vehicle);
 		
 		// Check presence of the vehicle in the system
@@ -456,7 +460,10 @@ public class RNSCore {
 			Places places = (new ObjectFactory()).createPlaces();
 			places.getPlace().add(Neo4jInteractions.getInstance().getPlace(vehicle.getPosition()));
 			
-			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
+			this.updateAvgTimePlace(
+					currentVehicle.getPosition(), 
+					currentVehicle.getEntryTime(), 
+					DateConverter.convertFromString(vehicle.getEntryTime().toXMLFormat(), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 			
 			// Update the reservations in the current place before the moving
 			Neo4jInteractions.getInstance().updateReservationsInPlace(currentVehicle.getPosition(), false, 1);
@@ -502,7 +509,10 @@ public class RNSCore {
 			Places places = (new ObjectFactory()).createPlaces();
 			places.getPlace().add(Neo4jInteractions.getInstance().getPlace(vehicle.getPosition()));
 			
-			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
+			this.updateAvgTimePlace(
+					currentVehicle.getPosition(), 
+					currentVehicle.getEntryTime(), 
+					DateConverter.convertFromString(vehicle.getEntryTime().toXMLFormat(), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 			
 			// Update the reservations in the current place before the moving
 			Neo4jInteractions.getInstance().updateReservationsInPlace(currentVehicle.getPosition(), false, 1);
@@ -541,7 +551,10 @@ public class RNSCore {
 				}
 			}
 			
-			this.updateAvgTimePlace(currentVehicle.getPosition(), currentVehicle.getEntryTime(), vehicle.getEntryTime());
+			this.updateAvgTimePlace(
+					currentVehicle.getPosition(), 
+					currentVehicle.getEntryTime(), 
+					DateConverter.convertFromString(vehicle.getEntryTime().toXMLFormat(), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 			
 			this.deleteVehicle(vehicle.getId(), true);
 			Places places;
@@ -568,7 +581,6 @@ public class RNSCore {
 	private void updateAvgTimePlace(String placeId, XMLGregorianCalendar entryTime, XMLGregorianCalendar exitTime) {
 		long duration = DateConverter.getDurationFromXMLGregorianCalendar(entryTime, exitTime);
 		Counter counter = Neo4jInteractions.getInstance().getCounterGivenPlaceId(placeId);
-		//System.out.println("Duration: " + duration + " -- " + counter.getName() + ": " + counter.getCounter());
 		
 		Neo4jInteractions.getInstance().updateAvgTimeSpentPlace(placeId, duration, counter.getCounter() + 1);
 		Neo4jInteractions.getInstance().updateCounterValueOfPlace(placeId, 1, true);

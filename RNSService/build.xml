@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." default="start-tomcat" name="rest-service-rns">
+<project basedir="." default="start-neo4j-then-tomcat" name="rest-service-rns">
 	<description>
 		Script for rest service examples
 	</description>
@@ -21,7 +21,7 @@
     	<ant antfile="build-rns.xml" target="undeployWS" />       
     </target>
 
-    <target name="start-tomcat" description="starts tomcat">
+    <target name="start-neo4j-then-tomcat" description="starts tomcat">
     	<ant antfile="tomcat-build.xml" target="start-tomcat" />
     </target>
 	

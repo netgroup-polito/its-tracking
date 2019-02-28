@@ -335,7 +335,7 @@ public class Neo4jInteractions implements AutoCloseable {
 							vehicle.setPosition((String) r.get(0).asMap().get("position"));
 							vehicle.setState(VehicleStateType.fromValue((String) r.get(0).asMap().get("state")));
 							try {
-								vehicle.setEntryTime(DateConverter.convertFromString((String) r.get(0).asMap().get("entryTime"), "yyyy-MM-dd'T'HH:mm:ss"));
+								vehicle.setEntryTime(DateConverter.convertFromString((String) r.get(0).asMap().get("entryTime"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 							} catch (ParseException e) {
 								e.printStackTrace();
 							} catch (DatatypeConfigurationException e) {

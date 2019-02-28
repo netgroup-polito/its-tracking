@@ -68,6 +68,7 @@ export class RoutesComponent implements OnInit {
           const randomTime = self.getRandomInt(5, 5);
           const randomRoad = self.getRandomInt(0, 100);
           if (randomRoad <= self.wrongRoad || self.path.place[currentIndex].connectedPlaceId.length === 1) { // right road
+            self.pathService.info.entryTime = new Date().toJSON();
             self.client.putVehicle(self.path.place[index].id).subscribe(
               () => {
                 self.path.place[index].visited = 0;
@@ -81,6 +82,7 @@ export class RoutesComponent implements OnInit {
             const indexNextRightPlace = self.path.place[currentIndex].connectedPlaceId.indexOf(nextRightPlace);
             self.path.place[currentIndex].connectedPlaceId.splice(indexNextRightPlace, 1);
             const randomChoice = self.getRandomInt(0, self.path.place[currentIndex].connectedPlaceId.length - 1);
+            self.pathService.info.entryTime = new Date().toJSON();
             self.client.putVehicle(self.path.place[currentIndex].connectedPlaceId[randomChoice]).subscribe(
               (data) => {
                 self.openSnackBar('Wrong road: path updated.', 'OK');

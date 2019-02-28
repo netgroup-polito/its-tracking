@@ -14,28 +14,25 @@ Project folders are organized this way:
 
 ### Prerequisites
 
-The SO used is Ubuntu 16.04. The server is written in Java v8.
-It is deployed in Tomcat, along with Ant, and use Neo4j as DB.
-All of them are provided in the `lib` folder as .zip file. Extract them in /opt.
-Then set the following environment variables:
-`ANT_HOME=/opt/apache-ant-1.9.13`
-`CATALINA_HOME=/opt/tomcat/apache-tomcat-8.5.20`
-Use the command `export VAR=foo` in the the file /etc/environment or in ~/.bashrc.
-In the `lib` folder is also present a file named `dp2.zip`. Extract also that in /opt: it contains all the jars needed by the server.
-If any of the previous installation were different on you machine, also the relative variables in the scripts must be changed.
-
+The SO used is Ubuntu 16.04. The server is written in Java v8.  
+It is deployed in Tomcat, along with Ant, and use Neo4j as DB.  
+All of them are provided in the `lib` folder as .zip file. Extract them in /opt.  
+Then set the following environment variables:  
+`ANT_HOME=/opt/apache-ant-1.9.13`  
+`CATALINA_HOME=/opt/tomcat/apache-tomcat-8.5.20`  
+Use the command `export VAR=foo` in the the file /etc/environment or in ~/.bashrc.  
+In the `lib` folder is also present a file named `dp2.zip`. Extract also that in /opt: it contains all the jars needed by the server.  
+If any of the previous installation were different on your machine, also the relative variables in the scripts must be changed.  
 A VM with the previous requirements can be found here: https://summer.ipv6.polito.it:8081/share.cgi?ssid=0fanb9R
 
 ### Server
 
 In order to launch and compile the server application and its tests, it is available a set of ant scripts.
-To setup the server it is necessary to follow these step:
-
-1. start Neo4j and Tomcat by calling start-tomcat target of build.xml script
-From command line: `ant start-tomcat -f RNSService/build.xml`
-
-2. deploy web service by calling redeploy target of build.xml script
-From command line: `ant redeploy -f RNSService/build.xml`.
+To setup the server it is necessary to follow these steps:
+1. start Neo4j and Tomcat by calling start-tomcat target of build.xml script  
+From command line: `ant start-tomcat -f RNSService/build.xml`  
+2. deploy web service by calling redeploy target of build.xml script  
+From command line: `ant redeploy -f RNSService/build.xml`.  
 This step is necessary only the first time.
 
 ### Client
@@ -62,16 +59,15 @@ Follow these steps to configure z3:
 1. download the prebuilt version of the library from the offical GitHub repository https://github.com/Z3Prover/z3/releases (checking your SO and architecture)
 2. once extracted the files, rename the directory to `z3` and put it in the /opt folder.
 3. redefine the environment variable LD_LIBRARY_PATH in the file /etc/environment or in ~/.bashrc with the following command:
-`export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/z3/bin"`
-To be sure that this step worked, one way is to check the environment variables in tomcat.
-This snippet of code will print them:
+`export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/z3/bin"`  
+To be sure that this step worked, one way is to check the environment variables in tomcat. This snippet of code will print them:  
 
-Map<String, String> envMap = System.getenv();
-SortedMap<String, String> sortedEnvMap = new TreeMap<String, String>(envMap);
-Set<String> keySet = sortedEnvMap.keySet();
-for (String key : keySet) {
-	String value = envMap.get(key);
-	System.out.println("[" + key + "] " + value);
-}
+    Map<String, String> envMap = System.getenv();  
+    SortedMap<String, String> sortedEnvMap = new TreeMap<String, String>(envMap);  
+    Set<String> keySet = sortedEnvMap.keySet();  
+    for (String key : keySet) {  
+          String value = envMap.get(key);  
+          System.out.println("[" + key + "] " + value);  
+    }
 
 If the correctLD_LIBRARY_PATH is not set, another way is to put the .so files contained in the z3 zip inside a folder listed in LD_LIBRARY_PATH

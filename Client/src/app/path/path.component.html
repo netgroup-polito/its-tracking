@@ -73,6 +73,13 @@
             </div>
           </div>
 
+          <div class="search-toggle">
+            <mat-slide-toggle
+                (change)="interactive = $event.source.checked"
+                [checked]="interactive">
+              Interactive Mode
+            </mat-slide-toggle>
+          </div>
           <div class="search-buttons">
             <div class="button-container">
               <button mat-fab color="primary"

@@ -31,6 +31,7 @@ export class PathComponent implements OnInit {
   dangerousMaterialsDependencies;
   vehicle: Vehicle;
   currentPosition: Place;
+  interactive: boolean;
   tooltipOptions = {
     'placement': 'bottom',
     'show-delay': 50,
@@ -43,6 +44,7 @@ export class PathComponent implements OnInit {
               private router: Router) { }
 
   ngOnInit() {
+    this.interactive = true;
     const vId = localStorage.getItem('vehicleId');
     if (vId !== null) {
       this.vehicleId.setValue(vId);
@@ -143,7 +145,11 @@ export class PathComponent implements OnInit {
         data => {
           localStorage.setItem('vehicleId', this.vehicleId.value);
           this.pathService.path = data;
-          this.router.navigate(['/route']);
+          if (this.interactive) {
+            this.router.navigate(['/interactiveroute']);
+          } else {
+            this.router.navigate(['/route']);
+          }
         },
         err => {
           this.openSnackBar(err.error, 'OK');

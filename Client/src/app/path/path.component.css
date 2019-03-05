@@ -49,6 +49,10 @@ mat-card-title {
   text-align: center;
 }
 
+.search-toggle {
+  text-align: center;
+}
+
 mat-expansion-panel.selected {
   background-color: lavender;
 }

@@ -1,0 +1,72 @@
+li {
+    margin: 10px 10px 15px;
+    list-style: none;
+  }
+  
+  mat-form-field {
+    margin: 0 5px;
+  }
+  
+  mat-list-item {
+    margin: 8px auto;  
+  }
+  
+  mat-card-title {
+    text-align: center;
+  }
+  
+  mat-nav-list {
+    display: block;
+  }
+
+  p, h5, h4 {
+    text-align: center;
+    width: 100%;
+    margin: 16px auto 8px;
+ }
+
+  .visited mat-expansion-panel {
+    background-color: lavender;
+  }
+  
+  .current mat-expansion-panel {
+    background-color: #FFC200;
+  }
+  
+  .button-container, mat-nav-list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  button.tooltip::before {
+    content: attr(data-tip) ;   
+    font-size: 10px;
+    position:absolute;
+    z-index: 999;
+    white-space:nowrap;
+    bottom:9999px;
+    left: 50%;
+    background:#000;
+    color:#e0e0e0;
+    padding:0px 7px;
+    line-height: 24px;
+    height: 24px;
+    opacity: 0;  
+    transition:opacity 0.4s ease-out; 
+  }
+     
+  a.tooltip:hover::before {
+    opacity: 1;
+    bottom:-35px;
+  }
+  
+  .button-container button {
+    margin: 2px;
+  }
+
+  @media screen and (max-width: 991px) {
+    mat-nav-list {
+      flex-wrap: wrap;
+    }
+  }

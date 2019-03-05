@@ -132,7 +132,7 @@ public class StatementBuilder {
 	 * @return a string corresponding to the desired query
 	 */
 	public String getStatementByTypeAndConnection(String type) {
-		String query = "MATCH (n: " + type + ")-[:isConnectedTo*1]->(connected) RETURN properties(n), id(connected)";
+		String query = "MATCH (n: " + type + ")<-[:isConnectedTo*1]->(connected) RETURN properties(n), id(connected)";
 		return query;
 	}
 	

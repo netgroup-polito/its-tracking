@@ -13,10 +13,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TooltipModule } from 'ng2-tooltip-directive';
 import { AdminComponent } from './admin/admin.component';
+import { InteractiveRoutesComponent } from './interactive-routes/interactive-routes.component';
 
 const appRoutes: Routes = [
   { path: 'home', component: PathComponent },
   { path: 'route', component: RoutesComponent },
+  { path: 'interactiveroute', component: InteractiveRoutesComponent },
   { path: 'admin', component: AdminComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', component: PathComponent }
@@ -27,7 +29,8 @@ const appRoutes: Routes = [
     AppComponent,
     RoutesComponent,
     PathComponent,
-    AdminComponent
+    AdminComponent,
+    InteractiveRoutesComponent
   ],
   imports: [
     BrowserModule,

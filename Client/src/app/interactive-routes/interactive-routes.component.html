@@ -1,6 +1,6 @@
 <mat-card>
   <mat-card-title>
-      Your Assigned Path
+    Your Assigned Path
   </mat-card-title>
   <div>
     <mat-accordion *ngIf="path !== undefined">
@@ -25,12 +25,26 @@
     </mat-accordion>
   </div>
 
+  <div>
+    <h4>Connected places</h4>
+    <mat-nav-list *ngIf="path !== undefined">
+      <mat-list-item 
+      *ngFor="let id of path.place[index].connectedPlaceId">
+        <button mat-raised-button
+            [color]="color(id)"
+            (click)='visitPlace(id)'>
+            Go to: {{ id }}
+        </button>
+      </mat-list-item>
+    </mat-nav-list>
+  </div>
+  
   <div class="button-container">
-    <!-- <button mat-fab color="basic"
+    <button *ngIf="this.parked" mat-fab color="basic"
             tooltip="Homepage" [options]="tooltipOptions"
             (click)='goHome()'>
       <mat-icon>home</mat-icon>
-    </button> -->
+    </button>
     <button mat-fab color="primary"
             *ngIf="!this.parked"
             tooltip="Park here" [options]="tooltipOptions"

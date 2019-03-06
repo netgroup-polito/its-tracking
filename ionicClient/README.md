@@ -8,6 +8,6 @@ The script `client_setup.sh` contains all the following commands along with thos
 Run it as superuser.
 
 These are the steps to install and run the Ionic Client (Node.js already installed):
-1. `sudo npm install -g ionic
+1. `sudo npm install -g ionic`
 2. `sudo npm install`
 3. `ionic lab`

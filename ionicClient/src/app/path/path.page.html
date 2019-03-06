@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Search Path</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-card>
+    <ion-card-title>
+      Search Path
+    </ion-card-title>
+
+    <ion-select [(ngModel)]="sourceId" placeholder="Select source">
+      <ion-select-option *ngFor="let gate of gatesIN" [value]="gate.id">
+        {{gate.name}}
+      </ion-select-option>
+      <ion-select-option *ngFor="let parking of parkings" [value]="parking.id">
+        {{parking.name}}
+      </ion-select-option>
+    </ion-select>
+    <ion-select [(ngModel)]="destinationId" placeholder="Select destination">
+      <ion-select-option *ngFor="let gate of gatesOUT" [value]="gate.id">
+        {{gate.name}}
+      </ion-select-option>
+      <ion-select-option *ngFor="let parking of parkings" [value]="parking.id">
+        {{parking.name}}
+      </ion-select-option>
+    </ion-select>
+    <ion-input placeholder="Enter your Vehicle Id"
+            [(ngModel)]="vehicleId"
+            required></ion-input>
+    <ion-select [(ngModel)]="typeId" placeholder="Select vehicle type" *ngIf="types !== undefined">
+      <ion-select-option *ngFor="let type of types.type" [value]="type">
+        {{type}}
+      </ion-select-option>
+    </ion-select>
+
+    <ion-select placeholder="Select dangerous material"
+      (ionChange)="checkMaterials(material)" *ngIf="materials !== undefined" [(ngModel)]="selectedMaterials">
+      <ion-select-option *ngFor="let material of materials.dangerousMaterial"
+          [value]="material">
+        {{material}}
+      </ion-select-option>
+    </ion-select>
+
+    <div class="button-container">
+      <ion-button (click)='searchPath()'>Search</ion-button>
+      <ion-button color="warning" (click)='reset()'>Reset</ion-button>
+      <ion-button *ngIf="this.currentPosition !== undefined"
+              color="danger" (click)='exitSystem()'>
+              Exit
+      </ion-button>
+    </div>
+  </ion-card>
+</ion-content>

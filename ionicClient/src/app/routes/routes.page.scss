@@ -1,0 +1,47 @@
+li {
+    margin: 10px 10px 15px;
+    list-style: none;
+  }
+  
+
+  p, h5, h4, ion-card-title {
+    text-align: center;
+    width: 100%;
+    margin: 16px auto 8px;
+ }
+
+  .visited {
+    background-color: lavender;
+  }
+
+  .icon-visited {
+      color: green;
+  }
+  
+  .current {
+    background-color: #FFC200;
+  }
+  
+  .button-container, .directions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  ion-item {
+    --padding-end: 16px;
+  }
+
+  .item-inner {
+    padding: auto;
+  }
+
+  .button-container button {
+    margin: 2px;
+  }
+
+  @media screen and (max-width: 991px) {
+    .directions {
+      flex-wrap: wrap;
+    }
+  }

@@ -1,0 +1,63 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Show Route</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+
+  <ion-card>
+    <ion-card-title>
+      Your Assigned Path
+    </ion-card-title>
+    <div>
+      <ion-item-group *ngIf="path !== undefined">
+        <ion-item *ngFor="let place of path.place" 
+          [ngClass]="{'visited' : place.visited == 1, 'current' : place.visited == 0 }">
+          <ion-icon class="icon-visited" *ngIf="place.visited == 1" name="checkmark"></ion-icon>
+          <p>{{place.name}}
+            <span *ngIf="place.visited == 1"> - Visited</span>
+            <span *ngIf="place.visited == 0"> - You are here</span>
+          </p>
+        </ion-item>
+      </ion-item-group>
+    </div>
+  
+    <div>
+      <h4>Connected places</h4>
+      <ion-item-group class="directions" *ngIf="path !== undefined">
+        <ion-item 
+        *ngFor="let id of path.place[index].connectedPlaceId">
+          <ion-button ion-raised-button
+              [color]="color(id)"
+              (click)='visitPlace(id)'>
+              Go to: {{ id }}
+          </ion-button>
+        </ion-item>
+      </ion-item-group>
+    </div>
+    
+    <div class="button-container">
+      <ion-button *ngIf="this.parked" color="secondary"
+              (click)='goHome()'>
+              Home
+      </ion-button>
+      <ion-button color="primary"
+              *ngIf="!this.parked"
+              class="fab-button done"
+              (click)='park()'>
+        Park Here
+      </ion-button>
+      <ion-button *ngIf="this.parked" color="primary"
+              class="fab-button done"
+              (click)='this.parked = false'>
+        Restart
+      </ion-button>
+      <ion-button
+              color="danger" (click)='exitSystem()'>
+              Exit
+      </ion-button>
+    </div>
+  </ion-card>
+  
+</ion-content>

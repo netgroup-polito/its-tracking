@@ -1,0 +1,30 @@
+.selected {
+    background-color: lavender;
+}
+
+ion-item {
+    text-align: center;
+}
+
+ion-card-title {
+    text-align: center;
+    margin: 2%;
+}
+
+ion-card ion-input {
+    padding-top: 10px !important;
+    padding-right: 0 !important;
+    padding-bottom: 11px !important;
+    padding-left: 8px !important;
+}
+
+ion-card ion-input.sc-ion-input-ios-s {
+    padding-left: 16px !important;
+}
+
+.button-container {
+    margin: 16px auto;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
